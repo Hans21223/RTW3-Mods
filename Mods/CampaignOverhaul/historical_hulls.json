@@ -1,0 +1,66 @@
+{
+  "researched_on": "2026-10-20",
+  "purpose": "Displacement/class-gate benchmarks, not ready-made designs or guarantees of complete historical replicas.",
+  "units_note": "Retain each source's load basis. Do not treat normal, standard and full-load values as interchangeable. DANFS records below do not explicitly state their load basis. These rounded source tonnages are reference points, not a universal conversion between metric and long tons.",
+  "benchmarks": [
+    {
+      "name": "USS Worcester CL-144",
+      "status": "built",
+      "class": "CL",
+      "source_tons": 14700,
+      "load_basis": "not stated in DANFS entry",
+      "game_test_tons": 14700,
+      "source": "https://www.history.navy.mil/research/histories/ship-histories/danfs/w/worcester-ii.html"
+    },
+    {
+      "name": "USS Des Moines CA-134",
+      "status": "built",
+      "class": "CA",
+      "source_tons": 17000,
+      "load_basis": "not stated in DANFS entry",
+      "game_test_tons": 17000,
+      "source": "https://www.history.navy.mil/content/history/nhhc/research/histories/ship-histories/danfs/d/des-moines-ii.html"
+    },
+    {
+      "name": "USS Saipan CVL-48",
+      "status": "built",
+      "class": "CVL",
+      "source_tons": 14500,
+      "load_basis": "not stated in DANFS entry",
+      "aircraft_source": "50+",
+      "game_test_tons": 14500,
+      "game_test_aircraft": 50,
+      "source": "https://www.history.navy.mil/research/histories/ship-histories/danfs/s/saipan-i.html"
+    },
+    {
+      "name": "Montana BB-67 class",
+      "status": "unbuilt; construction cancelled in 1943",
+      "class": "BB",
+      "source_tons": 60500,
+      "load_basis": "standard",
+      "full_load_reference_tons": 70965,
+      "game_test_tons": 60500,
+      "source": "https://www.history.navy.mil/our-collections/photography/us-navy-ships/battleships/montana-class-bb-67-71.html"
+    },
+    {
+      "name": "Tillman maximum battleship design #4, S-584-110",
+      "status": "unbuilt design study, 29 December 1916",
+      "class": "BB",
+      "source_tons": 80000,
+      "load_basis": "normal, not standard",
+      "game_test_tons": 80000,
+      "source": "https://www.shipscribe.com/styles/S-584/images/s-file/s584110c.htm",
+      "source_note": "Original US Navy Bureau of Construction and Repair drawing and Naval Historical Center description, hosted by ShipScribe. This is the 24-gun study, not the different 70000-ton S-584-107 design."
+    },
+    {
+      "name": "United States CVA-58 final 1948 design",
+      "status": "uncompleted; cancelled in 1949",
+      "class": "CV",
+      "source_tons": 65000,
+      "load_basis": "standard",
+      "game_test_tons": 65000,
+      "source": "https://history.defense.gov/Portals/70/Documents/acquisition_pub/OSDHO-Acquisition-Series-Vol1.pdf",
+      "source_page": "printed page 354"
+    }
+  ]
+}

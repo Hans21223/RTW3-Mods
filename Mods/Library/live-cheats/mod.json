@@ -1,0 +1,13 @@
+{
+  "schema": 1,
+  "id": "live-cheats",
+  "name": "Live Cheats - In-game F10 Menu",
+  "version": "0.5.1",
+  "description": "F10 live cheats, research progress, Research ALL, fast aircraft requests, Fast build ALL and Fast refit ALL. Daytime now covers map shading and aircraft launch/return forecasts; restart RTW3 through Play with mods to load the fix. Daytime and clear-weather/calm-seas switches use Apply. The battle clock keeps running. Clear weather retains separate native day/night/twilight visibility, pauses weather changes and restores captured conditions when disabled or the battle closes. Both sides share the forced conditions. Battle-map reveal preserves native spotting and AI knowledge. Quick-action buttons apply only their own action and preserve pending edits. Other edits use Apply. Shows the non-sunk player fleet and named yard jobs. Paid counterintelligence requires Campaign Security. Guarded edits commit on the native UI thread. Actual battle validation remains outstanding. See Mods/Manager/CHEATS.md.",
+  "kind": "runtime",
+  "experimental": true,
+  "requires": [],
+  "conflicts": [],
+  "files": [],
+  "runtime": {"adapter": "live-cheats"}
+}

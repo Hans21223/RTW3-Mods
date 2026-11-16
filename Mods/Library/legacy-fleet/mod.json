@@ -1,0 +1,15 @@
+{
+  "schema": 1,
+  "id": "legacy-fleet",
+  "name": "Manual Legacy Fleet - All Start Years",
+  "version": "0.1.1",
+  "description": "Shows Manual build of legacy fleet for every native start year: 1890, 1900, 1920 and 1935. Uses the selected start year minus one for initial fleet design instead of forcing 1899. Manual construction remains optional; its native prestige and starting-fleet funding penalties remain. Changes apply to new campaigns only. Use a test slot; full new-campaign gameplay validation is outstanding. In a 1920 start the checkbox sits below the arms-limitation treaty list instead of on top of its title.",
+  "kind": "runtime",
+  "experimental": true,
+  "requires": [],
+  "conflicts": [],
+  "files": [],
+  "runtime": {
+    "adapter": "legacy-fleet"
+  }
+}

@@ -1,0 +1,32 @@
+{
+  "schema": 1,
+  "id": "big-guns",
+  "name": "Big Guns - Calibres to 40 inches",
+  "version": "1.1.0",
+  "description": "Main guns from 21 to 40 inches as native calibres. Research develops them in order after 20 inches, 21 inches no earlier than 1943 and three years later per inch (40 inches in 2000), scaled by the campaign's research speed; Research ALL in Live Cheats maximizes 2-40 inches. Gun quality improves for 21-40 inches too (one improvement in four goes to a developed big gun), and spies can steal 2-40 inch gun quality where espionage theft is on. The AI researches, buys and designs with them: it keeps upsizing a battleship's main guns past 16 inches only while its monthly balance is positive and it holds two months of budget in cash, within the native spare-tonnage, development and treaty limits. Ship type rules count a main gun above 20 inches as (calibre/20)^3 guns (shell weight), so two 39-inch guns make a battleship where native rules want 3 turrets or 8 guns. The designer's main calibre box goes to 40, with gun and turret weight, cost and shell weight from Data/OrdnanceTable40.dat, and crew, overgunned and wing-position minimums and the low-ammunition note growing past 20 inches. In battle, shells above 20 inches use the penetration, rate-of-fire and range rows 21-40 of Gundata.dat, VerPen.dat and HorPen.dat; missiles and bombs keep their native rules. Saves store the new gun levels (Guns21-Guns40); older saves load them as not developed. Load campaigns only after starting through Play with mods. Experimental; see Mods/Manager/BIG_GUNS.md.",
+  "kind": "runtime",
+  "experimental": true,
+  "requires": [],
+  "conflicts": [],
+  "files": [
+    {
+      "source": "Files/Data/Gundata.dat",
+      "target": "Data/Gundata.dat"
+    },
+    {
+      "source": "Files/Data/VerPen.dat",
+      "target": "Data/VerPen.dat"
+    },
+    {
+      "source": "Files/Data/HorPen.dat",
+      "target": "Data/HorPen.dat"
+    },
+    {
+      "source": "Files/Data/OrdnanceTable40.dat",
+      "target": "Data/OrdnanceTable40.dat"
+    }
+  ],
+  "runtime": {
+    "adapter": "big-guns"
+  }
+}

@@ -1,0 +1,16 @@
+{
+  "schema": 1,
+  "id": "large-hulls",
+  "name": "Historical and Paper Hulls - 200,000t",
+  "version": "0.6.0",
+  "description": "Expands class checks: DD 16,000t, CL 25,000t, CA 35,000t (selected CAs keep their type with guns up to 12 in and belt up to 10 in), KE 8,000t, CVL 45,000t, CV 150,000t, overall 200,000t. CVLs can carry 80 aircraft. Every type may mount centreline and superimposed guns and double, triple or quadruple turrets (hybrid carriers, KE frigates), and DP triple/quad mounts need only the twin DP research. Design-report rules that only forbid a combination for a ship type or size (carrier aircraft and speed minimums, armoured DDs, DP main guns on DD/KE/AMC, ASW gear and mines by type, secondary and tertiary totals, turret, armour and balance combinations, catapult counts by type, colonial and long-range limits, unused displacement and more) no longer make a design illegal. DD centreline torpedo mounts follow the configured DD size limit; other classes retain 7,000t and existing torpedo research gates remain. Fixes both DD fuel initializers, including the separate range/technology routine that inflated large-DD tanks by 1,000 and overflowed remaining fuel. Repairs loaded zero/zero or matching inflated-capacity DD records once. Normal depleted tanks, damage, speed orders and consumption remain. Fixes the visual-size drop at 101,000t and extends larger hull sizes. In the designer, added visuals draw above superstructure layers, funnels and torpedo mounts, with missile mounts and guns above the visuals. For older drawings, Graphics > right-click Equipment list > Reset hull outline (keep fitted weapons) rebuilds the class-default outline at the current tonnage; custom hull outlines are replaced. Docks, treaties, technology, overweight, top-heavy, class definitions and component weights remain. Machinery above 90,000t and visual size above 100,900t use estimates. Restart through Play with mods. See Mods/Manager/HISTORICAL_HULLS.md. KE may carry torpedoes from 1950. Graphics > right-click Equipment list > Auto superstructure (AI template) draws all 6 superstructure layers and the funnels from the game's own AI template of the same type nearest in year and size, scaled to the hull; hull outline, guns and equipment stay (not for carriers). Casemate guns draw under superstructure layer 1 in the designer.",
+  "kind": "runtime",
+  "experimental": true,
+  "requires": [],
+  "conflicts": [],
+  "files": [],
+  "runtime": {
+    "adapter": "large-hulls",
+    "max_tons": 200000
+  }
+}

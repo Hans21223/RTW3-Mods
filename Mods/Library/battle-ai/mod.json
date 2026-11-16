@@ -1,0 +1,34 @@
+{
+  "schema": 1,
+  "id": "battle-ai",
+  "name": "AI - Battle AI, Fair Rules and Torpedo Tactics",
+  "version": "0.7.0",
+  "description": "One AI package (merged from Battle AI, Fair AI, More Decisive Torpedo AI and Detection-only Torpedo Evasion). Battle AI - Missile Range and Formation: Corrects the missile regression: restores native automatic firing, researched SAM surface attacks and native launch timing. The 0.5.0 custom firing selector, identification locks and salvo throttles are no longer installed. Automatic missiles use current contacts rather than a global hidden-ship search. Missile range discipline now changes actual course orders, including screen-role DDs: open distance when too close and turn across the enemy in the missile engagement band. Physical gun maximum no longer cancels missile range control. Native launcher arcs, minimum range, ammunition, terrain and emergency avoidance remain. Retains previous formation, steering, contact memory, air operations and sunk-target guards. Both sides use the same rules. Restart through Play with mods. Existing zero-fuel battle ships are not rewritten; battle gameplay still needs verification. See Mods/Manager/BATTLE_AI.md. Carriers with flight deck catapults launch strikes by catapult without turning into the wind, as their CAP and search flights already do, and nearby enemies no longer delay their launches; recovery still turns into the wind. Set catapult_strikes to 0 for the native turn. Fair AI - No Optional Advantage or Emergency Grant: Disables all six audited game-decision reads of the native AI advantage option, even in an existing campaign with that setting enabled. Also removes the AI budget routine's emergency 2,000-fund grant. Preserves normal nation-specific budgets, research, officers, training and difficulty controls. This is a limited, explicit fairness pass, not proof that every AI asymmetry is eliminated. No save files or saved option values are edited. Experimental; restart through Play with mods before loading a test campaign. See Mods/Manager/AI_RULES.md. More Decisive Torpedo AI - Both Sides: Experimental, focused tactical AI change: increases the chance of assessing an eligible torpedo opportunity on both sides. Preserves the original firing solution, sighting, firing arcs, range, ammunition and friendly-fire checks. Does not improve accuracy, damage or reload speed, and does not force suicidal flotilla attacks. Not a strategic AI rewrite. Battle effectiveness is not yet verified. Restart through Play with mods before loading a test campaign. See Mods/Manager/AI_RULES.md. Detection-only Torpedo Evasion - Experimental: Disables six predictive AI torpedo-turnaway decisions and stops followers copying those turns. Applies equally to automatically controlled divisions on both sides. Leaves native close-range/last-minute torpedo evasion, weapon hits, spotting, ordinary navigation and mine detection intact. This removes preventative tactics based on threatening ships; it is not proof the original AI could read torpedoes in the water and does not add a new wake-spotting simulation. Three tactical mine-routing calls were checked to use a ship-specific layer query; mine rules are unchanged and a full mine-information audit is incomplete. Restart through Play with mods and begin a NEW battle; do not resume a saved battle already using the old avoidance stance. Battle gameplay is not yet verified. See Mods/Manager/HAZARD_FOG.md. Computer-controlled missile ships with empty launchers and no main gun over 5 inches disengage.",
+  "kind": "runtime",
+  "experimental": true,
+  "requires": [],
+  "conflicts": [],
+  "files": [],
+  "runtime": [
+    {
+      "adapter": "battle-ai",
+      "contact_memory_minutes": 20,
+      "memory_radius_yards": 45000,
+      "capital_max_advance_yards": 6000,
+      "capital_gun_range_percent": 75,
+      "stance_commit_minutes": 10,
+      "withdraw_dead_zone": 10,
+      "missile_standoff_percent": 75,
+      "catapult_strikes": 1
+    },
+    {
+      "adapter": "fair-ai"
+    },
+    {
+      "adapter": "torpedo-initiative"
+    },
+    {
+      "adapter": "detection-only-evasion"
+    }
+  ]
+}

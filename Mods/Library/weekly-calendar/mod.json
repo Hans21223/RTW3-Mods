@@ -1,0 +1,22 @@
+{
+  "schema": 1,
+  "id": "weekly-calendar",
+  "name": "Seven-Day Calendar and Week Display (Experimental)",
+  "version": "0.2.0",
+  "author": "Local campaign mod",
+  "description": "One package (merged from Seven-Day Calendar and Week Beside Month). Each campaign turn advances the date seven days, and the campaign date shows the week beside the month, for example Japan, Feb 1890 Week 2 (days 1-7 are Week 1, 8-14 Week 2, 29-31 Week 5). Uses a session-only runtime hook. Construction, funds, research, AI and timers keep their original per-turn behavior: this is NOT a balanced weekly simulation. Use a separate test campaign.",
+  "kind": "runtime",
+  "experimental": true,
+  "requires": [],
+  "conflicts": [],
+  "files": [],
+  "runtime": [
+    {
+      "adapter": "calendar-days",
+      "days": 7
+    },
+    {
+      "adapter": "week-display"
+    }
+  ]
+}

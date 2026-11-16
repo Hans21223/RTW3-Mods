@@ -1,0 +1,13 @@
+{
+  "schema": 1,
+  "id": "campaign-security",
+  "name": "Campaign Security - Counterintelligence and Closed Yards",
+  "version": "0.1.0",
+  "description": "Adds a paid 0-10% counterintelligence allocation in F10 Live Cheats (starts at 0 each launch). Each percentage point intercepts 8% of otherwise successful spy operations against the player, to 80%. The extra cost is included in native Intelligence spending once per campaign turn, including weekly mode. Blocks new AI orders at player yards while preserving existing orders and AI use of other nations' yards. Removes espionage theft of gun quality, technology unlocks and research progress for all nations; normal research, purchases and foreign-built-ship learning remain. Session-only experimental adapter: restart through Play with mods before loading a campaign. See Mods/Manager/CAMPAIGN_SECURITY.md.",
+  "kind": "runtime",
+  "experimental": true,
+  "requires": ["live-cheats"],
+  "conflicts": [],
+  "files": [],
+  "runtime": {"adapter": "campaign-security"}
+}

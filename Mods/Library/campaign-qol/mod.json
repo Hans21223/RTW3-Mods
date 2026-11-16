@@ -1,0 +1,28 @@
+{
+  "schema": 1,
+  "id": "campaign-qol",
+  "name": "Campaign QoL - Automatic Prompts and Bounded AI Shipbuilding",
+  "version": "0.11.0",
+  "description": "Automatically keeps the current final air-strike target (the specific adjustment confirmation answers No) and accepts the game's generated fallback names when AI ship/class name suggestions run out. Does not auto-answer other dialogs. Normal AI procurement is evaluated no more than once per 28 campaign days, with new orders blocked at 400 non-sunk ships, 24 active construction/rebuild projects, or negative funds. Player orders, initial fleet routines, existing construction and other AI rules are preserved. No ships are deleted. These conservative defaults are configurable in this manifest; long-campaign balance remains unverified. Restart through Play with mods to install. See Mods/Manager/RESEARCH_AND_QOL.md. Designer: the mouse wheel steps the box under the pointer (number boxes, armour lists, arrow buttons), ten steps with Shift, with the game's own limits and recalculation; focus does not matter. Invasions: any possession can be invaded except a nation's main home region (United Kingdom, Germany, Western France, Eastern USA and so on); home areas no longer need a blockade. Set invade_possessions to 0 for the native rules. Designer: middle-drag pans the ship picture. The invasion range check follows the same main home region rule for the player. Colonising: neutral possessions can be set as invasion targets and become yours on landing; big non-homeland targets are no longer dropped each turn. New neutral possessions on South America's Pacific coast (no possessions there natively): Chile (Valparaiso, Talcahuano) and Peru (Callao), for colonising or basing; existing saves get them too. More ports in South Asia, the Middle East and Southeast Asia (Calcutta, Cochin, Karachi, Bushehr, Canakkale, Brunei, Saigon and others) in unused base slots. The invasion rule protects a main home region only while it is a home area (value 200), so the 2000 superstates have one protected area each. The Black Sea is its own seventeenth sea area, next to the Mediterranean: Southern Russia (the Crimea), Odessa, Kuban, Georgia, Donbass, Rostov, Romania, Bulgaria and Northern Anatolia (Sinop to Constantinople). Regions from the community Ottoman mod: Macedonia, Cilicia, Crete, Kuwait, Al-Ahsa, the Trucial States, Oman, Somalia, Somaliland, Sudan, the Egyptian Red Sea Coast, the ABC Islands and the Netherlands; a port they take leaves its old possession. More regions: Syria (Latakia, Beirut), Palestine (Haifa), Iraq (Fao), Arabia (Jeddah, Yanbu, Al-Qunfudhah), Pakistan (Karachi, Ormara), East Bengal (Chittagong), the Andaman Islands (Port Blair) and the Maldives (Gan); India's sixth port is Goa. Docks can be built up to 200,000 tons (native limit 90,000).",
+  "kind": "runtime",
+  "experimental": true,
+  "requires": [],
+  "conflicts": [],
+  "files": [
+    {
+      "source": "Files/Data/MapData.dat",
+      "target": "Data/MapData.dat"
+    },
+    {
+      "source": "Files/Data/MapData1920.dat",
+      "target": "Data/MapData1920.dat"
+    }
+  ],
+  "runtime": {
+    "adapter": "campaign-qol",
+    "max_active_ships": 400,
+    "max_building_ships": 24,
+    "min_procurement_days": 28,
+    "invade_possessions": 1
+  }
+}

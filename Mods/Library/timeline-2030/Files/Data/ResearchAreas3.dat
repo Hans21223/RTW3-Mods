@@ -1,0 +1,758 @@
+[Machinery development 0]
+PicName=Boiler.jpg
+Y-S-T engine;1891;Y;100;6;30;1% weight savings on machinery
+Water tube boilers;1894;Y;100;6;31;Lighter machinery for destroyers
+Three drum boiler;1898;Y;100;7;32;1% weight savings on machinery
+Improved surface condenser;1900;N;100;6;1;1% weight saving on machinery
+Cockburn safety valve;1901;Y;100;4;2;1% weight saving on machinery
+Side drums;1902;Y;100;6;3;1% weight saving on machinery
+Preheater;1903;N;100;6;4;1% weight saving on machinery
+Steam Turbines;1904;Y;100;8;5;Considerable weight savings on machinery
+Small tube boilers I;1905;N;80;8;6;2% weight saving on machinery
+Oil firing;1905;Y;80;8;7;Enables oil firing if access to oil
+Economizer;1906;Y;100;4;8;1% weight saving on machinery
+Michell thrust block;1906;Y;100;4;29;Reduces the risk of bearings overheating on high speed
+Small tube boilers II;1908;N;70;8;9;2% weight saving on machinery
+Superheater;1912;N;100;10;10;1% weight saving on machinery
+Circulation augmenter;1914;N;100;10;11;1% weight saving on machinery
+Reduction gears;1916;N;80;10;12;Increases endurance
+Water wall furnace;1918;N;100;10;13;1% weight saving on machinery
+Advanced superheater;1920;N;80;10;14;1% weight saving on machinery
+Double reduction gears;1922;N;80;14;15;1% weight saving on machinery
+Forced circulation;1924;N;100;10;16;1% weight saving on machinery
+Large diesel engines;1925;N;50;10;18;Enables diesel engines
+Turbo electric drive;1926;N;100;12;17;1% weight saving on machinery
+Improved oil burners;1928;N;100;10;19;2% weight saving on machinery
+350 psi steam plant;1930;N;100;10;20;2% weight saving on machinery
+Lighter steam turbines;1933;Y;100;6;21;2% weight saving on machinery
+500 psi steam plant;1935;N;100;10;22;2% weight saving on machinery
+Variable pitch propellers;1937;N;90;10;23;Improves range for cruisers.
+Improved high pressure steam plants;1941;N;90;10;24;1% weight saving on machinery
+Supercharged diesels;1943;N;60;10;25;Reduces weight of diesel engines by 10%
+Lightweight engine component materials;1945;N;100;10;26;1% weight saving on machinery
+Forced lubrication;1947;N;100;10;27;1% weight saving on machinery
+Gas turbines;1960;Y;100;10;28;Enables gas turbine engines
+Naval nuclear propulsion;1961;N;70;20;40;Enables Nuclear propulsion: any range for less fuel weight than Short, never short of fuel or oil, machinery 60% heavier and 3x the cost, Native machinery research +1 (lower machinery weight);28
+Life-of-ship reactor cores;1995;N;70;24;41;Nuclear ships spare 125% of their horsepower as railgun power, Native machinery research +1 (lower machinery weight);40
+Third-generation naval reactors;2008;N;70;28;42;Nuclear ships spare 150% of their horsepower as railgun power, Native machinery research +1 (lower machinery weight);41
+Thorium molten-salt naval reactors [projected];2030;N;70;32;43;Nuclear machinery only 30% heavier (not 60%), nuclear ships spare 200% of their horsepower as railgun power, Native machinery research +1 (lower machinery weight);42
+[Armour development 1]
+PicName=ArmourMill.jpg
+Harvey armour;1892;Y;100;6;130;Considerable improvement of armour quality
+Improved armour cementing;1895;Y;90;7;131;Gradual improvement of armour quality
+Krupp armour;1898;Y;100;6;101;Considerable improvement of armour quality
+Face hardening;1902;N;100;6;102;Gradual improvement of armour quality
+Quality control;1904;N;100;8;103;Gradual improvement of armour quality and 1% weight saving
+Improved annealing;1906;N;100;8;104;Gradual improvement of armour quality
+Krupp Cementit;1908;Y;100;8;105;Gradual improvement of armour quality
+Quality control II;1910;N;90;10;106;Gradual improvement of armour quality and 1% weight saving
+Improved armour bracing;1912;Y;90;10;114;2% weight saving on armour
+Improved face hardening;1914;N;90;10;107;Gradual improvement of armour quality
+Improved homogenous armour;1916;N;100;14;108;Gradual improvement of armour quality
+Inclined belt;1916;Y;90;16;109;Enables inclined belt
+Improved armour testing methods;1920;N;80;14;110;Gradual improvement of armour quality and 1% weight saving
+Internal belt;1922;Y;80;14;111;Gradual improvement of armour quality
+Interlocked armor plates;1921;N;80;14;120;Gradual improvement of armour quality
+Integral armour;1923;N;80;14;126;2% weight saving on armour
+Decapping belt;1924;N;80;14;112;Gradual improvement of armour quality
+Advanced face hardening;1926;N;80;14;113;Gradual improvement of armour quality 
+Advanced alloying;1928;N;80;14;121;Gradual improvement of armour quality
+Microphotography for armour breakage studies;1930;N;80;14;125;Gradual improvement of armour quality
+Post-hardening tempering process;1932;N;80;14;119;Gradual improvement of armour quality
+X-Ray quality testing;1934;N;80;14;117;Gradual improvement of armour quality and 1% weight saving
+Reduced impurities;1935;N;80;14;122;Gradual improvement of armour quality
+Temper brittleness mastered;1937;N;80;14;118;Gradual improvement of armour quality
+Improved armour face toughness;1939;N;80;14;116;Gradual improvement of armour quality
+Micro alloy additions (vanadium, boron, copper);1941;N;80;14;123;Gradual improvement of armour quality
+Thermo mechanically treated armour materials;1944;N;80;14;124;Gradual improvement of armour quality
+Low Carbon STS;1954;N;80;14;127;Gradual improvement of armour quality
+Modern ballistic-steel quality control;1980;N;70;20;140;Native armour-quality research +1;127
+Improved structural armour metallurgy;1995;N;70;24;141;Native armour-quality research +1;140
+Advanced armour manufacturing control;2010;N;70;28;142;Native armour-quality research +1;141
+Optimized protective steel [projected];2030;N;70;32;143;Native armour-quality research +1;142
+[Hull construction 2]
+PicName=Hull.jpg
+Improved shipbuilding steel;1892;Y;100;7;231;1% weight saving on hull
+Better hull strength calculations;1895;Y;100;7;230;1% weight saving on hull
+Hydraulic riveting;1901;Y;100;6;201;1% weight saving on hull
+High tensile steel;1902;Y;100;6;202;1% weight saving on hull
+Basic weight control;1903;Y;100;8;203;1% weight saving on hull
+Testing tank for hull form;1904;N;80;6;227;Reduces engine HP requirements
+Improved rolled shipbuilding steel;1904;Y;100;6;226;1% weight saving on hull
+Longitudinal framing;1905;N;100;7;204;1% weight saving on hull
+Improved weight control;1908;Y;100;6;205;1% weight saving on hull
+Improved riveting techniques;1910;Y;100;6;206;1% weight saving on hull
+Better steel quality;1911;Y;100;8;207;1% weight saving on hull
+Improved longitudinal framing;1914;N;100;10;208;1% weight saving on hull
+Slender hull girders;1916;Y;100;12;209;1% weight saving on hull
+Improved design calculations;1918;Y;100;12;210;1% weight saving on hull
+Weight saving;1920;Y;100;12;211;1% weight saving on hull
+Partial welding;1922;N;100;12;212;1% weight saving on hull
+Hydrodynamic hull form;1922;N;80;12;216;Reduces engine HP requirements
+Lightweight fittings;1923;Y;100;12;215;1% weight saving on hull
+Ducol steel;1925;Y;100;20;225;2% weight saving on hull
+Welded hull;1930;Y;100;20;213;1% weight saving on hull
+Improved welding;1934;Y;100;22;217;2% weight saving on hull
+Lightweight materials;1938;Y;100;22;222;1% weight saving on hull
+Advanced welding;1942;Y;80;22;218;1% weight saving on hull
+High-strength alloyed steel;1944;N;80;15;224;1% weight saving on hull 
+Supercarriers;1950;Y;100;22;223;Considerable increase in maximum carrier size
+Aluminium superstructure;1955;Y;100;18;228;Enables use of aluminium superstructure.
+Modern fin stabilizers;1956;Y;100;22;229;Improves gun and missile accuracy for DD
+Computer-aided structural optimization;1980;N;70;20;240;Native hull research +1 (lower hull weight);229
+Precision modular hull construction;1995;N;70;24;241;Native hull research +1 (lower hull weight);240
+Digital structural weight management;2010;N;70;28;242;Native hull research +1 (lower hull weight);241
+Integrated lightweight hull design [projected];2030;N;70;32;243;Native hull research +1 (lower hull weight);242
+[Fire control 3]
+PicName=FireControl.jpg
+Telescopic sights;1892;Y;100;7;330;Gradual national accuracy improvement
+Range tables;1897;Y;100;7;331;Gradual national accuracy improvement
+Coincidence rangefinder;1898;Y;100;7;301;Enables central rangefinder FC on ships
+6 ft rangefinder;1902;Y;100;5;302;Gradual national accuracy improvement
+Central firing;1903;Y;100;6;303;Enables central firing as FC system on ships
+Range calculator;1903;N;90;6;304;Gradual national accuracy improvement
+Control tops;1904;Y;90;7;305;Gradual national accuracy improvement
+Automatic range transmitter;1905;N;90;5;306;Gradual national accuracy improvement
+9 ft rangfinder;1905;Y;100;5;307;Gradual national accuracy improvement
+Mechanical fire control computer;1905;N;90;6;308;Gradual national accuracy improvement
+Stereoscopic rangefinder;1906;N;40;5;309;Gradual national accuracy improvement
+Plotting table;1908;Y;90;6;310;Gradual national accuracy improvement
+Target designator;1911;N;90;8;311;Gradual national accuracy improvement
+12 ft rangefinder;1912;Y;90;8;313;Gradual national accuracy improvement
+Ladder shooting;1912;N;60;10;315;Gradual national accuracy improvement
+Director firing;1913;Y;80;8;312;Enables director firing in ships
+15 ft rangefinder;1914;Y;80;10;316;Gradual national accuracy improvement
+Secondary director;1915;N;80;10;317;Enables directors for secondary battery and for CL main battery
+Improved Director;1918;N;90;15;318;Enables improved director on ships
+Synthetic fire control computer;1922;N;90;14;319;Reduces penalty for own ship turning
+Secondary director for CL;1928;Y;80;22;327;Enables director for secondary battery on CL
+Advanced director;1930;Y;80;22;320;Enables advanced director on ships
+Improved optics quality;1933;Y;90;22;321;Gradual national accuracy improvement
+Gyro stabiliser;1935;N;80;10;314;Reduces gunnery penalty from sea state
+Electro optical director;1942;N;80;22;322;Enables electro optical director on ships
+Improved electro optical director;1946;N;80;22;323;Gradual national accuracy improvement
+Multi-channel fire control;1948;N;60;20;328;Reduces the HAA factor penalty for multiple calibres
+Early electronic gunnery computer;1948;N;80;20;324;Gradual national accuracy improvement
+Improved electronic gunnery computer;1954;N;80;20;325;Gradual national accuracy improvement
+Minaturized fire control;1956;N;80;20;326;enables electro-optical director for DD and KE
+Multi-domain directors;1959;N;80;20;329;Increases AA and surface accuracy of autoloaded DP guns below 6 inches
+Missile Fire Control System;1960;N;80;18;332;Improves hit rates of SSM and SAM
+Digital gun fire-control computation;1980;N;70;20;340;Native fire-control research +1 (accuracy progresses every two levels);332
+Integrated electro-optical gun tracking;1995;N;70;24;341;Native fire-control research +1 (accuracy progresses every two levels);340
+Multi-sensor gunnery track fusion;2010;N;70;28;342;Native fire-control research +1 (accuracy progresses every two levels);341
+Adaptive gunnery prediction [projected];2030;N;70;32;343;Native fire-control research +1 (accuracy progresses every two levels);342
+[Subdivision and damage control 4]
+PicName=Subdivision.jpg
+Improved watertight integrity;1893;Y;100;7;430;Gradual damage control improvement
+Counterflooding valves;1897;Y;100;8;432;Gradual damage control improvement
+Double bottom;1901;Y;100;6;401;Gradual damage control improvement
+Improved subdivision;1903;N;80;6;402;Gradual damage control improvement
+Torpedo protection I;1906;N;80;6;403;Enables Torpedo protection I on ships
+Damage control training;1908;N;80;8;404;Damage control improves and damage control training enabled
+Torpedo protection II;1909;N;50;8;405;Enables Torpedo protection II on ships
+Extended double bottom;1910;N;50;9;406;Gradual damage control improvement
+High capacity pumps;1912;N;50;9;407;Gradual damage control improvement
+Diesel generators;1914;N;50;10;408;Gradual damage control improvement
+Triple bottom;1916;N;50;12;409;Gradual damage control improvement
+Improved firefighting equipment;1917;N;50;10;410;Gradual damage control improvement
+Improved counterflooding equipment;1923;N;50;14;413;Gradual damage control improvement
+Non flammable materials;1924;N;50;14;414;Gradual damage control improvement
+Torpedo protection III;1925;N;50;12;411;Enables Torpedo protection III on ships
+Improved watertight hatches;1927;N;90;12;415;Gradual damage control improvement
+Improved damage control practices;1930;N;90;14;420;Gradual damage control improvement
+Increased fire hazard awareness;1935;N;90;14;421;Gradual damage control improvement
+Torpedo protection IV;1937;N;50;12;412;Enables Torpedo protection IV on ships
+Portable pumps;1939;N;90;14;422;Gradual damage control improvement
+Built in foam extinguisher systems;1940;N;90;14;423;Gradual damage control improvement
+Sprinkler system in hangars;1943;N;90;10;426;Improves firefighting in carriers
+Improved foam extinguisher system;1946;N;90;14;424;Improves firefighting in carriers
+Flight deck washdown system;1968;N;90;14;427;Improves firefighting in carriers
+Distributed fire and flooding detection;1980;N;70;20;440;Damage-control modifier +1 beyond the native research ceiling;427
+Integrated damage-control monitoring;1995;N;70;24;441;Damage-control modifier +1 beyond the native research ceiling;440
+Networked emergency response systems;2010;N;70;28;442;Damage-control modifier +1 beyond the native research ceiling;441
+Predictive damage-control support [projected];2030;N;70;32;443;Damage-control modifier +1 beyond the native research ceiling;442
+[Turrets and gun mountings 5]
+PicName=Turret.jpg
+Loading mechanization;1892;Y;100;6;530;Gradual national rate of fire (ROF) improvement
+Improved turret construction;1897;Y;100;6;531;ROF improvement for double turrets
+Improved propellant allows longer gun barrels;1897;Y;100;6;532;Allows development of 11 and 12 in -1 gun
+Hydraulic recoil;1900;Y;100;5;501;Gradual national ROF improvement
+Power rammers;1901;Y;100;5;502;Gradual national ROF improvement
+Pneumatic recuperator;1903;N;100;6;503;Gradual national ROF improvement
+Improved turret design;1904;N;90;6;522;1% Weight saving on turrets
+Mechanical shell handling;1905;Y;100;5;504;Gradual national ROF improvement
+Improved ammunition hoists;1906;N;100;5;505;Gradual national ROF improvement
+Triple turrets;1907;Y;80;8;506;Enables triple turrets
+Hydraulic rammers;1908;N;100;6;507;Gradual national ROF improvement
+Reliable power training and elevation;1914;N;60;7;508;Reduces ROF penalty for guns below 8 inches in turrets
+Quadruple turrets;1914;Y;30;10;510;Enables quadruple turrets
+Increased elevation;1916;Y;90;12;511;Enables increased elevation
+Dual purpose mounting;1917;Y;70;12;512;Enables 3 and 4 inch guns in single DP mounts
+Improved triple turrets;1918;Y;70;12;509;Eliminates ROF and reliability penalty for triple turrets
+Improved power training and elevation;1920;N;60;8;513;Eliminates ROF penalty for guns below 8 inches in turrets
+Improved double gun mounts;1921;Y;80;12;518;Enables double gun mounts on CL and tertiary guns in double mounts
+Weight savings in turret fittings;1925;N;90;12;515;1% Weight saving on turrets
+Increaseed loading mechanization;1930;N;90;12;516;Gradual national ROF improvement
+Electric elevation and training;1934;N;70;12;517;Gradual national ROF improvement
+Improved Quadruple turrets;1937;N;50;14;514;Eliminates ROF and reliability penalty for quadruple turrets
+Improved power rammers;1938;N;90;12;523;Gradual national ROF improvement
+6 in autoloader;1944;N;90;15;519;Enables autoloader for 6 in guns
+7 and 8 in autoloader;1945;N;90;15;520;Enables autoloader for 7 and 8 in guns
+Improved 3 in autoloader;1948;N;90;15;521;Increases effectiveness of 3 in AA guns
+Electronically stabilized gun mounts;1954;N;90;10;525;Reduces gunnery penalty for CL and DD
+Fully automatic 3 in gun;1958;Y;80;10;524;Increases ROF and AA effectiveness of 3 in guns
+Lightweight gun turrets;1968;Y;80;18;526;Lowers weight of gun turrets less than 6 inches.
+Electronic ammunition-handling control;1980;N;70;20;540;National gun ROF modifier +1;526
+Modern automatic naval gun mechanisms;1995;N;70;24;541;National gun ROF modifier +1;540
+Continuous ammunition-flow monitoring;2010;N;70;28;542;National gun ROF modifier +1;541
+Advanced conventional gun automation [projected];2030;N;70;32;543;National gun ROF modifier +1;542
+[Ship design 6]
+PicName=ShipConstruction.jpg
+Belt and sloping armour deck configuration;1891;Y;70;5;635;Enables sloping deck armour scheme
+Improved design calculations;1894;Y;70;8;631;1% weight saving on hull
+Heavy secondary battery;1900;Y;70;6;601;Enables secondary guns heavier than 8 inches
+Medium wing turrets;1901;Y;90;7;602;Enables secondary wing double turrets up to 10 inches calibre
+Main battery Wing turrets;1904;Y;80;8;604;Enables main battery wing turrets with calibre larger than 10 inches
+3 centreline turrets;1905;Y;60;10;603;Enables 3 centreline main turrets on ships
+Cross deck fire;1906;N;60;6;605;Enables cross deck fire for staggered wing turrets in ships with more than two main turrets
+Superimposed X turret;1906;Y;70;8;606;Enables superimposed X turret on battleships and battlecruisers
+4 centreline turrets;1907;Y;70;10;607;Enables 4 centreline main turrets on battleships and battlecruisers
+Light cruiser armour configuration;1906;Y;100;6;608;Enables light cruiser armour configuration
+Superimposed B turret;1906;Y;70;8;609;Enables superimposed B turret on ships
+5+ centreline turrets;1908;Y;70;10;611;Enables 5 or more centreline main turrets on ships
+Secondary turrets on BB;1909;Y;70;12;612; Enables secondary guns in turrets on BB
+AON armour;1912;N;60;15;613;Enables all or nothing armour layout.
+Efficient hull form;1915;N;80;12;615;Reduces engine HP requirements
+Unit machinery;1917;Y;100;7;630;Enables unit machinery
+Superimposed turrets on CA;1918;Y;100;7;614;Enables superimposed turrets on CA
+Advanced design calculations;1918;Y;90;15;616;1% weight saving on hull
+Magazine box protection;1922;N;90;4;629;Enables magazine box protection scheme
+More efficient hull form;1922;Y;80;12;626;Reduces engine HP requirements
+All forward main armament;1923;N;60;10;627;Enables armour weight savings from all forward main armament
+Triple turrets on CL;1925;Y;80;12;619;Enables triple turrets on CL 
+Advanced weight saving;1926;Y;90;12;620;1% weight saving on hull
+Bulbous bow;1930;Y;90;12;622;Reduces engine horsepower requirements
+Improved hull design;1932;Y;90;8;632;Allows triple turrets in all positions regardless of speed and TPS
+Lightweight materials;1934;Y;90;12;623;1% weight saving on hull
+Improved design methods;1938;Y;90;10;628;Reduces armour weight by 1%
+Improved bulbous bow;1940;Y;90;14;624;Reduces horsepower requirements
+Modern lightweight materials;1944;N;80;20;625;1% weight saving on hull
+Improved High Speed Drag Calculations;1954;Y;70;16;637;Reduces engine horsepower requirements
+Missile cruisers;1956;Y;100;8;638;Allows the building of missile equipped CL without armour
+Computer assisted design calculations;1958;Y;70;15;634;1% weight saving on hull
+Hull Silencing;1965;N;70;15;636;Improves ASW capabilities
+Missile corvettes;1969;Y;70;15;639;Enables design of corvettes with missiles and higher speed (these will be included in battles)
+Integrated sensor and weapon-system design;1990;N;70;20;640;SAM quality +1;639
+Distributed combat-system integration [projected];2030;N;70;24;641;SSM quality +1;640
+[AP Projectiles 7]
+PicName=ShellsAP.jpg
+Improved AP shot design;1892;Y;100;7;730;Gradual AP penetration improvement
+Smokeless powder;1893;Y;100;6;731;Improved accuracy and ROF
+Improved smokeless powder;1895;Y;100;8;726;Improved accuracy, ROF and penetration
+Hardened AP penetrator;1901;Y;80;6;701;Gradual AP penetration improvement
+Reliable bursting charges;1902;Y;80;5;702;Enhances damage from penetrating hits
+Capped AP projectiles;1904;N;50;6;703;Gradual AP penetration improvement
+Improved AP cap;1906;Y;60;8;704;Gradual AP penetration improvement
+Ballistic testing;1908;N;30;10;705;Gradual AP penetration improvement
+Improved AP penetrator alloys;1910;N;30;10;706;Gradual AP penetration improvement
+Stable explosive filler;1911;N;40;10;719;Enhances damage from penetrating hits
+Ballistic cap;1912;N;70;12;707;Gradual AP penetration improvement
+Improved shell quality control;1916;N;50;12;708;Gradual AP penetration improvement
+Heavy shells;1916;N;60;15;709;Improved deck penetration
+Improved ballistc cap;1918;N;100;14;710;Gradual AP penetration improvement
+Advanced penerator alloys;1922;N;100;14;711;Gradual AP penetration improvement
+Super heavy shells;1924;N;60;15;712;Gradual AP penetration improvement
+Increased muzzle velocity;1926;N;60;15;713;Gradual AP penetration improvement
+Decremental chilling technique;1931;N;70;15;720;Gradual AP penetration improvement
+Improved oblique penetration;1933;N;60;15;714;Improved AP penetration and reduces effect of inclined belt (see doctrine screen)
+Diving shells;1933;N;20;15;721;Enables use of diving shells (see doctrine screen)
+Shatter resistant shells;1935;N;70;12;717;Gradual AP penetration improvement
+Advanced AP cap design;1938;N;70;15;715;Gradual AP penetration improvement
+Super hardened penetrator;1940;N;70;15;716;Gradual AP penetration improvement
+Advanced penetrator alloys;1943;N;70;15;718;Gradual AP penetration improvement
+Improved shell streamlining;1946;Y;90;12;722;Gradual AP penetration improvement
+Improved AP CAP and penetrator alloys;1959;N;90;12;724;Gradual AP penetration improvement
+Base bleed shells;1960;N;40;22;723;10% range increase for all guns
+Modern penetrator manufacturing tolerances;1980;N;70;20;740;Native AP-penetration research +1;723
+Improved naval penetrator metallurgy;1995;N;70;24;741;Native AP-penetration research +1;740
+Computer-optimized AP projectile shaping;2010;N;70;28;742;Native AP-penetration research +1;741
+Advanced naval AP projectiles [projected];2030;N;70;32;743;Native AP-penetration research +1;742
+[Light forces and torpedo warfare 8]
+PicName=TorpedoWarfare.jpg
+Destroyers;1893;Y;100;8;834;Enables building of Destroyers, initially up to 300 tons displacement
+DD of up to 400 tons displacement;1899;Y;80;8;830;Enables building of DD up to 400 tons displacement
+DD of up to 500 tons displacement;1900;Y;80;4;831;Enables building of DD up to 500 tons displacement
+DD of up to 600 tons displacement;1904;Y;80;8;801;Enables building of DD up to 600 tons displacement
+DD of up to 700 tons displacement;1906;Y;80;8;802;Enables building of DD up to 700 tons displacement
+DD of up to 900 tons displacement;1908;Y;90;7;803;Enables building of DD up to 900 tons displacement
+Double torpedo tube mount;1912;Y;70;6;804;Enables double torpedo mounts
+DD of up to 1100 tons displacement;1912;Y;80;7;805;Enables building of DD up to 1100 tons displacement
+Triple torpedo tube mount;1914;Y;70;12;806;Enables triple torpedo mounts
+DD of up to 1500 tons displacement;1914;Y;50;10;807;Enables building of DD up to 1500 tons displacement
+Above water tubes on CL;1914;Y;80;10;808;Enables above water torpedo mounts on CL
+Superimposed X mount on CL;1914;Y;80;10;809;Enables superimposed X gun mounts on CL
+Superimposed guns on DD;1915;Y;80;9;810;Enables superimposed gun mounts on DD
+Quadruple torpedo tube mount;1915;Y;80;12;811;Enables quadruple torpedo mounts
+Motor torpedo boats;1916;Y;50;10;812;Enables building of MTB squadrons
+Superimposed B mount on CL;1917;Y;80;14;813;Enables superimposed B gun mounts on CL 
+Above water tubes on all ships;1920;Y;80;12;814;Enables above water torpedo mounts on all ships
+DD of up to 2000 tons displacement;1923;Y;50;10;823;Enables building of DD up to 2000 tons displacement
+Double gun mounts on DD;1924;Y;80;15;826;Enables double gun mounts on DD
+Dual purpose guns as main armament for DD;1925;N;90;12;825;Enables DP guns as main armament for DD 
+Reloads for deck mounted torpedo tubes;1927;N;80;6;815;Enables reloads for above water mounted torpedo tubes
+Weight savings in torpedo mounts;1931;Y;80;12;816;Reduces torpedo mount weight
+DD of up to 2500 tons displacement;1932;Y;50;10;824;Enables building of DD up to 2500 tons displacement
+Improved motor torpedo boats;1934;Y;50;10;817;MTB squadrons will have improved MTB boats
+DD of up to 3000t displacement;1935;Y;50;10;827;Enables building of DD up to 3000 tons displacement
+MTB tenders;1935;Y;50;6;832;Enables building of MTB in invaded possessions if AMC present.
+Magnetic mines;1938;N;70;14;819;Improves mine efficiency
+Quintuple torpedo tube mount;1942;Y;80;14;820;Enables quintuple torpedo mounts
+Lightweight materials for torpedo mounts;1947;Y;80;14;821;Reduces torpedo mount weight
+DD of up to 3500 tons displacement;1952;Y;50;10;828;Enables building of DD up to 3500 tons displacement
+Modern torpedo control systems;1954;N;80;14;822;Increases torpedo accuracy
+DD of up to 3800 tons displacement;1960;Y;100;14;835;Enables building of DD up to 3800 tons displacement
+Missile boats;1960;N;60;14;829;MTB will now be missile boats with 2 heavy SSM
+Improved missile boats;1970;N;70;14;833;missile boats now carry 4 medium SSM.
+Automated light-force missile targeting;1990;N;70;20;840;SSM quality +1;833
+Cooperative littoral engagement [projected];2030;N;70;24;841;SSM quality +1;840
+[Torpedo technology 9]
+PicName=Torpedo.jpg
+Early gyroscope;1894;Y;90;8;930;Torpedoes now have range@speed 600@24/1600@14
+Improved torpedo aiming systems;1897;N;90;8;931;Torpedo launches are more accurate
+Improved hydrostatic valve;1900;Y;90;5;901;Torpedoes now have range@speed 800@25/2000@15
+Reliable pendulum mechanism;1903;N;90;5;902;Torpedoes now have range@speed 900@28/2500@15
+Improved gyroscope;1904;N;90;5;903;Torpedoes now have range@speed 1000@28/3000@15
+Improved compressed air supply;1905;N;90;8;904;Torpedoes now have range@speed 2000@28/4000@18
+Larger torpedo warheads;1905;N;90;6;917;Torpedoes do more damage
+Contra rotating propellers;1907;N;90;8;905;Torpedoes now have range@speed 3000@28/5000@20
+Preheater;1908;N;90;6;906;Torpedoes now have range@speed 3500@30/7000@22
+Horizontal turbines;1910;N;90;8;907;Torpedoes now have range@speed 3800@30/8000@25
+Wet heater engine;1912;N;90;10;908;Torpedoes now have range@speed 4000@33/9000@26
+TNT warhead;1913;N;90;10;909;Torpedoes do more damage
+Advanced gyroscope;1914;N;90;12;910;Torpedoes now have range@speed 4500@37/10000@27
+Lengthened torpedoes;1916;N;90;12;911;Torpedoes now have range@speed 4800@37/10500@27
+Enhanced pressure bottle;1918;N;90;12;912;Torpedoes now have range@speed 4900@37/11500@27
+Enhanced warhead explosives;1922;N;90;10;913;Torpedoes do more damage
+Improved wet heater engine;1922;N;90;12;914;Torpedoes now have range@speed 5000@38/12000@27
+Advanced preheater;1926;N;20;12;915;Torpedoes now have range@speed 5000@38/13000@27
+Oxygen fuelled torpedoes;1932;N;10;12;916;Enables oxygen fuelled torpedoes
+More powerful compressed air ejection;1934;N;60;8;920;Centreline torpedo tubes allowed on ships up to 3500 tons
+Improved gyroscope;1935;N;80;5;919;Improves torpedo reliability
+Magnetic pistols;1938;N;60;10;918;Torpedoes do more damage but have more duds (if used)
+Electric torpedoes;1937;N;60;8;929;Increases submarine attack capability.
+Advanced centerline torpedo mounts;1939;N;60;8;922;Centreline torpedo tubes allowed on ships up to 7000 tons
+Improved hydrodynamic nose shape;1940;N;40;12;925;Increases torpedo speed
+Motobomba FFF;1942;N;10;10;921;Air dropped torpedoes will run patterns
+Torpex warhead;1942;N;60;8;924;Torpedoes do more damage
+Acoustic torpedoes;1943;N;60;8;932;Increases submarine attack value and increases ASW capabilities
+Improved electric torpedoes;1944;N;40;10;928;Increases submarine attack capability.
+PBX-warheads;1952;N;60;10;927;Torpedoes do more damage
+Missile torpedoes;1953;N;60;12;933;Enables use of rocket delivered stand off torpedoes from aircraft.
+Wire guided torpedoes;1955;N;60;14;926;Increases submarine torpedo hit chance vs surface ships
+Advanced acoustic torpedoes;1962;N;60;12;934;Increases torpedo hit chance
+Monopropellant torpedo fuel;1965;N;60;12;935;Increases torpedo speed
+Digital submarine torpedo fire control;1990;N;70;20;940;New submarine attack-accuracy modifier +1;935
+Adaptive submarine torpedo processing [projected];2030;N;70;24;941;New submarine attack-accuracy modifier +1;940
+[Submarines 10]
+PicName=SubConstruction.jpg
+Early coastal submarine;1901;Y;100;5;1002;Enables building of coastal submarines
+Pressure hull;1901;Y;100;6;1001;5% increase of submarine reliability
+Periscope;1902;Y;100;5;1003;5% increase of submarine reliability
+Diving planes;1903;Y;100;5;1004;5% increase of submarine reliability
+Improved coastal submarine;1906;Y;100;5;1005;Better operating range for coastal submarines
+Torpedo aiming system;1907;Y;90;5;1006;5% increase of submarine reliability
+Diesel engines;1908;N;90;5;1007;5% increase of submarine reliability
+Improved diving gear;1909;N;90;5;1008;5% increase of submarine reliability
+Internal torpedo stowage;1911;N;50;5;1009;5% increase of submarine reliability
+Medium range submarine;1910;N;100;8;1010;Enables building of medium range submarines
+Improved compressed air supply;1912;N;50;10;1011;5% increase of submarine reliability
+Specialized submarine designs;1914;N;50;8;1012;Enables building of minelaying and long range submarines
+Improved diesel engines;1916;N;30;12;1013;5% increase of submarine reliability
+Increased battery capacity;1920;N;80;12;1014;5% increase of submarine reliability
+Improved pressure hull;1922;N;100;15;1015;5% increase of submarine reliability
+Improved electric engines;1926;N;100;15;1016;Increase in submarine effectiveness
+Sound location devices for submarines;1930;N;90;15;1017;Increase in submarine effectiveness
+Night surfaced torpedo attacks;1933;N;60;10;1027;Increase in submarine effectiveness
+Improved welding;1934;N;80;15;1019;5% increase of submarine reliability
+Chemical oxygen generator;1936;N;80;15;1021;5% increase of submarine reliability
+Snorkel;1937;N;60;15;1020;Increase in submarine effectiveness
+Wolf pack tactics;1938;N;90;12;1018;Increase in submarine effectiveness
+Anechoic plating;1941;N;90;15;1022;Increase in submarine effectiveness
+Teardrop hull;1943;N;80;15;1024;Increase in submarine effectiveness 
+Electric torpedo-reloading system;1943;N;80;10;1025;Increase in submarine effectiveness 
+Elektro boat;1943;N;80;10;1026;Increase in submarine effectiveness 
+High-strength alloyed steel hull;1946;N;80;15;1023;Increase in submarine survivability
+Improved submarine electronics and sensors;1952;N;80;15;1030;Increase in submarine effectiveness
+Missile submarine;1956;Y;80;18;1028;Enables building of missile submarines
+Super silent propellers;1960;Y;80;20;1031;Increase in submarine survivability
+Improved missile submarine;1964;Y;80;20;1029;Increases missile submarine capabilities 
+Integrated submarine combat-system processing;1980;N;70;20;1040;New submarine attack-accuracy modifier +1;1029
+Modern submarine sonar-track fusion;2005;N;70;24;1041;New submarine attack-accuracy modifier +1;1040
+Distributed submarine sensor processing [projected];2030;N;70;28;1042;New submarine attack-accuracy modifier +1;1041
+[Anti submarine warfare 11]
+PicName=ASW.jpg
+Explosive sweeps;1907;Y;100;5;1101;Gradual increase in national ASW capability
+Anti submarine nets;1907;Y;100;5;1102;Gradual increase in national ASW capability
+ASW mines;1908;Y;70;6;1103;Gradual increase in national ASW capability
+Q-Ships;1908;Y;80;6;1104;Enables Q-ships
+Hydrostatic pistols;1914;Y;80;6;1105;Gradual increase in national ASW capability
+Depth charges;1916;Y;80;12;1106;Enables depth charges on ships
+Early hydrophones;1916;Y;100;10;1107;Gradual increase in national ASW capability
+Improved depth charges;1917;Y;80;12;1112;Gradual increase in national ASW capability
+Convoy system;1917;Y;100;16;1109;Reduction in merchant losses to submarines
+Improved depth charge racks;1918;Y;100;10;1108;Gradual increase in national ASW capability
+Depth charge throwers;1918;Y;100;10;1111;Enables depth charge throwers
+Reliable hydrostatic pistols;1920;Y;100;14;1110;Gradual increase in national ASW capability
+Improved hydrophones;1926;N;80;14;1113;Gradual increase in national ASW capability
+Heavier depth charges;1935;N;80;15;1114;Gradual increase in national ASW capability 
+Forward firing ASW mortar;1941;N;80;15;1115;Enables forward ASW mortar
+Improved ASW tactics;1943;N;80;8;1118;Increases kill chance of enemy submarines
+ASW torpedoes;1945;N;80;12;1117;Gradual increase in national ASW capability
+Improved ASW mortar/rocket launcher;1945;N;80;10;1116;Increases effectiveness of ASW mortar and enables them on AV and CA
+Improved ASW torpedoes;1950;N;80;12;1119;All ships with torpedoes have ASW capability
+Air dropped homing ASW torpedoes;1950;N;80;12;1120;Improves ASW ability of aircraft carriers.
+Enhanced sonar systems;1952;Y;80;12;1122;Needed to keep ASW effectiveness vs modern submarines.
+Rocket-assisted ASW torpedo;1960;Y;80;15;1121;Improves efficiency of ASW mortars.
+Towed array sonar;1960;Y;80;15;1123;Enables towed array sonar on ships.
+Digital passive-sonar processing;1980;N;70;20;1140;Native ASW research +1;1123
+Integrated towed-array processing;1995;N;70;24;1141;Native ASW research +1;1140
+Multistatic ASW coordination;2005;N;70;28;1142;Native ASW research +1;1141
+Broadband ASW track fusion;2020;N;70;32;1143;Native ASW research +1;1142
+Distributed ASW processing [projected];2030;N;70;36;1144;Native ASW research +1;1143
+[Explosive shells 12]
+PicName=Shells.jpg
+Melinite;1892;Y;80;7;1230;Gradual increase in shell damage
+Lyddite bursting charges;1896;Y;80;7;1200;Gradual increase in shell damage
+Safe fuze arming devices;1902;Y;80;6;1201;Gradual increase in shell damage
+Improved explosive filler packing;1905;Y;100;9;1202;Gradual increase in shell damage
+TNT bursting charges;1906;Y;80;9;1203;Gradual increase in shell damage
+Reliable delay fuzes;1907;Y;70;9;1204;Increase in AP shell damage
+Quality steel for shells;1908;Y;70;9;1205;Gradual increase in HE shell damage
+Base fuzes;1910;Y;80;9;1206;Enables SAP ammo
+Improved fuzes ;1912;Y;70;9;1207;Gradual increase in HE shell damage
+Enhanced high explosive filler;1914;Y;70;9;1208;Gradual increase in HE shell damage
+Improved shell wall castings;1916;Y;70;12;1209;Gradual increase in HE shell damage
+Improved fuze reliability;1920;Y;70;12;1212;Reduced dud rate
+Enhanced explosive filler;1923;Y;90;12;1210;Gradual increase in shell damage
+Automated fuze setting;1934;N;90;12;1217;Increases HAA effectiveness
+Streamlined shells;1935;N;90;12;1216;Increases gun range by 5%
+Improved TNT filler;1939;Y;90;12;1211;Gradual increase in shell damage
+Improved automated fuze setting;1941;N;80;12;1218;Increases HAA effectiveness
+Parallel groove fragmentation shells;1942;N;80;12;1221;Increases HAA effectiveness
+Proximity fuzes;1943;N;80;12;1226;Increases 5 and 6 in AA effectiveness;1510
+Improved proximity fuzes;1945;N;70;12;1224;Increases 4 in AA effectiveness;1511
+TNT/RDX explosives;1947;Y;90;12;1219;Gradual increase in shell damage
+Miniaturized proximity fuzes;1948;N;70;12;1225;Increases 3 in AA effectiveness;1511
+Rod fragmentation warhead;1950;N;80;16;1220;Increases AA and SAM hit chances
+Large HEAT warheads;1952;N;80;16;1222;Increases Heavy SSM armour penetration
+Continuous rod warhead;1958;N;60;16;1223;Increases SAM hit chances
+PBX Shells;1959;Y;90;18;1227;Gradual increase in shell and missile damage
+Optimized defensive missile fragmentation;1980;N;70;20;1240;SAM quality +1;1227
+Improved anti-ship missile warhead consistency;1995;N;70;24;1241;SSM quality +1;1240
+Precision defensive missile fuzing;2010;N;70;28;1242;SAM quality +1;1241
+Advanced missile warhead integration [projected];2030;N;70;32;1243;SSM quality +1;1242
+[Fleet tactics 13]
+PicName=Fleet.jpg
+Naval academy;1894;Y;90;4;1332;Enables naval academy (see doctrine).
+Wireless telegraphy;1899;Y;80;8;1330;Removes delay risk in strategic movement and reduces the risk of divisions away from the flagship going to AI control
+Active mine warfare;1902;Y;80;8;1310;Increased use of defensive minefields
+Improved signalling;1904;Y;80;8;1300;Makes signalling errors less likely
+Destroyer screen;1906;Y;90;12;1301;Enables screen formation for DD
+Scouting force;1907;Y;80;10;1307;Enables a separate scouting force with CA and BC
+Mine rails on CL and DD;1908;Y;50;15;1305;Enables fitting of mine rails on CL and DD
+Battle turn away;1910;Y;50;15;1303;Enables battle turn away maneuvre
+Effective sigint;1913;N;50;15;1309;Better pre battle enemy strength asessment
+Fleet cruising formation;1914;Y;90;15;1302;Enables crusing formation in parallel columns for the fleet, reduces risk of submarine attacks.
+Smoke Floats;1913;N;50;15;1304;Gives light cruisers the ability to launch smoke floats
+Concentration firing;1915;N;50;15;1306;Reduces the penalty for more than one ship firing at the same target
+Advanced signalling;1916;Y;50;15;1317;Makes signalling errors less likely
+Shell dyes;1920;Y;80;12;1308;Reduces the penalty for more than one ship firing at the same target
+Carrier force;1924;N;70;12;1325;Carriers will operate in separate force
+Flexible station keeping;1929;Y;80;15;1315;Enables looser division formations and reduces enemy accuracy
+Improved fleet logistics;1930;Y;80;12;1311;Improves fleet logistics and reduces risk of breakdowns
+Voice radio;1932;Y;70;12;1318;Makes signalling errors less likely
+Effective smoke generators;1934;Y;80;15;1323;More effective smoke screens from all ship types
+Underway replenishment;1935;Y;80;12;1314;Improves fleet logistics and reduces the risk of oil fired DD being low on fuel
+Improved command, control and communications;1936;Y;80;12;1333;Allows reassignment of ships and divisions during battle
+Effective camouflage schemes;1938;Y;80;15;1321;Reduces enemy sighting range and hit chance
+Fleet train;1940;Y;80;10;1313;Improves fleet logistics and invasion capability
+IFF system;1941;N;80;8;1324;Increases CAP effectiveness and reduces risk of friendly fire
+Three tier air defense perimeter;1941;Y;80;8;1312;Increases CAP And AA effectiveness (with air search radar)
+Circular AA screen;1942;N;90;4;1326;Enables circular screens and improves AA effectivness. Allows BB to screen CV.
+Integrated Combat Information Center;1943;N;80;8;1319;Increases CAP effectiveness
+Improved radar vecoring of CAP;1944;N;80;15;1316;Increases CAP effectiveness (with air search radar)
+Carrier battle group concept;1952;Y;70;8;1322;Single supercarrier protected by ring of escorts.
+Improved ship to ship communications;1960;Y;70;8;1328;Reduces signalling errors, allows DD in scout role, friendly radar contacts are identified
+Tactical Data system for ASW;1965;N;70;8;1327; Improves the performance of aerial ASW
+Improved EW tactics;1965;N;70;12;1329; Improves ECM and jamming capabilities
+Advanced missile tactics;1974;N;70;12;1331; Missiles are more likely to target high value targets  
+Coordinated fleet electronic defence;1983;N;70;20;1340;Anti-missile countermeasure quality +1;1331
+Networked countermeasure coordination;2005;N;70;24;1341;Anti-missile countermeasure quality +1;1340
+Adaptive fleet electronic defence [projected];2030;N;70;28;1342;Anti-missile countermeasure quality +1;1341
+[Anti aircraft artillery 14]
+PicName=AAA.jpg
+Heavy AA MG;1918;Y;100;3;1401;Enables light AA weapons
+HA rangefinder;1918;Y;100;6;1420;Improves HAA effectiveness
+20 mm automatic cannon;1920;Y;100;6;1405;Improves LAA effectiveness
+40 mm automatic cannon;1922;Y;20;12;1406;Enables medium AA weapons
+HA geared sight;1924;Y;80;8;1421;Improves HAA effectiveness
+3 and 4 in twin dual purpose mounting;1926;Y;70;8;1402;Enables 3 and 4 in twin DP mounts
+Early AA director;1926;Y;90;10;1414;Enables AA director on ships
+Fixed zone AA barrage;1929;Y;80;8;1415;Improves HAA effectiveness
+5 in dual purpose mounting;1933;N;50;8;1403;Enables 5 in DP mounts
+Improved 20 mm automatic cannon;1934;Y;80;8;1407;Improves LAA effectiveness
+6 in dual purpose mounting;1934;N;30;10;1404;Enables 6 in DP mounts
+Improved anti aircraft director;1935;N;80;10;1418;Improves HAA and MAA effectiveness
+Creeping Zone AA barrage;1935;Y;80;10;1417;Improves HAA effectiveness
+Improved 40 mm automatic cannon;1936;Y;50;10;1408;Improves MAA effectiveness
+Power mounts for light and medium AA;1939;Y;70;10;1409;Improves LAA and MAA effectiveness
+Advanced anti aircraft director;1940;N;80;12;1419;Improves HAA and MAA effectiveness
+Quadruple LAA mountings;1941;Y;70;12;1410;Improves LAA effectiveness and reduces LAA topside load
+Modern quadruple MAA mountings;1942;Y;70;10;1416;Improves MAA effectiveness and reduces MAA topside load
+Large shrapnel AA shells;1941;Y;30;6;1423;Gives limited AA capability to heavy main guns (if used)
+Gyroscopic sights for LAA and MAA;1944;N;60;6;1424;Improves LAA and MAA effectiveness
+Electronic fire control computer;1944;N;60;6;1425;Improves HAA effectiveness
+3 in autoloaded DP gun;1946;Y;70;8;1411;Improves effectiveness of 3 in DP guns
+Radar director for MAA;1948;Y;70;8;1427;Enables MAA radar director
+4 in autoloaded DP gun;1950;Y;70;10;1412;Improves effectiveness of 4 in DP guns
+5 in autoloaded DP gun;1953;Y;60;12;1413;Improves effectiveness of 5 in DP guns
+Signal cone proximity fuze;1953;Y;60;12;1426;Improves effectiveness of HAA and SAM 
+Integrated radar direction of AA guns;1955;N;80;10;1422;Improves HAA and MAA effectiveness
+Improved radar directed medium AA guns;1962;N;80;12;1429;Improves effectiveness of radar directed MAA
+Improved automated single HAA mounts;1968;Y;80;12;1428;Improves single HAA mount effectiveness
+Electro-optical light AA tracking;1980;N;70;20;1440;Light AA quality +1;1428
+Digital medium-calibre AA tracking;1995;N;70;24;1441;Medium AA quality +1;1440
+Multi-sensor naval AA directors;2010;N;70;28;1442;Heavy AA quality +1;1441
+Integrated conventional AA fire control [projected];2030;N;70;32;1443;Medium AA quality +1, Heavy AA quality +1;1442
+[Radar and electronics 15]
+PicName=Radar.jpg
+Early surface search radar;1939;N;100;9;1501;Enables surface search radar (Search radar 1)
+Improved surface search radar;1939;N;80;10;1502;Improves surface search radar (Search radar 2)
+Early air search radar;1939;N;80;9;1503;Enables air search radar
+Airborne radar;1940;N;50;10;1504;Improves night air search and attack
+Radar assisted gunnery;1940;N;80;10;1505;Increases gunnery accuracy with radar (FC radar 1)
+Cavity magnetron;1941;N;40;8;1506;Increases radar range (Search radar 3)
+Slow fade display;1940;N;60;6;1507;Increases radar detection chance 
+Improved air search radar;1940;N;80;10;1508;Improves air search radar
+VHF Radio in aircraft;1940;N;80;6;1521;Increases CAP effectiveness 
+Early blind fire capability;1941;N;70;10;1509;Enables blind fire (FC radar 2)
+Shipborne HF/DF;1942;N;60;8;1520;Improves intelligence and ASW capability
+Improved blind fire capability;1942;N;70;10;1510;Improves blind fire accuracy (FC radar 3)
+Advanced airborne radar;1944;N;50;7;1527;Enables night capable fighters.
+S band radar;1944;N;70;8;1511;Improves radar capabilities (Search radar 4, FC radar 4)
+Improved selsyn data transfer;1945;N;80;6;1525;Improves LAA and MAA effectiveness
+Radar countermeasures;1950;N;70;8;1522;Reduces enemy CAP and AA effectiveness (with special squadron aboard)
+Monopulse radar;1950;N;70;10;1512;Improves radar range (Search radar 5)
+Silicon transistors ;1954;Y;70;10;1514;Radars less likely to be disabled
+Aerial data link ;1956;N;70;10;1516;Improves CAP effectiveness and reduces report delay
+Improved ECM systems;1962;N;70;12;1523;Reduces enemy CAP and AA effectiveness (with special squadron aboard) and missile hit rates.
+Communications satellites;1962;N;70;10;1513;Reduces signalling errors
+Tactical data system;1963;N;70;12;1524;Reduces report delay and allows missile launches at targets spotted by other ships 
+Advanced tactical data system;1970;N;60;12;1526;Improves missile target acquisition
+Advanced multiple target tracking;1973;N;60;16;1528;Increases MSAM and HSAM effectiveness and MSAM hit chances againist missiles
+Phased-array combat-system integration;1978;N;70;20;1540;Search radar 6: Aegis-type phased array (needs all five search radars), SAM quality +1;1528
+Digital ship-to-ship engagement links;1990;N;70;24;1541;SSM quality +1;1540
+Cooperative air-defence track processing;2000;N;70;28;1542;SAM quality +1;1541
+Digital electronic-support processing;2010;N;70;32;1543;Anti-missile countermeasure quality +1;1542
+Active-array engagement management;2020;N;70;36;1544;SAM quality +1;1543
+Distributed air-defence sensor fusion [projected];2030;N;70;40;1545;SAM quality +1;1544
+[Naval aviation, lighter than air 16]
+PicName=NavalAviationLight.jpg
+Early airships;1911;Y;70;8;1601;Enables airships
+Improved airship tail design;1914;Y;70;6;1602;Improves airship performance
+Improved airship engines;1915;N;70;8;1607;Improves airship performance
+Airship bomb armament;1915;N;70;8;1603;Enables airship bomb armament
+Night airship operations;1916;N;10;6;1608;Airships will be night capable
+Aircraft carrying airships;1922;N;70;12;1604;Airships will have parasite fighters
+Large scale helium production;1923;N;60;10;1605;Airships are more reliable
+Improved airship diesel engines;1926;N;60;10;1606;Improves airship performance
+[Naval aviation, heavier than air 17]
+PicName=NavalAviationHeavy.jpg
+Land based naval aircraft;1915;N;100;5;1700;Enables naval air bases
+Aircraft bombing of ships;1916;N;70;4;1701;Enables air bombing of ships with light bombs
+Early air launched torpedoes;1917;N;70;8;1702;Enables air launched torpedoes
+Aircraft catapult;1923;N;70;8;1703;Enables aircraft catapults on ships
+Later air launched torpedoes;1930;N;70;10;1704;Improves hit chances of air launched torpedoes
+Dive bombing;1930;N;70;8;1705;Enables dive bombers
+Night air operations;1930;N;10;6;1720;Enables night air operations
+Air/Sea rescue;1935;Y;20;8;1717;Improves pilot survival and thus mitigates experience degradation from air losses 
+Improved dive bombers;1938;N;70;10;1706;Improves dive bomber performance
+Improved air launched torpedoes;1939;N;70;10;1707;Improves  hit chances of air launched torpedoes
+Aerial depth charges;1941;N;80;10;1712;Increases ASW value of aircraft carriers and air bases  
+Coordinated airstrike management;1941;N;70;10;1708;Allows coordinated strikes from several carriers
+AP bombs;1942;N;90;6;1715;Aircraft will use AP bombs in level bombing.  
+Skip bombing;1942;N;50;8;1711;Increases effectiveness of level bombers in anti shipping attacks
+Leigh light;1942;N;80;8;1713;Increases aircraft ASW effectiveness
+Air to ground rockets;1943;Y;70;7;1733;Fighter type aircraft on attack missions will use rockets on medium loadout
+Bombentorpedo;1944;N;10;4;1710;Near misses from glide bombing have a chance of being converted to torpedo hits
+Ejection seat;1945;Y;70;10;1721;Decreases loss of squadron experience when an aircraft is destroyed
+Electronic bomb sight;1946;Y;60;8;1727;Increases glide and high level bombing accuracy
+Helicopter search and rescue ;1950;Y;8;10;1723;Decreases loss of squadron experience on operational losses (with special squadron aboard)
+Airborne early warning aircraft;1950;Y;10;10;1724;Increases radar range and CAP engagement range (with special squadron aboard)
+Improved jet engines;1953;Y;80;12;1728;Allows jet attack and heavy jet fighter aircraft
+ASW helicopters;1954;Y;80;12;1722;Increases ASW value of ships with helicopters and carriers with special squadron aboard
+Improved jet bombers;1956;Y;80;15;1731;Medium bombers can carry two missiles
+Light anti-ship missiles for aircraft;1960;Y;80;12;1725;Allows helicopters and light jet fighters to carry light ASM
+Low level air attack profile;1960;Y;80;12;1726;Reduces hit chances for enemy heavy and medium SAM against non high level air attacks
+Radar equipped helicopters;1961;Y;80;14;1729;Ships with helicopters in the air have increased radar range (with tactical data system).
+Long range air to air missiles;1966;Y;80;12;1730;Increases Air to Air value of HJF. CAP forces enemy aircraft to launch anti ship missiles with lower hit rates. 
+Reconnaissance pods;1966;Y;80;12;1732;Increases spotting probability for recon aircraft vs ships
+Digital airborne escort jamming;1980;N;70;20;1740;Airborne ECM quality +1 (native support-aircraft requirements retained);1732
+Integrated airborne electronic attack;2005;N;70;24;1741;Airborne ECM quality +1 (native support-aircraft requirements retained);1740
+Cooperative airborne electronic attack [projected];2030;N;70;28;1742;Airborne ECM quality +1 (native support-aircraft requirements retained);1741
+[Shipboard aircraft operation 18]
+PicName=ShipboardAviation.jpg
+Seaplane carrier;1915;Y;70;6;1801;Enables small seaplane carriers
+Improved seaplane carrier;1916;Y;70;7;1802;Enables larger seaplane carriers
+Flight deck;1918;Y;70;8;1803;Enables conversions to light aircraft carriers (CVL)
+Purpose built aircraft carrier;1920;Y;70;8;1804;Enables construction of purpose built light aircraft carriers (CVL)
+Aircraft carrier conversion;1921;Y;70;8;1805;Enables conversions to full size aircraft carriers (CV)
+Transverse arrestor wires;1925;N;70;8;1811;Lowers risk of landing accidents
+Large aircraft carrier;1926;Y;100;12;1809;Enables construction of purpose built aircraft carriers (CV)
+Better aircraft handling practices;1927;N;70;8;1806;Increases aircraft capacity and reduces ready times of carriers
+Improved landing guidance systems;1929;N;70;8;1817;Lowers risk of landing accidents
+Deck park;1930;Y;70;10;1814;Increases aircraft capacity of carriers
+Improved arrestor wires;1931;N;70;10;1812;Lowers risk of landing accidents
+Deck edge lifts;1934;N;40;10;1810;Improves readying times of aircraft
+Improved carrier design;1936;Y;80;10;1815;Increases maximum carrier size
+Flight deck catapults;1936;Y;50;6;1820;Enables catapults on aircraft carriers
+Air intercept control system;1938;Y;80;12;1807;Increases CAP effectiveness
+Improved aircraft handling practices;1940;N;70;12;1813;Increases maximum carrier size
+Two phase search;1942;N;70;4;1822;Enables two phase search
+Combat information center;1942;N;70;12;1818;Increases CAP effectiveness
+Deck launched interceptors;1942;N;70;8;1819;Increases CAP effectiveness
+Jet aircraft on carriers;1944;Y;80;10;1816;Enables Jet capable aircraft carriers
+Angled flight deck;1950;Y;80;15;1808;Enables angled flight deck
+Steam catapults;1952;Y;80;10;1823;Reduces the carrier displacement limit for operating heavy jet fighters and jet attack aircraft to 30,000 tons 
+Mirror landing aids;1955;Y;80;8;1824;Reduces landing accidents 
+Helipad;1958;Y;80;8;1825;Allows ships to be equipped with a helipad 
+Improved instrument landing systems;1962;Y;80;8;1826;Allows air operations in low cloud and drizzle
+Integrated carrier deck-cycle planning;1980;N;70;20;1840;Native carrier-design research +1 (carrier size allowance);1826
+Computer-assisted carrier layout;1995;N;70;24;1841;Native carrier-design research +1 (carrier size allowance);1840
+Digital carrier aircraft-space management;2005;N;70;28;1842;Native carrier-design research +1 (carrier size allowance);1841
+Integrated carrier support-space design;2020;N;70;32;1843;Native carrier-design research +1 (carrier size allowance);1842
+Optimized carrier aviation layout [projected];2030;N;70;36;1844;Native carrier-design research +1 (carrier size allowance);1843
+[Missile technology 19]
+PicName=Missile.jpg
+Guided bomb;1943;N;70;12;1900;Medium bombers can carry guided bombs
+Early air to surface missiles;1943;N;60;8;1907;Enables air attacks with air to surface missiles
+Early surface to surface missiles;1947;N;70;8;1901;Enables early surface to surface missile mounts
+Diving missiles;1949;N;10;5;1918;Missile hits will be transformed to torpedo hits if used (see doctrine)
+Improved guidance systems;1953;N;70;6;1912;Increases missile hit rate
+Early surface to air missiles;1953;N;70;6;1905;Enables medium surface to air missile mounts
+Radar guided SSM;1954;N;80;5;1902;Enables SSM blind fire and double SSM launchers
+Radar guided SAM;1955;N;70;6;1906;Increases SAM hit rate and range
+Heavy SAM;1956;N;60;6;1908;Enables heavy SAM mounts
+Improved SSM launchers;1959;Y;70;4;1923;Allows quadruple launchers for heavy SSM. Launchers can be trainable.
+Light SAM;1959;N;60;6;1910;Enables light SAM mounts
+Double SAM launchers;1959;Y;70;4;1909;Allows double SAM launchers.
+Short range AAM;1959;N;70;6;1913;Increases air to air firepower
+Integrated circuits;1959;N;70;5;1904;Increases missile hit rate
+Effective cruise missiles ;1960;Y;70;4;1917;Anti ship missiles can attack targets not spotted by the firing ship
+Solid state launcher circuitry ;1960;N;70;6;1915;Reduces missile mount reload time time and topside load for SAM.
+Medium range AAM;1960;N;70;10;1911;Increases fighter engagement ranges
+Miniaturized on board electronics;1963;N;70;10;1903;Enables medium SSM and increases missile hit rate
+Solid state guidance systems;1963;N;70;10;1916;Increases missile hit rate
+Improved launcher technology;1965;N;60;8;1919;Reduces missile mount reload time and allows quadruple launchers for light SAM.
+Anti surface capability for SAM;1965;N;60;8;1922;Medium and heavy SAM can be launched against surface targets
+Quadruple box launchers;1966;N;90;8;1920;Enables quadruple box launchers for medium SSM
+Improved Light SAM;1968;N;60;10;1925;Light SAM will provide some cover to nearby ships against missiles and aircraft
+EFP warheads;1970;N;60;8;1921;Increases medium SSM damage.
+Improved medium SAM;1970;N;60;9;1926;Medium SAM will have anti missile capability
+Improved miniaturized elecronics;1970;N;80;8;1927;Reduces missile system weight
+Improved terminal anti-ship missile guidance;1980;N;70;20;1940;SSM quality +1;1927
+Digital naval SAM guidance;1990;N;70;24;1941;SAM quality +1;1940
+Improved anti-ship seeker discrimination;2000;N;70;28;1942;SSM quality +1;1941
+Modern medium-SAM engagement processing;2010;N;70;32;1943;SAM quality +1;1942
+Multi-mode anti-ship seeker processing;2020;N;70;36;1944;SSM quality +1;1943
+Adaptive naval SAM guidance [projected];2030;N;70;40;1945;SAM quality +1;1944
+[Amphibious operations 20]
+PicName=Amphibious.jpg
+X-Lighters;1915;Y;70;6;2008;Improves invasion capability
+Elpidifor boats;1916;Y;70;6;2000;Improves invasion capability
+Daihatsu barges;1925;Y;70;6;2001;Improves invasion capability
+Motor Landing Craft;1930;Y;70;8;2002;Improves invasion capability
+Amphibious tractors;1935;Y;70;10;2003;Improves invasion capability
+Combat supply loading;1938;N;70;8;2004;Improves invasion capability
+Higgins boats;1941;Y;70;6;2005;Improves invasion capability
+Assault landing craft;1942;Y;70;10;2006;Improves invasion capability
+Specialized landing craft;1943;Y;70;10;2007;Improves invasion capability
+Modern amphibious logistics planning;1980;N;70;20;2040;Native amphibious research +1 (invasion range);2007
+Integrated ship-to-shore logistics;1995;N;70;24;2041;Native amphibious research +1 (invasion range);2040
+Digital expeditionary support planning;2010;N;70;28;2042;Native amphibious research +1 (invasion range);2041
+Distributed amphibious sustainment [projected];2030;N;70;32;2043;Native amphibious research +1 (invasion range);2042
+[Missile countermeasures 21]
+PicName=AntiMissile.jpg
+Early anti missile jamming;1944;N;70;10;2101;Reduces hit chance of missiles and guided bombs
+Improved anti missile jamming;1952;N;70;12;2102;Reduces hit chance of missiles and guided bombs
+Chaff dispensers;1958;N;70;10;2103;Reduces missile hit chances on ships
+Anti-missile decoys;1960;N;70;8;2104;Reduces missile hit chances on ships
+Anti-missile tactics;1965;N;70;8;2105;Reduces missile hit chances on ships
+Close in defence weapons;1970;N;70;9;2106;Allows the mounting of CIWS systems for missile defence
+Improved Missile Decoys;1972;N;70;14;2108;Reduces missile hit chances on ships
+Improved close in defence weapons;1978;N;70;12;2107;Increases chance of incoming missiles shot down by CIWS
+Digital defensive electronic warfare;1980;N;70;20;2140;Anti-missile countermeasure quality +1;2107
+Integrated chaff and decoy control;1990;N;70;24;2141;Anti-missile countermeasure quality +1;2140
+Active offboard missile decoy integration;1999;N;70;28;2142;Anti-missile countermeasure quality +1;2141
+Digital radio-frequency countermeasures;2010;N;70;32;2143;Anti-missile countermeasure quality +1;2142
+Multi-sensor soft-kill coordination;2020;N;70;36;2144;Anti-missile countermeasure quality +1;2143
+Adaptive terminal defence coordination [projected];2030;N;70;40;2145;Anti-missile countermeasure quality +1;2144
+[Vertical launch systems 22]
+PicName=MissileBattery.jpg
+Nuclear attack submarines;1952;N;60;40;2336;Build nuclear attack submarines (SSN): long range boats whose torpedoes can carry nuclear warheads;1012
+Ballistic missile submarines;1957;N;60;40;2337;Build ballistic missile submarines (SSBN): missile boats launching 4 missiles where a missile submarine launches one, one of them nuclear if allowed;1028
+Anti-radiation missiles;1965;N;70;14;2341;Jet strike aircraft carry anti-radiation missiles (Shrike): enemy SAMs are a quarter less effective against them;1907
+Self-protection jamming pods;1967;N;70;14;2342;Strike aircraft carry jamming pods (ALQ-71, ALQ-119): enemy SAMs are a fifth less effective against them;1523
+Vertical take-off jet fighters;1969;N;70;14;2338;Light jet fighters are VTOL (Harrier): a carrier need not be jet capable to fly them;1823
+Vertical launch cells;1974;N;90;10;2201;Enables 8-cell VLS banks: below-deck cells, one missile each, no reloads;1919
+Modular VLS magazines;1977;N;90;10;2202;Enables 16-cell VLS banks;2201
+Canister exhaust management;1980;N;90;12;2203;Enables 32-cell VLS banks;2202
+Large VLS magazines;1983;N;90;12;2204;Enables 64-cell VLS banks;2203
+High-speed anti-radiation missiles;1984;N;70;18;2343;HARM, Kh-31P: jet strike aircraft suppress enemy SAMs another fifth;2341
+Hybrid diesel-electric propulsion;1985;N;70;12;2344;Diesel ships spare a quarter of their horsepower as railgun and laser power (half with Integrated power system) and may mount railguns, and escorts and cruisers designed from 1985 with diesel or gas-turbine drive run quiet on electric motors: ASW value +2 (CODLAG: Type 23, FREMM);17
+Lightweight composite launch cells;1986;N;70;14;2205;VLS cells weigh 20% less;2204
+Hull-integrated VLS modules;1988;N;70;14;2206;Hulls can carry 25% more VLS cells;2205
+Universal VLS fire control;1990;N;70;16;2207;SSM quality +1;2206
+Compact self-defence VLS modules;1992;N;70;20;2208;VLS cells weigh another 10% less and light SAM cells hold four missiles (quad-packed, ESSM);2207
+Vertical-launch ASW rockets;1993;N;70;20;2211;Ships with a VLS bank gain ASW value: some cells carry ASW torpedo rockets (VL-ASROC);2207
+Peripheral VLS integration;2005;N;70;24;2209;Hulls can carry 25% more VLS cells again;2208
+Low-observable anti-ship missiles;2017;N;70;28;2339;Stealthy SSMs (LRASM, NSM, JSM): enemy SAMs, CIWS and radar-guided AA stop a third fewer of them;1917
+Hypersonic interceptors;2025;N;70;30;2340;SAMs keep 60% of their kills against hypersonic missiles instead of 30% (SM-6 Sea-Based Terminal, S-500);2208
+Next-generation VLS modules [projected];2030;N;70;28;2210;VLS cells weigh another 10% less;2209
+[Naval combat systems 23]
+PicName=Radar.jpg
+Nuclear gun projectiles;1958;N;50;40;2334;Main batteries of 16 inches or more fire one nuclear shell per battle, their first hit (W23 Katie for the Iowas, W33): it wrecks almost any ship;1222
+Naval tactical data processing;1965;N;70;10;2301;Heavy AA quality +1;1524
+Lightweight ASW torpedo tubes;1966;N;70;10;2331;Destroyers, escorts and cruisers with any torpedo mount gain ASW value (Mk 32 tubes, Mk 46 torpedo);1119
+Automated threat evaluation;1967;N;70;10;2302;Light AA quality +1;2301
+Integrated combat direction system;1969;N;70;12;2303;Medium AA quality +1;2302
+Electronic support measures suite;1972;N;70;12;2304;Light AA quality +1;2303
+Ski-jump flight decks;1974;N;70;16;2335;Ski jump option for flight decks: a jet deck that readies 2 more aircraft per strike without catapults, and flies heavy jets from an angled deck without catapults (Invincible, Kuznetsov);1823
+Phased-array fire control radar;1975;N;70;14;2305;Heavy AA quality +1;2304
+Ocean surveillance satellites;1976;N;70;14;2323;Radar ships get occasional satellite fixes on enemy surface ships beyond radar range (US-A Legenda, White Cloud): they count as spotted and missiles can engage them;2304
+Wake-homing and wire-guided torpedoes;1977;N;70;14;2319;Torpedoes your ships fire home on ships they pass: they hit from two and a half times as far away;822
+Turbofan anti-ship missiles;1978;N;70;14;2324;SSM range +50% (Harpoon, Exocet MM40);1917
+Integrated damage-control systems;1979;N;70;14;2306;Damage-control modifier +1 beyond the native research ceiling;2305
+Extended-range SAMs;1980;N;70;16;2325;Medium and heavy SAM range doubled (SM-2ER, S-300F);2303
+Radar cross-section reduction;1987;N;70;20;2308;Ships designed from 1987: enemy radar range -20%, jets developed from 1990 are stealth models;2306
+Composite superstructures;1995;N;70;22;2332;Light (aluminium) superstructures on ships designed from 1995 are composite: lighter, costlier, no aluminium fire risk (La Fayette, Visby);2308
+Cooperative engagement capability;1996;N;70;16;2307;Medium AA quality +1, Heavy AA quality +1;2306
+Active electronically scanned array radar;1998;N;70;26;2318;Search radar class 7 (radar limit 7, hulls laid down from 1998): range and detection +20% over Aegis, enemy stealth halved against it;2305
+Ship self-defence system integration;2000;N;70;24;2309;Light AA quality +1;2308
+Integrated power system;2003;N;70;28;2313;Gas turbine ships spare 50% of their horsepower as railgun power instead of 25% (integrated electric drive: Type 45, Zumwalt) and any ship can fit extra generators;2309
+Shipborne UAVs;2005;N;70;26;2326;New floatplane scouts are UAV models (ScanEagle, Fire Scout: slow, long endurance, radar), and ships of a nation with one launch and recover scouts without stopping, as from a catapult;2309
+Low-observable ship design;2008;N;70;28;2310;Ships designed from 2008: enemy radar detection range another -20%;2309
+Electromagnetic aircraft launch system;2009;N;70;30;2321;Carriers laid down from 2009 with catapults: each catapult adds 4 aircraft per strike instead of 1, and heavy jets need 24,000 tons instead of 30,000;1823
+Guided gun projectiles;2012;N;70;28;2320;Guns of 6 inches and less fire guided shells: twice the hit chance;2309
+Long-range anti-ship missiles;2013;N;70;28;2327;SSM range another +50% (NSM, LRASM);2324
+Active-seeker long-range SAMs;2014;N;70;28;2328;Medium and heavy SAM range another +50% (SM-6);2325
+Electromagnetic railgun;2020;N;70;30;2312;Enables railgun main batteries: twice the range, penetration as a gun 4 inches larger at half the range, inert rounds, needs Nuclear or Gas turbine power;2313
+Shipboard high-energy lasers;2022;N;70;30;2316;Enables laser mounts (HELIOS, DragonFire): a first layer against incoming missiles, 1 MW each, needs Nuclear or Gas turbine power;2313
+Hypersonic anti-ship missiles;2023;N;70;30;2317;Hypersonic SSMs option (Zircon, Conventional Prompt Strike): SAMs, CIWS, radar AA and lasers stop only 30% as many, heavier VLS cells, and aircraft developed from 2023 launch hypersonic ASMs (Kinzhal, YJ-21);1917
+Explosive unmanned surface vessels;2024;N;70;30;2333;MTB squadrons become fast USV squadrons (Black Sea drone boats);2326
+Compact pulsed-power storage;2025;N;70;30;2314;Railguns need 25% less power and their mounts weigh 25% more instead of 50%;2312
+Guided heavy-calibre projectiles [projected];2026;N;70;30;2322;Guns over 6 inches fire guided shells too: one and a half times the hit chance;2320
+Railgun secondary batteries [projected];2027;N;70;32;2329;Railgun secondaries and tertiaries options: those batteries become railguns (twice the range, penetration as a gun 4 inches larger), drawing power and adding 1 t and 50 cost per MW;2312
+Superconducting pulsed power [projected];2028;N;70;32;2315;Railguns need another 25% less power and their mounts weigh only 10% more;2314
+Railgun point defence [projected];2029;N;70;32;2330;DP railgun batteries engage incoming missiles before CIWS with hypervelocity projectiles: 20% per DP railgun battery, up to 50%, a third of that against hypersonic missiles;2312
+Adaptive combat-system automation [projected];2030;N;70;32;2311;Damage-control modifier +1 beyond the native research ceiling, National gun ROF modifier +1;2310

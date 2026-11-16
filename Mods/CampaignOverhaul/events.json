@@ -1,0 +1,122 @@
+[
+  {
+    "slot": 0, "match": "Navy League",
+    "question": "The Navy League wants your annual speech to set the tone for the coming estimates debate. Merchants want safer sea lanes, while the press demands a stronger fleet. What case will you make?",
+    "answers": ["Argue for restraint and peaceful trade, accepting a smaller naval budget and criticism from the League.", "Promise to defend our trade and bases without naming an enemy, even if other powers remain suspicious.", "Name XX as the danger and demand a larger navy, gaining influence while sharpening the rivalry."]
+  },
+  {
+    "slot": 1, "match": "colonial crisis",
+    "question": "A dispute with XX over access to an overseas port has become a colonial crisis. Local commanders want a clear policy before a minor encounter becomes a war. What do you advise?",
+    "answers": ["Stand firm and publicly back our claims. The fleet will gain support, but the risk of war rises sharply.", "Request emergency naval funding while negotiations continue, accepting some additional tension.", "Accept a diplomatic concession to buy time for the fleet, at a cost to our standing."]
+  },
+  {
+    "slot": 4, "match": "disarmament conference",
+    "question": "Delegates at the Hague propose mutual limits on naval construction. Your staff warns that a promise without verification could leave the fleet at a disadvantage. What instructions do you send?",
+    "answers": ["Reject binding limits and defend our freedom to build, despite the diplomatic cost.", "Explore an agreement without promising reductions before acceptable terms emerge.", "Support reciprocal reductions and a serious arms agreement, accepting less funding and domestic criticism."]
+  },
+  {
+    "slot": 5, "match": "naval rearmament",
+    "question": "Naval intelligence reports a new shipbuilding programme in XX. Its purpose is uncertain, but newspapers are already comparing hulls and guns. How should the cabinet respond?",
+    "answers": ["Demand a funded naval response and warn publicly about XX, strengthening our hand and the rivalry.", "Express confidence in the fleet without seeking more money, even if the statement irritates XX.", "Use diplomatic channels to lower the temperature, accepting accusations of complacency."]
+  },
+  {
+    "slot": 7, "match": "world cruise",
+    "question": "The training squadron is due to visit foreign ports. The itinerary is settled, but the ships selected will determine whether the cruise looks like instruction, diplomacy, or a show of force. What do you recommend?",
+    "answers": ["Show our newest capital ships. The display builds prestige but draws foreign suspicion.", "Send a representative squadron and keep the visit routine.", "Use older ships and make the case for replacement funding, accepting an unimpressive public showing."]
+  },
+  {
+    "slot": 12, "match": "technology sharing agreement",
+    "question": "A domestic engineering firm seeks permission to exchange naval research with a partner in XX. Shared testing could accelerate development, but the relationship would outlast the present diplomatic mood. Your decision?",
+    "answers": ["Refuse access to our work, accepting a chill in relations.", "Authorize the technology-sharing agreement and pursue better relations with XX.", ""]
+  },
+  {
+    "slot": 14, "match": "change of government",
+    "question": "The new government in XX promises a less confrontational naval policy. A major newspaper asks whether this is a chance for better relations or merely a pause in the arms race. What do you say?",
+    "answers": ["Warn that the threat remains. The statement strengthens support for our navy but raises tension.", "Welcome the opening cautiously and judge the government by its actions.", "Publicly endorse closer cooperation, accepting that reduced tension may weaken our budget case."]
+  },
+  {
+    "slot": 15, "match": "five year security",
+    "question": "XX proposes a security arrangement to settle recurring naval disputes. The foreign ministry sees an opportunity, while your planners worry that closer ties will be used to justify naval cuts. What is your advice?",
+    "answers": ["Open treaty negotiations and accept the likely pressure for a smaller naval budget.", "Seek a broader diplomatic understanding, lowering tensions without a bilateral commitment.", "Reject the arrangement and make the case for an independent, better-funded fleet."]
+  },
+  {
+    "slot": 17, "match": "naval visit",
+    "question": "After a visit by the fleet of XX, reporters ask for your professional assessment. Your officers have noticed both capable ships and weaknesses, but a public comment will be read as policy. What do you tell them?",
+    "answers": ["Praise their capability generously, improving relations while inviting unfavourable comparisons at home.", "Thank the visiting crews and avoid comparing the two fleets.", "Declare our fleet clearly superior, pleasing supporters at the expense of relations."]
+  },
+  {
+    "slot": 18, "match": "tensions leading to war",
+    "question": "The cabinet asks for a practical way to prevent the next naval incident from becoming a war. The staff has prepared three approaches, each with a different political cost. Which do you support?",
+    "answers": ["Seek an arms conference and a lower level of naval expenditure to ease the rivalry.", "Request a stronger naval budget and make deterrence our public policy.", "Seek a negotiated security arrangement with XX."]
+  },
+  {
+    "slot": 20, "match": "influential industrialist",
+    "question": "With our technology lagging, an influential shipyard owner offers political backing for more naval funds if his yards receive a larger share of future orders. The arrangement would help the estimates but compromise your independence. What do you do?",
+    "answers": ["Accept his backing to strengthen the budget, knowing the favour will damage my reputation.", "Reject preferential treatment and defend competitive procurement, preserving my professional standing.", ""]
+  },
+  {
+    "slot": 24, "match": "run aground",
+    "question": "A cruiser conducting a covert survey has grounded inside a minor power's waters. The local authorities demand an inspection before releasing her. The cabinet needs your recommendation before the incident becomes public.",
+    "answers": ["Demand immediate release and threaten a naval demonstration, gaining prestige but raising wider tensions.", "Accept responsibility for a navigation error and negotiate release, accepting public embarrassment.", "Permit the inspection, accepting foreign suspicion and the risk of a technology leak."]
+  },
+  {
+    "slot": 25, "match": "collision",
+    "question": "A close-quarters manoeuvre at a ceremonial fleet review ends in a collision with a ship from XX. Both captains blame the other, and photographs have reached the newspapers. How should the navy explain it?",
+    "answers": ["Blame the crew of XX and defend our captain, at the cost of relations.", "Call it an unfortunate accident and avoid accusations, accepting criticism of our navy.", ""]
+  },
+  {
+    "slot": 26, "match": "scandal",
+    "question": "During a port visit, officers obtain embarrassing evidence about senior visitors from XX. Naval intelligence sees diplomatic value, but releasing it would damage the next round of talks. What do you order?",
+    "answers": ["Let the story reach the press and put XX under pressure.", "Keep the material confidential and protect the diplomatic relationship.", ""]
+  },
+  {
+    "slot": 28, "match": "international naval gathering",
+    "question": "The YY proposes a multinational naval visit and seamanship competition. It could improve the navy's standing and reduce suspicion abroad, but the hospitality and support bill will come from current fleet funds. Do you support it?",
+    "answers": ["Decline and retain the money for fleet requirements.", "Host the gathering, gaining prestige and easing tensions at a cost of half the fleet's maintenance bill.", ""]
+  },
+  {
+    "slot": 29, "match": "South American",
+    "question": "A major yard has a South American export order ready for approval. The contract promises useful revenue for the naval sector, but foreign access to the design creates a lasting technology-leak risk. What do you recommend?",
+    "answers": ["Authorize the export and take the revenue, accepting the risk to sensitive technology.", "Refuse the contract and protect the design, forgoing the revenue.", ""]
+  },
+  {
+    "slot": 30, "match": "mutual reduction",
+    "question": "XX offers a reciprocal reduction in naval spending during a period of high tension. Your planners suspect an attempt to slow our programme, while diplomats see a chance to break the cycle. What position do you take?",
+    "answers": ["Reject the proposal as a manoeuvre and maintain our guard, increasing tension.", "Accept mutual restraint and the naval funding cuts that follow.", "Propose an international arms conference before committing to reductions."]
+  },
+  {
+    "slot": 32, "match": "fishing boat",
+    "question": "A ship on exercise has fired on a fishing vessel from XX, killing members of its crew. Conflicting reports are circulating, and the foreign ministry needs an immediate public position. What do you advise?",
+    "answers": ["Defend the ship's action and blame the vessel for entering restricted waters, worsening relations.", "Apologize publicly and offer compensation, accepting a blow to the navy's reputation.", ""]
+  },
+  {
+    "slot": 40, "match": "guarantee a victory",
+    "question": "In a closed cabinet session, the YY asks whether you can guarantee victory over XX. Your staff's assessment lists serious uncertainties, but the cabinet wants a short answer for its foreign policy decision. What do you say?",
+    "answers": ["Express complete confidence in victory, gaining prestige and encouraging a harder diplomatic line.", "State that I cannot make that promise without more naval funding, risking my standing with the cabinet.", ""]
+  },
+  {
+    "slot": 50, "match": "windfall",
+    "question": "Unexpected tax revenue gives the government room for a new investment programme. The navy has been asked to recommend a national priority, and your answer will influence both fleet support and public opinion.",
+    "answers": ["Make naval expansion the priority, gaining prestige while alarming other powers.", "Support rail and industrial investment as the strongest case for national prosperity and future revenue.", "Support modest social programmes, easing domestic pressures at a cost to my standing with naval supporters."]
+  },
+  {
+    "slot": 51, "match": "economy is booming",
+    "question": "An industrial boom has increased government receipts. Ministers are dividing the proceeds between defence, national transport, and social spending. They ask which investment deserves the navy's support.",
+    "answers": ["Press for a stronger fleet, gaining prestige but increasing foreign concern.", "Back the national highway and industrial programme for broader economic development.", "Back social spending to improve stability and ease tensions, accepting criticism from naval advocates."]
+  },
+  {
+    "slot": 52, "match": "sudden slump",
+    "question": "A sharp recession threatens shipyard employment and the naval estimates. The cabinet must choose how to distribute the hardship, and asks whether the navy can accept a larger share of the cuts. What do you advise?",
+    "answers": ["Resist further naval cuts and demand priority for defence, accepting unrest and greater foreign tension.", "Accept deeper cuts and rely on private relief, risking further public unrest.", "Accept deeper cuts with government social reforms, sacrificing standing to address unemployment."]
+  },
+  {
+    "slot": 67, "match": "gunnery competition",
+    "question": "The YY proposes a fleet-wide gunnery competition before the next readiness review. It offers a chance to improve crew quality, but live firing and support will add half a maintenance bill to current expenditure. Do you approve?",
+    "answers": ["Decline the competition and preserve current funds.", "Approve the competition and pay the additional cost for the improvement in crew quality.", ""]
+  },
+  {
+    "slot": 80, "match": "ambassador",
+    "question": "The ambassador from XX asks us to slow our naval programme as a gesture of good faith. No matching concession has been offered. The minister asks whether to reject the request, broaden the talks, or make a limited concession.",
+    "answers": ["Reject any limits in forceful terms, strengthening my standing and increasing tension with XX.", "Insist on a multilateral arms conference before considering naval limits.", "Offer a measured reduction in naval expenditure to lower international tension."]
+  }
+]

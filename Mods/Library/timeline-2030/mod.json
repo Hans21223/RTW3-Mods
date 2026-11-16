@@ -1,0 +1,522 @@
+{
+  "schema": 1,
+  "id": "timeline-2030",
+  "name": "Expanded Timeline - Modern Research to 2030, Campaign to 2050",
+  "version": "1.43.0",
+  "author": "Local RTW3 Mod Tools",
+  "description": "Campaign to 2050 with research to 2030. Adds about 85 modern technologies with working effects (VLS cells, AESA, railguns, lasers, hypersonic missiles, nuclear propulsion, SSN and SSBN, nuclear weapons with a doctrine and ban treaty). New start years 1947, 1960, 1980 and 2000 with Cold War blocs, superstates and real fleet sizes. Computer nations design and build with all of it, by their economy. Experimental; restart through Play with mods. Details: Mods/Manager/MODERN_TECH_TREE.md and Mods/Manager/VLS_CELLS.md.",
+  "kind": "runtime",
+  "experimental": true,
+  "requires": [],
+  "conflicts": [],
+  "files": [
+    {
+      "source": "Files/Data/ResearchAreas3.dat",
+      "target": "Data/ResearchAreas3.dat"
+    },
+    {
+      "source": "Files/Data/AircraftBasicData3.dat",
+      "target": "Data/AircraftBasicData3.dat"
+    },
+    {
+      "source": "Files/Data/IDes/USV.sdf",
+      "target": "Data/IDes/USV.sdf"
+    },
+    {
+      "source": "Files/Images/StartYears.jpg",
+      "target": "Images/StartYears.jpg"
+    },
+    {
+      "source": "Files/Data/BNat1947.dat",
+      "target": "Data/BNat1947.dat"
+    },
+    {
+      "source": "Files/Data/MapData1947.dat",
+      "target": "Data/MapData1947.dat"
+    },
+    {
+      "source": "Files/Data/BNat1960.dat",
+      "target": "Data/BNat1960.dat"
+    },
+    {
+      "source": "Files/Data/MapData1960.dat",
+      "target": "Data/MapData1960.dat"
+    },
+    {
+      "source": "Files/Data/BNat1980.dat",
+      "target": "Data/BNat1980.dat"
+    },
+    {
+      "source": "Files/Data/MapData1980.dat",
+      "target": "Data/MapData1980.dat"
+    },
+    {
+      "source": "Files/Data/BNat2000.dat",
+      "target": "Data/BNat2000.dat"
+    },
+    {
+      "source": "Files/Data/MapData2000.dat",
+      "target": "Data/MapData2000.dat"
+    },
+    {
+      "source": "Files/Data/East Asian FederationNames.txt",
+      "target": "Data/East Asian FederationNames.txt"
+    },
+    {
+      "source": "Files/Data/East Asian FederationShipNames.dat",
+      "target": "Data/East Asian FederationShipNames.dat"
+    },
+    {
+      "source": "Files/Data/East Asian FederationShipNames20.dat",
+      "target": "Data/East Asian FederationShipNames20.dat"
+    },
+    {
+      "source": "Files/Data/East Asian FederationWarInfo.dat",
+      "target": "Data/East Asian FederationWarInfo.dat"
+    },
+    {
+      "source": "Files/Data/East Asian FederationWarInfo20.dat",
+      "target": "Data/East Asian FederationWarInfo20.dat"
+    },
+    {
+      "source": "Files/Data/European UnionNames.txt",
+      "target": "Data/European UnionNames.txt"
+    },
+    {
+      "source": "Files/Data/European UnionShipNames.dat",
+      "target": "Data/European UnionShipNames.dat"
+    },
+    {
+      "source": "Files/Data/European UnionShipNames20.dat",
+      "target": "Data/European UnionShipNames20.dat"
+    },
+    {
+      "source": "Files/Data/European UnionWarInfo.dat",
+      "target": "Data/European UnionWarInfo.dat"
+    },
+    {
+      "source": "Files/Data/European UnionWarInfo20.dat",
+      "target": "Data/European UnionWarInfo20.dat"
+    },
+    {
+      "source": "Files/Data/IndiaNames.txt",
+      "target": "Data/IndiaNames.txt"
+    },
+    {
+      "source": "Files/Data/IndiaShipNames.dat",
+      "target": "Data/IndiaShipNames.dat"
+    },
+    {
+      "source": "Files/Data/IndiaShipNames20.dat",
+      "target": "Data/IndiaShipNames20.dat"
+    },
+    {
+      "source": "Files/Data/IndiaWarInfo.dat",
+      "target": "Data/IndiaWarInfo.dat"
+    },
+    {
+      "source": "Files/Data/IndiaWarInfo20.dat",
+      "target": "Data/IndiaWarInfo20.dat"
+    },
+    {
+      "source": "Files/Data/Middle East FederationNames.txt",
+      "target": "Data/Middle East FederationNames.txt"
+    },
+    {
+      "source": "Files/Data/Middle East FederationShipNames.dat",
+      "target": "Data/Middle East FederationShipNames.dat"
+    },
+    {
+      "source": "Files/Data/Middle East FederationShipNames20.dat",
+      "target": "Data/Middle East FederationShipNames20.dat"
+    },
+    {
+      "source": "Files/Data/Middle East FederationWarInfo.dat",
+      "target": "Data/Middle East FederationWarInfo.dat"
+    },
+    {
+      "source": "Files/Data/Middle East FederationWarInfo20.dat",
+      "target": "Data/Middle East FederationWarInfo20.dat"
+    },
+    {
+      "source": "Files/Data/People's Republic of ChinaNames.txt",
+      "target": "Data/People's Republic of ChinaNames.txt"
+    },
+    {
+      "source": "Files/Data/People's Republic of ChinaShipNames.dat",
+      "target": "Data/People's Republic of ChinaShipNames.dat"
+    },
+    {
+      "source": "Files/Data/People's Republic of ChinaShipNames20.dat",
+      "target": "Data/People's Republic of ChinaShipNames20.dat"
+    },
+    {
+      "source": "Files/Data/People's Republic of ChinaWarInfo.dat",
+      "target": "Data/People's Republic of ChinaWarInfo.dat"
+    },
+    {
+      "source": "Files/Data/People's Republic of ChinaWarInfo20.dat",
+      "target": "Data/People's Republic of ChinaWarInfo20.dat"
+    },
+    {
+      "source": "Files/Data/Russian FederationNames.txt",
+      "target": "Data/Russian FederationNames.txt"
+    },
+    {
+      "source": "Files/Data/Russian FederationShipNames.dat",
+      "target": "Data/Russian FederationShipNames.dat"
+    },
+    {
+      "source": "Files/Data/Russian FederationShipNames20.dat",
+      "target": "Data/Russian FederationShipNames20.dat"
+    },
+    {
+      "source": "Files/Data/Russian FederationWarInfo.dat",
+      "target": "Data/Russian FederationWarInfo.dat"
+    },
+    {
+      "source": "Files/Data/Russian FederationWarInfo20.dat",
+      "target": "Data/Russian FederationWarInfo20.dat"
+    },
+    {
+      "source": "Files/Data/South American UnionNames.txt",
+      "target": "Data/South American UnionNames.txt"
+    },
+    {
+      "source": "Files/Data/South American UnionShipNames.dat",
+      "target": "Data/South American UnionShipNames.dat"
+    },
+    {
+      "source": "Files/Data/South American UnionShipNames20.dat",
+      "target": "Data/South American UnionShipNames20.dat"
+    },
+    {
+      "source": "Files/Data/South American UnionWarInfo.dat",
+      "target": "Data/South American UnionWarInfo.dat"
+    },
+    {
+      "source": "Files/Data/South American UnionWarInfo20.dat",
+      "target": "Data/South American UnionWarInfo20.dat"
+    },
+    {
+      "source": "Files/Data/Southeast Asian UnionNames.txt",
+      "target": "Data/Southeast Asian UnionNames.txt"
+    },
+    {
+      "source": "Files/Data/Southeast Asian UnionShipNames.dat",
+      "target": "Data/Southeast Asian UnionShipNames.dat"
+    },
+    {
+      "source": "Files/Data/Southeast Asian UnionShipNames20.dat",
+      "target": "Data/Southeast Asian UnionShipNames20.dat"
+    },
+    {
+      "source": "Files/Data/Southeast Asian UnionWarInfo.dat",
+      "target": "Data/Southeast Asian UnionWarInfo.dat"
+    },
+    {
+      "source": "Files/Data/Southeast Asian UnionWarInfo20.dat",
+      "target": "Data/Southeast Asian UnionWarInfo20.dat"
+    },
+    {
+      "source": "Files/Data/United African StatesNames.txt",
+      "target": "Data/United African StatesNames.txt"
+    },
+    {
+      "source": "Files/Data/United African StatesShipNames.dat",
+      "target": "Data/United African StatesShipNames.dat"
+    },
+    {
+      "source": "Files/Data/United African StatesShipNames20.dat",
+      "target": "Data/United African StatesShipNames20.dat"
+    },
+    {
+      "source": "Files/Data/United African StatesWarInfo.dat",
+      "target": "Data/United African StatesWarInfo.dat"
+    },
+    {
+      "source": "Files/Data/United African StatesWarInfo20.dat",
+      "target": "Data/United African StatesWarInfo20.dat"
+    },
+    {
+      "source": "Files/Data/United StatesNames.txt",
+      "target": "Data/United StatesNames.txt"
+    },
+    {
+      "source": "Files/Data/United StatesShipNames.dat",
+      "target": "Data/United StatesShipNames.dat"
+    },
+    {
+      "source": "Files/Data/United StatesShipNames20.dat",
+      "target": "Data/United StatesShipNames20.dat"
+    },
+    {
+      "source": "Files/Data/United StatesWarInfo.dat",
+      "target": "Data/United StatesWarInfo.dat"
+    },
+    {
+      "source": "Files/Data/United StatesWarInfo20.dat",
+      "target": "Data/United StatesWarInfo20.dat"
+    },
+    {
+      "source": "Files/Flags/AfricanUnion.bmp",
+      "target": "Flags/AfricanUnion.bmp"
+    },
+    {
+      "source": "Files/Flags/EastAsia.bmp",
+      "target": "Flags/EastAsia.bmp"
+    },
+    {
+      "source": "Files/Flags/EuropeanUnion.bmp",
+      "target": "Flags/EuropeanUnion.bmp"
+    },
+    {
+      "source": "Files/Flags/IndiaNavy.bmp",
+      "target": "Flags/IndiaNavy.bmp"
+    },
+    {
+      "source": "Files/Flags/MiddleEast.bmp",
+      "target": "Flags/MiddleEast.bmp"
+    },
+    {
+      "source": "Files/Flags/SouthAmerica.bmp",
+      "target": "Flags/SouthAmerica.bmp"
+    },
+    {
+      "source": "Files/Flags/SoutheastAsia.bmp",
+      "target": "Flags/SoutheastAsia.bmp"
+    },
+    {
+      "source": "Files/Data/ArgentinaNames.txt",
+      "target": "Data/ArgentinaNames.txt"
+    },
+    {
+      "source": "Files/Data/ArgentinaShipNames.dat",
+      "target": "Data/ArgentinaShipNames.dat"
+    },
+    {
+      "source": "Files/Data/ArgentinaShipNames20.dat",
+      "target": "Data/ArgentinaShipNames20.dat"
+    },
+    {
+      "source": "Files/Data/ArgentinaWarInfo.dat",
+      "target": "Data/ArgentinaWarInfo.dat"
+    },
+    {
+      "source": "Files/Data/ArgentinaWarInfo20.dat",
+      "target": "Data/ArgentinaWarInfo20.dat"
+    },
+    {
+      "source": "Files/Data/BrazilNames.txt",
+      "target": "Data/BrazilNames.txt"
+    },
+    {
+      "source": "Files/Data/BrazilShipNames.dat",
+      "target": "Data/BrazilShipNames.dat"
+    },
+    {
+      "source": "Files/Data/BrazilShipNames20.dat",
+      "target": "Data/BrazilShipNames20.dat"
+    },
+    {
+      "source": "Files/Data/BrazilWarInfo.dat",
+      "target": "Data/BrazilWarInfo.dat"
+    },
+    {
+      "source": "Files/Data/BrazilWarInfo20.dat",
+      "target": "Data/BrazilWarInfo20.dat"
+    },
+    {
+      "source": "Files/Data/Communist ChinaNames.txt",
+      "target": "Data/Communist ChinaNames.txt"
+    },
+    {
+      "source": "Files/Data/Communist ChinaShipNames.dat",
+      "target": "Data/Communist ChinaShipNames.dat"
+    },
+    {
+      "source": "Files/Data/Communist ChinaShipNames20.dat",
+      "target": "Data/Communist ChinaShipNames20.dat"
+    },
+    {
+      "source": "Files/Data/Communist ChinaWarInfo.dat",
+      "target": "Data/Communist ChinaWarInfo.dat"
+    },
+    {
+      "source": "Files/Data/Communist ChinaWarInfo20.dat",
+      "target": "Data/Communist ChinaWarInfo20.dat"
+    },
+    {
+      "source": "Files/Data/European NATONames.txt",
+      "target": "Data/European NATONames.txt"
+    },
+    {
+      "source": "Files/Data/European NATOShipNames.dat",
+      "target": "Data/European NATOShipNames.dat"
+    },
+    {
+      "source": "Files/Data/European NATOShipNames20.dat",
+      "target": "Data/European NATOShipNames20.dat"
+    },
+    {
+      "source": "Files/Data/European NATOWarInfo.dat",
+      "target": "Data/European NATOWarInfo.dat"
+    },
+    {
+      "source": "Files/Data/European NATOWarInfo20.dat",
+      "target": "Data/European NATOWarInfo20.dat"
+    },
+    {
+      "source": "Files/Data/IndonesiaNames.txt",
+      "target": "Data/IndonesiaNames.txt"
+    },
+    {
+      "source": "Files/Data/IndonesiaShipNames.dat",
+      "target": "Data/IndonesiaShipNames.dat"
+    },
+    {
+      "source": "Files/Data/IndonesiaShipNames20.dat",
+      "target": "Data/IndonesiaShipNames20.dat"
+    },
+    {
+      "source": "Files/Data/IndonesiaWarInfo.dat",
+      "target": "Data/IndonesiaWarInfo.dat"
+    },
+    {
+      "source": "Files/Data/IndonesiaWarInfo20.dat",
+      "target": "Data/IndonesiaWarInfo20.dat"
+    },
+    {
+      "source": "Files/Data/IranNames.txt",
+      "target": "Data/IranNames.txt"
+    },
+    {
+      "source": "Files/Data/IranShipNames.dat",
+      "target": "Data/IranShipNames.dat"
+    },
+    {
+      "source": "Files/Data/IranShipNames20.dat",
+      "target": "Data/IranShipNames20.dat"
+    },
+    {
+      "source": "Files/Data/IranWarInfo.dat",
+      "target": "Data/IranWarInfo.dat"
+    },
+    {
+      "source": "Files/Data/IranWarInfo20.dat",
+      "target": "Data/IranWarInfo20.dat"
+    },
+    {
+      "source": "Files/Data/Republic of IndiaNames.txt",
+      "target": "Data/Republic of IndiaNames.txt"
+    },
+    {
+      "source": "Files/Data/Republic of IndiaShipNames.dat",
+      "target": "Data/Republic of IndiaShipNames.dat"
+    },
+    {
+      "source": "Files/Data/Republic of IndiaShipNames20.dat",
+      "target": "Data/Republic of IndiaShipNames20.dat"
+    },
+    {
+      "source": "Files/Data/Republic of IndiaWarInfo.dat",
+      "target": "Data/Republic of IndiaWarInfo.dat"
+    },
+    {
+      "source": "Files/Data/Republic of IndiaWarInfo20.dat",
+      "target": "Data/Republic of IndiaWarInfo20.dat"
+    },
+    {
+      "source": "Files/Data/State of JapanNames.txt",
+      "target": "Data/State of JapanNames.txt"
+    },
+    {
+      "source": "Files/Data/State of JapanShipNames.dat",
+      "target": "Data/State of JapanShipNames.dat"
+    },
+    {
+      "source": "Files/Data/State of JapanShipNames20.dat",
+      "target": "Data/State of JapanShipNames20.dat"
+    },
+    {
+      "source": "Files/Data/State of JapanWarInfo.dat",
+      "target": "Data/State of JapanWarInfo.dat"
+    },
+    {
+      "source": "Files/Data/State of JapanWarInfo20.dat",
+      "target": "Data/State of JapanWarInfo20.dat"
+    },
+    {
+      "source": "Files/Data/United States of AmericaNames.txt",
+      "target": "Data/United States of AmericaNames.txt"
+    },
+    {
+      "source": "Files/Data/United States of AmericaShipNames.dat",
+      "target": "Data/United States of AmericaShipNames.dat"
+    },
+    {
+      "source": "Files/Data/United States of AmericaShipNames20.dat",
+      "target": "Data/United States of AmericaShipNames20.dat"
+    },
+    {
+      "source": "Files/Data/United States of AmericaWarInfo.dat",
+      "target": "Data/United States of AmericaWarInfo.dat"
+    },
+    {
+      "source": "Files/Data/United States of AmericaWarInfo20.dat",
+      "target": "Data/United States of AmericaWarInfo20.dat"
+    },
+    {
+      "source": "Files/Data/Warsaw PactNames.txt",
+      "target": "Data/Warsaw PactNames.txt"
+    },
+    {
+      "source": "Files/Data/Warsaw PactShipNames.dat",
+      "target": "Data/Warsaw PactShipNames.dat"
+    },
+    {
+      "source": "Files/Data/Warsaw PactShipNames20.dat",
+      "target": "Data/Warsaw PactShipNames20.dat"
+    },
+    {
+      "source": "Files/Data/Warsaw PactWarInfo.dat",
+      "target": "Data/Warsaw PactWarInfo.dat"
+    },
+    {
+      "source": "Files/Data/Warsaw PactWarInfo20.dat",
+      "target": "Data/Warsaw PactWarInfo20.dat"
+    },
+    {
+      "source": "Files/Flags/Argentina.bmp",
+      "target": "Flags/Argentina.bmp"
+    },
+    {
+      "source": "Files/Flags/Brazil.bmp",
+      "target": "Flags/Brazil.bmp"
+    },
+    {
+      "source": "Files/Flags/Indonesia.bmp",
+      "target": "Flags/Indonesia.bmp"
+    },
+    {
+      "source": "Files/Flags/Iran.bmp",
+      "target": "Flags/Iran.bmp"
+    },
+    {
+      "source": "Files/Flags/NATO.bmp",
+      "target": "Flags/NATO.bmp"
+    }
+  ],
+  "runtime": [
+    {
+      "adapter": "timeline-2030",
+      "end_year": 2050
+    },
+    {
+      "adapter": "modern-research"
+    },
+    {
+      "adapter": "vls-cells"
+    }
+  ]
+}

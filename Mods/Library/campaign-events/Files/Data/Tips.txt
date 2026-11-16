@@ -1,0 +1,84 @@
+Naval Staff Briefings: 24 reworked campaign decisions are active.
+Tactical battle: Use search line formation if you have a small force and want to find the enemy.
+Tactical battle: With a division selected, you can move the mouse and see distance and estimated time to reach the cursor location in the status bar to the lower right.
+Tactical battle: With a division selected, press ctrl and click the map to change division course towards the cursor and run the game. It will pause when the division reaches the point.
+Tactical battle: With a division selected, press shift and click to change division course to the clicked point.
+Tactical battle: It is often better to set division speed to a couple of knots below max speed. That will leave a margin for maneuver and avoid high speed interference with gunnery.
+Tactical battle: At the start of a battle, press the clock button in the toolbar to get an idea of when sunrise or sunset is.
+Tactical battle: Press Q or < to run the game 5 minutes if enemy sighted, 60 minutes if not (will pause on new sighting).
+Tactical battle: A ship with bad flotation damage risks increasing flooding on high speed. A speed of 10 knots or below is recommended. 
+Tactical battle: Travelling at high speed for long periods of time risks engine failures. Ships with VTE-engines (vertical triple expansion) are more susceptible to breakdowns.
+Tactical battle: It is a good idea to change course every five minutes or so when in range of enemy torpedoes.
+Tactical battle: Sending coordinated airstrikes will make all planes in a strike try to arrive together, and allows fighter escorts to protect your bombers better.
+Tactical battle: A second or third wave of searching planes will increase your chance of locating the enemy, especially in carrier battles far from land bases.
+Tactical battle: If you want your carriers to stay where they are, give them patrol orders.  
+Tactical battle: A division with patrol orders will cruise around its present location. This also applies to human controlled divisions, so can be used if you want it to stay in place.
+Tactical battle: You can request CAP from land bases over one friendly ship division. Land CAP over ships is not always very reliable though.
+Tactical battle: You can order a support force to disengage if you don't want it to get in trouble. (Right click on the force in the OOB tab and select status).
+Tactical battle: Human players tend to be much more aggressive than real admirals. Keep in mind that one unlucky torpedo hit can ruin your whole day.
+Tactical battle: Use the Auto select strike button in the setup strike screen to quickly set up a strike package from a carrier division.
+Tactical battle: It is often wise to be content with a small victory and break off the battle. 
+Tactical battle: Enemy destroyers on your port or starboard bow have much better torpedo solutions than those astern.
+Tactical battle: Want to make sure the enemy does not sneak by? Drop off a cruiser division on patrol orders. They will stay and report if the enemy comes their way.
+Tactical battle: You can add a note to the map if you want to remember for example where the enemy was last sighed. Use the button to the right on the toolbar.
+Tactical battle: If you operate close to enemy bases, there is a larger risk of hitting enemy minefields. Minefields tend to be more numerous later in a war.
+Tactical battle: Not satisfied with the flagship? You can change lead division of a force once per battle. Force -> status -> change lead division.
+Tactical battle: Waiting for the battle to end? You can try to force an early end to the battle by pressing the end battle button.
+Tactical battle: Keyboard shortcuts are useful. For example, < or Q will run the game 5 minutes if enemy sighted, 60 minutes if not, and stop on new sighting.
+Tactical battle: Right click on the black flag to cancel all flotilla attack orders.
+Tactical battle: By keeping an oblique course to enemy ships, shells will hit at an angle, and you increase your effective belt armour protection.
+Tactical battle: Pursuing destroyers with heavier units is usually not worth the risk of taking a torpedo hit.
+Tactical battle: Friendly minefields are assumed to be known, and your ships will not run into them, even if you maneuver close.
+Tactical battle: In a convoy defence mission, be careful about pursuing enemy forces and leaving the convoy defenceless. There might be other enemy forces nearby.
+Tactical battle: If your carriers do seemingly erratic course changes, they are probably turning into the wind to launch aircraft. CAP and recon will be launched continuously.
+Tactical battle: Divisions with scout orders will tend to close and investigate contacts. If you want a closer rein on them, use screen instead.
+Tactical battle: Ships in divisions not in line ahead formation have a higher chance of getting lost at night or in poor visibility.
+Tactical battle: Pressing F will order a flotilla attack for the force of the currently selected division.
+Tactical battle: Ships in line ahead formation are less likely to lose contact in poor visibility.
+Tactical battle: Be careful when ordering airstrikes on enemy ships close to friendly forces. Pilots can mistake your ships for the enemy.
+Having at least twice as many destroyers as larger ships in an area will lower the risk of having ships torpedoed by submarines, both in strategic turns and when retiring from battle.
+In war, the level of intelligence effort towards your enemy will affect the pre battle enemy strength estimate and the number of battles you cannot avoid.
+In war, a higher level of intelligence effort towards your enemy will improve the effectiveness of your anti submarine warfare.
+In the main screen ship list, press M to quickly set a move destination for one or more selected ships.
+Constantly pressing for higher funds for the navy will eventually raise the unrest level in your nation.
+Nations with limited democracy or autocratic government are more vulnerable to revolution than other nations.
+Revolutions are somewhat more likely in the winter months.
+It is prudent to have a reserve of at least 20 000 as a war chest, to be prepared for increased wartime costs if a sudden conflict erupts.
+It is a good idea to take the opportunity to rebuild damaged ships. The repair cost will be replaced by the rebuild cost. Time will be the longest of repair and rebuild time.
+Do not expand too fast in the early game. Getting high tension with many other nations at the same time can be dangerous!
+Ships older than 35 years have their maintenance cost increased by 10%.
+If you do not want a support force in battle, you can select not to have one in the preferences screen. The opponent might still get one though.
+You can use the auto carrier conversion button (ship design screen, flight installations box) to easily rebuild a ship to aircraft carrier or seaplane carrier.
+You can rebuild old destroyers to corvettes by removing all torpedo tubes.
+Old ships cost more in maintenance, and can suffer more progressive flooding.
+You can change the properties of several air units by multi selecting in the air units list (air group management screen).
+It can be useful to keep an old or small aircraft carrier in reserve. It will increase your carrier air unit limit, in effect functioning as a training carrier.
+Cruisers on Trade Protection duty can catch enemy raiders or will at least reduce sinkings by them.
+It is not unusual to find yourself short on destroyers in wartime. They are needed both in the fleet and on anti submarine duties.
+Before submarines are common, ships on trade protection should be mostly cruisers. After that it should be some cruisers and mostly destroyers and corvettes.
+Obsolete ships (marked with an (O) in the ship list) have their capabilities reduced and are more likely to suffer breakdowns. A refit will remove the (O) status.
+Having a number of dedicated anti submarine corvettes can free up destroyers from trade protection.
+Putting obsolete destroyers with untrained crews on trade protection will fill up the numbers, but they will not be good at preventing merchant losses or sinking submarines.
+Ships under repair will cost double maintenance. This may be expensive after a large battle. You can put damaged ships in mothball status to halt repairs.
+As ships get older, they will lose a knot or two of speed. An engine rebuild will fix this, but is expensive.
+Obsolete battlecruisers are usually good candidates for conversion to aircraft carriers. Obsolete light cruisers can be converted to stopgap seaplane carriers.
+If you move a ship in reserve or mothballed status to another map area, it will be activated.
+Flight deck catapults will increase the maximum strike size and enable a carrier to launch CAP or recon without turning into the wind.
+Jet fighters are considerably more powerful than prop fighters, but early jet fighters tend to have low range which can make them unsuitable for escort missions.
+In times of low tension, you should keep the majority of your ships in reserve to save on maintenance. Make sure you reactivate them on rising tensions though.
+For your first game, you are recommended to use medium fleet or smaller and to use auto design for your legacy fleet and your first ship designs.
+You can drag and drop between map areas on the strategic map to set movement orders for ships.
+If you name a ship class DD1, MS2, CA4, Dreadnought2 or similar, the class name will not be used as ship name for the lead ship.
+It might be a good idea to use the formation Search line if you want to find the enemy.
+If you lack good aircraft of a role, you can often license build those of an ally. Select the role in the aircraft types screen and right click the type you want to license build.
+Consider moving your carriers upwind at the start of a battle. That will ensure they have room to turn into the wind to launch aircraft.
+A quick way of getting a stopgap light carrier is to build a 25 knot AMC and then convert it to a CVL.
+Minesweepers might seem unexciting, but a lack of minesweeping capability will increase the risk of mine strikes for your capital ships.
+You can click and drag from one map area to another to quickly order strategic moves for ships.
+A nation with limited democracy or autocratic government system that enters a war with substantial unrest level could be at risk of revolution if the war drags out.
+Ships that are rebuilt are automatically moved to the closest home area with a rebuild yard. A home possession must have a base capacity of 200 to be able to rebuild ships.
+If you want the ship designer to autodesign a liner AMC, select ship type AMC and set speed to 25 knots, then press autodesign.
+If tensions are high, it is a good idea to increase the readiness of your ships. Fighting a war with newly mobilized ships with half-trained crews can go badly.
+If you want to design a 600 ton corvette quickly, set ship type to KE and displacement to 600 tons and auto-design. Same with 300 tons.
+Do not despair if you lose a war. Nothing is more satisfying than rebuilding your Navy and beating them thoroughly in the next war!
+If enemy raiding cruisers are sinking your merchantmen, you should assign cruisers to Trade protection.

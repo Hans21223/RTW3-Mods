@@ -1,0 +1,7 @@
+python\python314.zip
+python\DLLs
+python
+.
+..\Manager
+..\CampaignOverhaul
+import site

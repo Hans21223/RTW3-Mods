@@ -1,0 +1,14 @@
+{
+  "schema": 1,
+  "id": "in-game-submarines",
+  "name": "In-game Submarine Designer - Experimental",
+  "version": "0.3.0",
+  "author": "Local RTW3 Mod Tools",
+  "description": "Extends the original Ship design screen: select SS - Submarine class under Ship type, or use F11 with a loaded campaign. Reuses native class-name, displacement, surfaced-speed, tab and finish controls. Saves submarine blueprints separately, never as surface ships. Matching new native boats can receive class labels, availability and accuracy through Save and order. Other component/performance fields remain estimates; native costs, build times, weapons and tactical movement are unchanged. Game restart required to update or unload.",
+  "kind": "runtime",
+  "experimental": true,
+  "requires": ["live-cheats"],
+  "conflicts": [],
+  "files": [],
+  "runtime": {"adapter": "in-game-submarines"}
+}

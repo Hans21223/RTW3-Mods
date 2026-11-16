@@ -1,0 +1,24 @@
+{
+  "schema": 1,
+  "id": "research-budget",
+  "name": "Research - Budget Scaling and Stronger National Traits",
+  "version": "0.2.0",
+  "description": "One research package (merged from Research Budget Scaling and Stronger Research Advantages). Research Budget Scaling - No Stalled Projects: Research setbacks no longer halve a project's accumulated progress; they cost that turn's gain, keeping the native messages and ahead-of-era slowdowns. This removes the stall where projects 3+ years ahead hover far below cost for hundreds of turns. Research effort above the native 20%-of-cost per-turn limit still counts at 50%, up to 60% of cost per turn, so a bigger budget keeps speeding research. The national point total saturates instead of wrapping negative at extreme budgets or research speeds. Same rules for player and AI; no save values, priorities or research speed edited. Restart through Play with mods. Gameplay balance unverified. See Mods/Manager/RESEARCH_BUDGET.md. Stronger Research Advantages and Technical Excellence: National ResearchNAdvantage flags add a steady 50% to positive research effort in their own branch. TechnicalExcellence adds 25% across all research branches, including gun research. These extra percentages add: both give +75%, before the remaining native random modifiers, era/prerequisite checks and progress limits. Existing national bonuses stay intact. Same rules for player and AI; no trait flags, research speed, budgets, completed technologies, save files or ship/aircraft performance are edited. Integer rounding and native limits can reduce the visible gain. Optional values are configurable in this manifest; restart through Play with mods. Gameplay balance remains unverified. See Mods/Manager/RESEARCH_TRAITS.md.",
+  "kind": "runtime",
+  "experimental": true,
+  "requires": [],
+  "conflicts": [],
+  "files": [],
+  "runtime": [
+    {
+      "adapter": "research-budget",
+      "overflow_percent": 50,
+      "max_turn_progress_percent": 60
+    },
+    {
+      "adapter": "research-traits",
+      "research_advantage_bonus_percent": 50,
+      "technical_excellence_bonus_percent": 25
+    }
+  ]
+}

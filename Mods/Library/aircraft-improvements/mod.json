@@ -1,0 +1,13 @@
+{
+  "schema": 1,
+  "id": "aircraft-improvements",
+  "name": "Aircraft - Improve Model in Right-click Menu",
+  "version": "0.1.0",
+  "description": "Adds Improve aircraft model... to the native Aircraft types right-click menu. Uses the original request dialog and both priority choices, with the selected aircraft role fixed. The game creates a named successor of the selected player model, applies native priority adjustments, and schedules it as a normal saved prototype with native development time plus the request delay. Current aircraft remain usable. Unavailable for foreign, obsolete, developing, superseded or final-version models, or while another aircraft request is pending. Native research and manufacturer checks still apply. Restart through Play with mods. Experimental; see Mods/Manager/AIRCRAFT_IMPROVEMENTS.md for validation scope.",
+  "kind": "runtime",
+  "experimental": true,
+  "requires": [],
+  "conflicts": [],
+  "files": [],
+  "runtime": {"adapter": "aircraft-improvements"}
+}
