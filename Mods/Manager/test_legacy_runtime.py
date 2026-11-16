@@ -52,6 +52,7 @@ def main():
                 m.mem_write(allocation, code); caption = data+0x4000
                 m.mem_write(form+0x4bc, struct.pack("<I", caption)); m.mem_write(caption, struct.pack("<I", vtable))
                 m.mem_write(vtable+0xe0, struct.pack("<I", allocation+0x8100)); m.mem_write(allocation+0x8100, b"\xc2\x08\x00")
+                m.mem_write(form+0x518, struct.pack("<I", data+0x5000)); m.mem_write(data+0x5058, struct.pack("<I", 193))
                 call = first["address"]+15
                 setter = call+5+struct.unpack_from("<i", blob, call-base+1)[0]
                 m.mem_write(setter, b"\x88\x50\x69\xc3")

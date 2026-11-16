@@ -18,7 +18,7 @@ import hashlib
 import struct
 import weekly_runtime as rt
 import modern_tree as tree
-from hull_rules import patch
+from hull_rules import patch, dpi_scale_routine
 from modern_extension import HYPERSONIC_BIT as HYPER_BIT, SUPER_HEAVY_BIT as SUPER_BIT, SECONDARY_RAIL_BIT, TERTIARY_RAIL_BIT
 
 BASE = 0x301000
@@ -147,7 +147,9 @@ SITES = (("refresh", 0x5EB15B, 7), ("legality", 0x5D72A9, 10), ("turret_weight",
          ("air_record", 0x849D37, 7))
 # Saving the value 2 is modern_extension's: it writes and reads this byte as an integer.
 # Form fields (TfrmDesignMain2 RTTI) and VCL layout (TControl/TComponent RTTI, VMT slots).
-FORM = dict(group_main=0x64C, group_aa=0x9F0, panel_additional=0x618, elevation=0x6A0, nation=0xC63, ship2=0xC6B, editable=0xE67, design=0xE6C)
+FORM = dict(group_main=0x64C, group_aa=0x9F0, panel_additional=0x618, elevation=0x6A0, nation=0xC63, ship2=0xC6B, editable=0xE67, design=0xE6C,
+            group_flight=0x94C)
+GROUP_WIDTH = 313   # the Flight installations group at 96 DPI (the *_BOUNDS are 96-DPI): the display-scaling reference
 VCL = dict(components=0x10, tag=0xC, hint=0x90, on_click=0x120, create=0x3C, set_parent=0xA0, set_enabled=0x9C,
            get_checked=0x16C, set_checked=0x170, list_add=0x3C, spin_min=0x308, spin_max=0x30C, on_change=0x2E0,
            spin_increment=0x310)
@@ -246,7 +248,7 @@ def build(page, info, ext, names_sync=None, nuclear_missile=None, cell_cost_at=N
     """Six pages: code in page, page+0x2000, page+0x3000, page+0x4000 and page+0x5000, strings in page+0x1000 and
     the gaps after them; ext is modern_extension's lookup. Returns blocks, patches."""
     from campaign_security import Code   # imported late: campaign_security imports modern_research
-    at = dict(refresh=page, sync=page+0x40, find=page+0x2C0, create_box=page+0x300, create_label=page+0x3C0,
+    at = dict(scale=page+0x4380, refresh=page, sync=page+0x40, find=page+0x2C0, create_box=page+0x300, create_label=page+0x3C0,
               power=page+POWER, click=page+0x4C0, turret_weight=page+0xB80, haa=page+0x940,
               turret_cost=page+0x700, gun_data=page+0x780, range_entry=page+0x7A0,
               range_exit=page+0x5700, fire_ie=page+0x5780, penetration=page+0x2800, magazine=page+0x880,
@@ -357,7 +359,7 @@ def build(page, info, ext, names_sync=None, nuclear_missile=None, cell_cost_at=N
         if parent_field: c.u32(parent_field)
         c.emit(b"\x8b\xc6"); call_slot(c, V["set_parent"])
         for setter, value in zip(("set_left", "set_top", "set_width", "set_height"), bounds):
-            c.emit(b"\xba"); c.u32(value); c.emit(b"\x8b\xc6"); c.branch(b"\xe8", n[setter])
+            c.emit(b"\xba"); c.u32(value); c.branch(b"\xe8", at["scale"]); c.emit(b"\x8b\xc6"); c.branch(b"\xe8", n[setter])
         c.emit(b"\x8d\x86"); c.u32(V["hint"]); c.emit(b"\xba"); c.u32(texts[hint]); c.branch(b"\xe8", n["assign"])
         c.emit(b"\xb2\x01\x8b\xc6"); c.branch(b"\xe8", n["set_show_hint"])
 
@@ -380,6 +382,8 @@ def build(page, info, ext, names_sync=None, nuclear_missile=None, cell_cost_at=N
     c.branch(b"\x0f\x84", "plain"); c.emit(b"\xb9\x04\x00\x00\x00")
     c.mark("plain"); c.emit(b"\x8b\xc1\xc3")
     code["drive_kind"] = c.finish()
+
+    code["scale"] = dpi_scale_routine(F["group_flight"], GROUP_WIDTH)   # EDX: a 96-DPI bound -> on screen
 
     # power(EAX design, EDX nation, ECX 1: count the main battery as railguns) -> EAX MW the railguns and lasers
     # need, EDX MW the plant can spare. The main battery counts when it is a railgun or ECX asks (ticking it).
@@ -964,7 +968,7 @@ def build(page, info, ext, names_sync=None, nuclear_missile=None, cell_cost_at=N
     limits = dict(refresh=0x40, sync=0x280, find=0x40, create_box=0xC0, create_label=0x80, power=0x180, click=0x140,
                   legality=0x200, turret_weight=0xC0, turret_cost=0x40, ammo=0x180, gun_data=0x20, range_entry=0x20,
                   laser_sync=0x100, create_spin=0xC0, create_laser_label=0x80, laser_change=0x100, laser_layer=0x100,
-                  gen_sync=0x100, create_gen=0xC0, create_gen_label=0x80, gen_change=0x140,
+                  gen_sync=0x100, create_gen=0xC0, create_gen_label=0x80, gen_change=0x140, scale=0x80,
                   hyper_sync=0x100, create_hyper=0xC0, hyper_click=0x100, sam1=0x40, sam2=0x40, layer3=0x40,
                   ciws_hyper=0x40, maa_hyper=0x40, sam_stands=0xC0, gun_stands=0xC0, drive_kind=0x40, air_record=0xB0, is_hyper=0x40, hyper_record=0x100, launch_ebx=0x40, launch_frame=0x40,
                   super_sync=0x100, create_super=0xC0, super_click=0x140, range_ebx=0x40, range_edi=0x40,

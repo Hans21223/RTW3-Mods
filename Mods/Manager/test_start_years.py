@@ -47,6 +47,7 @@ class World:
             self.put(self.vmt+slot, self.at[name])
         self.put(FORM+sy.FORM["panel"], PANEL); self.put(FORM+sy.FORM["image"], IMAGE)
         self.put(IMAGE+sy.VCL["picture"], PICTURE); self.put(FORM+sy.FORM["lb1935"], LB1935)
+        self.put(LB1935+0x58, sy.LB1935_WIDTH)                                          # 100% display scaling
         self.put(FORM+sy.FORM["components"], LIST); self.put(LIST+4, LIST+0x10); self.put(LIST+8, 0)
         self.put(LB1935, self.vmt); self.put(OTHER, self.vmt)
         self.put(YEAR, YEAR+4); self.put(DATE, DATE+4); self.put(DIR, DIR_TEXT)

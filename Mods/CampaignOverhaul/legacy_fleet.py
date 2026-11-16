@@ -7,7 +7,7 @@ import struct
 import time
 import weekly_runtime as rt
 import week_display as memory
-from hull_rules import patch, unique, message_ref
+from hull_rules import patch, unique, message_ref, dpi_scaled
 
 REPORT = Path(__file__).with_name("legacy_fleet_report.json")
 REFERENCE = 0x301000
@@ -18,6 +18,7 @@ SET_TOP = (0x450F24, "53568bd88b4358508b435c508b43508bca8bd3928b30ff96e000000080
 # which the game shows in the same place.
 TOPS = {"Legacy checkbox": (405, 476), "Legacy caption": (403, 474)}
 TREATY_YEAR = 1920
+TREATY_LIST = (0x518, 193)   # lbTreaty: form field and width at 96 DPI (the TOPS are 96-DPI): display-scaling reference
 
 
 def year_thunk(address, year_slot, resume):
@@ -31,9 +32,9 @@ def year_thunk(address, year_slot, resume):
 
 def top_thunk(address, control, tops, set_top):
     """Replaces CMP [ESI],1900 / SETE DL: always visible (DL=1), placed below the treaty list in its year."""
-    native, moved = tops
-    code = b"\x60\xba"+struct.pack("<I", native)
-    code += b"\x81\x3e"+struct.pack("<I", TREATY_YEAR)+b"\x75\x05\xba"+struct.pack("<I", moved)
+    native, moved = (dpi_scaled(top, *TREATY_LIST) for top in tops)
+    code = b"\x60\x81\x3e"+struct.pack("<I", TREATY_YEAR)+b"\x75"+bytes([len(moved)+2])
+    code += moved+b"\xeb"+bytes([len(native)])+native
     code += b"\x8b\x83"+struct.pack("<I", control)+b"\xe8"
     code += struct.pack("<i", set_top-(address+len(code)+4))
     return code+b"\x61\xb2\x01\xc3"

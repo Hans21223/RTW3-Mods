@@ -59,7 +59,8 @@ class World:
         # The designer form: our box is its only component; two designs; nation; Flight installations group.
         for address, value in ((FORM+0x10, LIST), (LIST+4, ITEMS), (LIST+8, 1), (ITEMS, BOX), (BOX, CHECKBOX),
                                (BOX+0xC, carrier.MAGIC_SKI), (BOX+0x120, self.at["click"]), (BOX+0x124, FORM),
-                               (FORM+0x94C, GROUP), (FORM+0xC63, NATION), (FORM+0xC6B, SHIP2), (FORM+0xE6C, SHIP)):
+                               (FORM+0x94C, GROUP), (GROUP+0x58, carrier.GROUP_WIDTH),          # 100% display scaling
+                               (FORM+0xC63, NATION), (FORM+0xC6B, SHIP2), (FORM+0xE6C, SHIP)):
             self.put(address, value)
         self.put(FORM+0xE67, 1, 1)
 
@@ -119,6 +120,12 @@ class DesignerTests(unittest.TestCase):
         self.assertIn(("text", box, "Ski jump"), world.log)
         self.assertEqual((world.get(box+0xC), world.get(box+0x120), world.get(box+0x124)),
                          (carrier.MAGIC_SKI, world.at["click"], FORM))
+        # Windows display scaling at 150%: the game's group is 1.5 times wider, and the box follows it.
+        world = World(); world.put(LIST+8, 0); world.design(); world.put(GROUP+0x58, 470)
+        world.call(world.at["sync"], FORM)
+        box = next(e[1] for e in world.log if e[0] == "parent")
+        self.assertEqual({e[0]: e[2] for e in world.log if e[0].startswith("set_") and e[1] == box},
+                         dict(zip(("set_left", "set_top", "set_width", "set_height"), (36, 87, 135, 21))))
 
     def test_the_box_mirrors_the_design_quietly_and_is_enabled_by_research_and_a_flight_deck(self):
         for owned, deck, jet, editable, checked, enabled in (

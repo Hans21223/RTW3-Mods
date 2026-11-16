@@ -26,6 +26,7 @@ Part of the modern-research adapter; imported lazily.
 """
 import hashlib
 import struct
+from hull_rules import dpi_scale_routine
 
 BASE = 0x301000
 GUIDED, NUCLEAR, TORPEDO, MISSILE, CONSERVE = 1, 2, 4, 8, 16   # the choice's bits; 2, 4 and 8 are nuclear weapons
@@ -59,7 +60,8 @@ CONTROL = dict(tag=0xC, left=0x50, top=0x54, width=0x58, height=0x5C)
 VCL = dict(create=0x3C, set_enabled=0x9C, set_parent=0xA0, get_checked=0x16C, set_checked=0x170)   # virtual slots
 TAGS = dict(box=0x5348454C, guided=0x5348454D, nuclear=0x5348454E, torpedo=0x5348454F, missile=0x53484550,
             conserve=0x53484551)
-BOX_HEIGHT, MOVE = 145, 150                                         # the new box; how far the form grows
+BOX_HEIGHT, MOVE = 145, 150                                         # the new box; how far the form grows (96 DPI)
+GROUP5_WIDTH = 273   # GroupBox5 at 96 DPI: the display-scaling reference for the sizes above and the BOXES
 STORED, FUNDS, PLAYER = 0x95, 0x1B5, 0x3204                       # nation field, nation funds, main's player nation
 SHIP = dict(kind=0x9D3, out=0xA9F)                                # type (12: not a ship), out of action
 NEWS = dict(reason="on account of the use of nuclear weapons.",
@@ -242,12 +244,16 @@ def build(page, info):
     c.emit(b"\x8b\xbb"); c.u32(FORM["priority"])                                   # EDI: AP shell design priority
     for name, field in (("set_left", "left"), ("set_top", "top"), ("set_width", "width")):
         setter(c, 0xC6, name, b"\x8b\x57"+bytes([CONTROL[field]]))
-    setter(c, 0xC6, "set_height", BOX_HEIGHT); setter(c, 0xC6, "set_text", texts["caption"])
-    setter(c, 0xC7, "set_top", b"\x8b\x57"+bytes([CONTROL["top"]])+b"\x81\xc2"+struct.pack("<I", MOVE))
-    c.emit(b"\x8b\x53"+bytes([CONTROL["height"]])+b"\x81\xc2"+struct.pack("<I", MOVE)+b"\x8b\xc3"); c.branch(b"\xe8", n["set_height"])
+    def scaled(value):   # EDX := a 96-DPI size on screen (the routine at the end)
+        c.emit(b"\xba"); c.u32(value); c.branch(b"\xe8", "scale")
+        return b""
+    setter(c, 0xC6, "set_height", scaled(BOX_HEIGHT)); setter(c, 0xC6, "set_text", texts["caption"])
+    setter(c, 0xC7, "set_top", scaled(MOVE)+b"\x03\x57"+bytes([CONTROL["top"]]))
+    c.emit(scaled(MOVE)+b"\x03\x53"+bytes([CONTROL["height"]])+b"\x8b\xc3"); c.branch(b"\xe8", n["set_height"])
     for key, _, top in BOXES:
         make(c, FORM["heavy_aa"], TAGS[key]); c.emit(b"\x8b\xf8\x8b\xd6\x8b\x08\xff\x91"); c.u32(VCL["set_parent"])
-        setter(c, 0xC7, "set_left", 16); setter(c, 0xC7, "set_top", top); setter(c, 0xC7, "set_width", 240)
+        setter(c, 0xC7, "set_left", scaled(16)); setter(c, 0xC7, "set_top", scaled(top))
+        setter(c, 0xC7, "set_width", scaled(240))
         setter(c, 0xC7, "set_text", texts[key])
     c.mark("made")
     for key, flag, _ in BOXES:                                                       # [esp+1Ch]: the nation
@@ -259,6 +265,7 @@ def build(page, info):
             c.emit(b"\x8b\xd0\x8b\xc7\x8b\x08\xff\x91"); c.u32(VCL["set_enabled"])
         c.mark("no_"+key)
     c.emit(b"\x61"+bytes.fromhex(SITES[0][2])); c.branch(b"\xe9", n["sites"]["show"]+6)
+    c.mark("scale"); c.emit(dpi_scale_routine(FORM["priority"], GROUP5_WIDTH))
     code["show"] = c.finish()
 
     # Close, EBX form, ESI nation: the tick boxes are the nation's choice; the native field keeps its value.

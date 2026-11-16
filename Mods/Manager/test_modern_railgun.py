@@ -83,6 +83,7 @@ class World:
                                (LABEL+0xC, railgun.MAGIC_LABEL), (ELEV, CHECKBOX), (ELEV+0x120, 0xDEAD0000),
                                (BOX+0x120, self.at["click"]), (BOX+0x124, FORM),
                                (FORM+0x64C, DATA+0x9000), (FORM+0x6A0, ELEV), (FORM+0xC63, NATION),
+                               (FORM+0x94C, DATA+0x9E00), (DATA+0x9E00+0x58, railgun.GROUP_WIDTH),   # 100% display scaling
                                (FORM+0xC6B, SHIP2), (FORM+0xE6C, SHIP), (ERRORS, DATA+0x7E00), (DATA+0x7E00+0x3C, DATA+0x7F00)):
             self.put(address, value)
         self.put(FORM+0xE67, 1, 1)

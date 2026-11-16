@@ -20,6 +20,7 @@ import hashlib
 import struct
 
 import modern_research as audit
+from hull_rules import dpi_scale_routine
 
 BASE = 0x301000
 YEARS = (1947, 1960, 1980, 2000)
@@ -45,6 +46,7 @@ NATIVE = dict(encode_date=0x32CB18, cat3=0x30C694, clear=0x30B93C, assign=0x30BC
               after_image=0x69C47F, after_button=0x698EC1, flags_1935=0x6995BD, after_flags=0x699620,
               bnat_1935=0x74923C, after_nations=0x748E70, mapdata_1920=0x7B7A0C, after_map=0x7B7881)
 FORM = dict(components=0x10, panel=0x4D4, image=0x4D8, lb1935=0x578)   # TfrmSelectNation2 and TComponent
+LB1935_WIDTH = 139   # lb1935 at 96 DPI (PLACES are 96-DPI): the display-scaling reference
 VCL = dict(tag=0xC, hint=0x90, on_click=0x120, create=0x3C, set_parent=0xA0, picture=0x1E0)
 MAIN = dict(first_completion_seen=0x4A4B, spending_share_seen=0x4A51)
 SITES = (("open_image", 0x69C479, "8b83d4040000"), ("open_button", 0x698EBB, "8b83d4040000"),
@@ -147,13 +149,14 @@ def build(page, info):
         c.emit(b"\x33\xd2\x8b\xc6\x8b\x08\xff\x91"); c.u32(n["set_auto_size"])
         c.emit(b"\xb2\x01\x8b\xc6"); c.branch(b"\xe8", n["set_transparent"])
         for setter, value in (("set_left", left), ("set_top", top), ("set_width", WIDTH), ("set_height", HEIGHT)):
-            c.emit(b"\xba"); c.u32(value); c.emit(b"\x8b\xc6"); c.branch(b"\xe8", n[setter])
+            c.emit(b"\xba"); c.u32(value); c.branch(b"\xe8", "scale"); c.emit(b"\x8b\xc6"); c.branch(b"\xe8", n[setter])
         c.emit(b"\x8d\x86"); c.u32(VCL["hint"]); c.emit(b"\xba"); c.u32(texts[year]); c.branch(b"\xe8", n["assign"])
         c.emit(b"\xb2\x01\x8b\xc6"); c.branch(b"\xe8", n["set_show_hint"])
         c.emit(b"\xc7\x86"); c.u32(VCL["on_click"]); c.u32(n["click"])
         c.emit(b"\x89\x9e"); c.u32(VCL["on_click"]+4)
     c.mark("done"); c.emit(b"\x8d\x45\xfc\xba\x01\x00\x00\x00"); c.branch(b"\xe8", n["clear"])
     c.emit(b"\x5f\x5e\x5b\x8b\xe5\x5d\xc3")
+    c.mark("scale"); c.emit(dpi_scale_routine(FORM["lb1935"], LB1935_WIDTH))
     code = dict(setup=c.finish())
 
     for name, back in (("open_image", n["after_image"]), ("open_button", n["after_button"])):   # EBX form

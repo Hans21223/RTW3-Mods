@@ -43,6 +43,20 @@ def message_ref(blob, base, message):
     return candidates[0]
 
 
+def dpi_scaled(value, reference, design):
+    """EDX := value, a position or size at 96 DPI, scaled like the form's own controls: x the reference control's
+    width now ([EBX+reference], TControl.Width at +58h) / its design width. RTW3 is PerMonitorV2 DPI-aware, so with
+    Windows display scaling above 100% it enlarges its forms; controls a mod adds must follow. Uses EAX and ECX."""
+    return (b"\x8b\x83"+struct.pack("<I", reference)+b"\x8b\x40\x58\xba"+struct.pack("<i", value)
+            +b"\xf7\xea\xb9"+struct.pack("<I", design)+b"\xf7\xf9\x8b\xd0")
+
+
+def dpi_scale_routine(reference, design):
+    """dpi_scaled as a routine, for code short of room: call it with EDX = value; it keeps every other register."""
+    return (b"\x50\x51\x8b\x83"+struct.pack("<I", reference)+b"\x8b\x40\x58\xf7\xea\xb9"+struct.pack("<I", design)
+            +b"\xf7\xf9\x8b\xd0\x59\x58\xc3")
+
+
 def patch(label, address, original, replacement):
     if len(original) != len(replacement):
         raise ValueError("A code patch must retain its original length.")

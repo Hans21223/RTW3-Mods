@@ -41,13 +41,14 @@ import hashlib
 import struct
 
 import modern_tree as tree
-from hull_rules import patch
+from hull_rules import patch, dpi_scale_routine
 
 BASE = 0x301000
 SKI_BIT, JET_BITS = 2, 3            # JetCapable byte: bit 1 ski jump; ticking it sets jet capable too
 LIGHT_JET = 10                      # aircraft role (Purpose, TAircraftType+0x81): Light jet fighter
 MAGIC_SKI = 0x52474E3B              # Tag of the checkbox (unique among the designer boxes: modern_railgun's 31-3A)
-SKI_BOUNDS = (24, 58, 90, 14)       # Flight installations group, under Flight deck
+SKI_BOUNDS = (24, 58, 90, 14)       # Flight installations group, under Flight deck (96 DPI)
+GROUP_WIDTH = 313                    # the Flight installations group at 96 DPI: the display-scaling reference
 NATION_ENTRY = 0x20                 # vtol routine: entry that skips the aircraft-type test
 WINDOWS = (
     (0x82AA39, 0x55, "d5ac182c41b3dff2ede47958102f72ff956c2b209ff91ec21e7969a4903274bf"),   # deck space of jets
@@ -213,12 +214,13 @@ def build(page, info, uav_request=None):
     c.emit(b"\x8b\xf0\xc7\x46"); c.emit(bytes([V["tag"]])); c.u32(MAGIC_SKI)
     c.emit(b"\x8b\x93"); c.u32(F["group"]); c.emit(b"\x8b\xc6"); call_slot(c, V["set_parent"])
     for setter, value in zip(("set_left", "set_top", "set_width", "set_height"), SKI_BOUNDS):
-        c.emit(b"\xba"); c.u32(value); c.emit(b"\x8b\xc6"); c.branch(b"\xe8", n[setter])
+        c.emit(b"\xba"); c.u32(value); c.branch(b"\xe8", "scale"); c.emit(b"\x8b\xc6"); c.branch(b"\xe8", n[setter])
     c.emit(b"\x8d\x86"); c.u32(V["hint"]); c.emit(b"\xba"); c.u32(texts["hint"]); c.branch(b"\xe8", n["assign"])
     c.emit(b"\xb2\x01\x8b\xc6"); c.branch(b"\xe8", n["set_show_hint"])
     c.emit(b"\xba"); c.u32(texts["caption"]); c.emit(b"\x8b\xc6"); c.branch(b"\xe8", n["set_text"])
     c.emit(b"\xc7\x86"); c.u32(V["on_click"]); c.u32(at["click"]); c.emit(b"\x89\x9e"); c.u32(V["on_click"]+4)
     c.emit(b"\x8b\xc6\x5e\x5b\xc3")
+    c.mark("scale"); c.emit(dpi_scale_routine(F["group"], GROUP_WIDTH))
     code["create"] = c.finish()
 
     # OnClick(EAX form, EDX checkbox): tick sets jet capable and ski jump on both designs, untick clears the ski jump.
