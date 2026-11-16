@@ -14,3 +14,18 @@ Not in the repository: the game's files, third-party packages (capstone 5.0.9 an
 `Manager/vendor/`), the Python runtime the Mod Manager carries (from Sprocket Mod Manager 1.4.0), and
 `Manager/native-designer-inspection.text.bin`/`.json`, the game-code dump the tests read (`native_designer.py`
 makes it from your own copy of Rule the Waves 3 1.01.44).
+
+### PowerShell (build scripts)
+
+Two scripts in `Mods/Manager` compile the older C# tools with the C# compiler built into Windows
+(.NET Framework 4 `csc.exe`), so no Visual Studio is needed:
+
+- `build_manager.ps1` builds `RTW3 Mod Manager.exe` into the game folder: the original Windows
+  Forms mod manager, with the F10 Live Cheats window and the save editor (`ModManager.cs`,
+  `CheatMenu.cs`, `GameTools.cs`, `AdvancedSaveEditor.cs`). Add
+  `-OutputName 'RTW3 Mod Manager Updated.exe'` to build the second copy.
+- `build_submarine_module.ps1` builds `RTW3.SubmarineDesigner.dll`, the 32-bit in-game panel of
+  the In-game Submarine Designer mod. With `-LayoutTest` it builds and runs a layout check instead.
+
+Neither is needed for the alpha: the Mod Manager players use is the Python one in `Mods/ModManager`,
+and Live Cheats and the In-game Submarine Designer are not in this release.
