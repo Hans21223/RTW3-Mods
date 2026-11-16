@@ -111,7 +111,7 @@ def read_manifest(folder):
             raise ValueError(f"Mod {ident} needs {key}.")
     if manifest.get("kind") not in {"data", "runtime"}:
         raise ValueError(f"Unsupported mod kind in {ident}.")
-    for key in ("requires", "conflicts"):
+    for key in ("requires", "conflicts", "overrides"):
         values = manifest.get(key, [])
         if not isinstance(values, list) or any(not isinstance(item, str) for item in values):
             raise ValueError(f"Invalid {key} in {ident}.")
@@ -245,7 +245,10 @@ def resolve_plan(enabled):
             raise ValueError(f"{mod['name']} conflicts with: {', '.join(sorted(conflicts))}")
         for item in mod.get("files", []):
             key = item["target"].casefold()
-            if key in plan:
+            # A sub-mod lists the mods whose files it replaces ("overrides"); whichever is enabled first, it wins.
+            if key in plan and plan[key]["owner"] not in mod.get("overrides", []):
+                if ident in mods[plan[key]["owner"]].get("overrides", []):
+                    continue
                 raise ValueError(f"File conflict: {item['target']} is supplied by {plan[key]['owner']} and {ident}. Choose one mod.")
             plan[key] = {"target": item["target"], "source": str(inside(Path(mod["folder"]), item["source"])), "owner": ident}
         if mod["kind"] == "runtime":
@@ -415,31 +418,37 @@ def stage_runtime(identifiers):
         return {"ok": True, "message": "Runtime mods selected for the next manager launch. The running game and campaign were not modified.", "status": status()}
 
 
+def unpack(package, root):
+    """A ZIP into `root`, refusing unsafe or linked paths, duplicates and oversized packages."""
+    root.mkdir(parents=True, exist_ok=True)
+    with zipfile.ZipFile(package) as archive:
+        entries = archive.infolist()
+        if len(entries) > 10000 or sum(entry.file_size for entry in entries) > MAX_PACKAGE_BYTES:
+            raise ValueError("Package exceeds the 256 MB / 10,000 entry limit.")
+        names = set()
+        for entry in entries:
+            name = entry.filename.rstrip("/")
+            safe_relative(name)
+            if name.casefold() in names:
+                raise ValueError("Package contains duplicate file names.")
+            names.add(name.casefold())
+            if (entry.external_attr >> 16) & 0o170000 == 0o120000:
+                raise ValueError("Package contains a symbolic link.")
+            dest = inside(root, name)
+            if entry.is_dir():
+                dest.mkdir(parents=True, exist_ok=True)
+            else:
+                dest.parent.mkdir(parents=True, exist_ok=True)
+                with archive.open(entry) as source, dest.open("wb") as output:
+                    shutil.copyfileobj(source, output)
+
+
 def import_package(package):
     if not package.is_file():
         raise ValueError("ZIP package was not found.")
     with operation_lock(), tempfile.TemporaryDirectory(prefix="rtw-import-", dir=HERE) as temp:
         root = Path(temp)
-        with zipfile.ZipFile(package) as archive:
-            entries = archive.infolist()
-            if len(entries) > 10000 or sum(entry.file_size for entry in entries) > MAX_PACKAGE_BYTES:
-                raise ValueError("Package exceeds the 256 MB / 10,000 entry limit.")
-            names = set()
-            for entry in entries:
-                name = entry.filename.rstrip("/")
-                safe_relative(name)
-                if name.casefold() in names:
-                    raise ValueError("Package contains duplicate file names.")
-                names.add(name.casefold())
-                if (entry.external_attr >> 16) & 0o170000 == 0o120000:
-                    raise ValueError("Package contains a symbolic link.")
-                dest = inside(root, name)
-                if entry.is_dir():
-                    dest.mkdir(parents=True, exist_ok=True)
-                else:
-                    dest.parent.mkdir(parents=True, exist_ok=True)
-                    with archive.open(entry) as source, dest.open("wb") as output:
-                        shutil.copyfileobj(source, output)
+        unpack(package, root)
         manifests = list(root.rglob("mod.json"))
         if len(manifests) != 1:
             raise ValueError("A package must contain exactly one mod.json.")
@@ -449,6 +458,109 @@ def import_package(package):
             raise ValueError("A mod with that ID already exists. Disable and archive it before importing another version.")
         shutil.copytree(manifests[0].parent, destination)
         return {"ok": True, "message": f"Imported {mod['name']} {mod['version']}. Select it and Apply to enable it.", "status": status()}
+
+
+def wrap(root, name, package):
+    """A data mod from loose game files, placed as the original Mod Manager placed them: from the first folder named
+    like one of the game's (Data/, Images/, ...), or, for a file in no such folder, where the game keeps a file of that
+    name. Returns the files it couldn't place; the mod replaces the same files of other mods (overrides)."""
+    files, skipped = {}, []
+    for path in sorted(p for p in root.rglob("*") if p.is_file()):
+        parts = path.relative_to(root).parts
+        start = next((i for i, part in enumerate(parts[:-1]) if part.casefold() in ALLOWED_ROOTS), None)
+        if start is not None:
+            target = "/".join(parts[start:])
+        else:
+            found = sorted((len(p.parts), p) for folder in GAME.iterdir()
+                           if folder.is_dir() and folder.name.casefold() in ALLOWED_ROOTS
+                           for p in folder.rglob(path.name) if p.is_file())
+            shallowest = [p for depth, p in found if depth == found[0][0]] if found else []
+            target = shallowest[0].relative_to(GAME).as_posix() if len(shallowest) == 1 else None
+        try:
+            target_path(target or "")
+        except ValueError:
+            skipped.append("/".join(parts)); continue
+        if target.casefold() in {t.casefold() for t in files.values()}:
+            raise ValueError(f"Two of its files would both go to {target}.")
+        files[path] = target
+    if not files:
+        raise ValueError("Nothing in it is a game file the mods can change (in Data, Images, Flags and similar folders).")
+    ident = re.sub(r"[^a-z0-9._-]+", "-", name.casefold()).strip("-._")[:64]
+    ident = ident if len(ident) >= 2 else "added-mod"
+    targets = {t.casefold() for t in files.values()}
+    mods, _ = catalog()
+    overrides = sorted(other for other, mod in mods.items()
+                       if any(item["target"].casefold() in targets for item in mod.get("files", [])))
+    listed = ", ".join(sorted(files.values())[:6]) + (", ..." if len(files) > 6 else "")
+    for path, target in files.items():
+        (package/"Files"/target).parent.mkdir(parents=True, exist_ok=True)
+        shutil.copy2(path, package/"Files"/target)
+    write_json(package/"mod.json", {
+        "schema": 1, "id": ident, "name": name, "version": "1.0.0",
+        "description": f"Added with the Mod Manager: {listed}." + (
+            f" Replaces the same files of {', '.join(mods[m]['name'] for m in overrides)} while both are on." if overrides else ""),
+        "kind": "data", "experimental": False, "requires": [], "conflicts": [], "overrides": overrides,
+        "files": [{"source": "Files/"+target, "target": target} for target in sorted(files.values())]})
+    return skipped
+
+
+def add_package(source):
+    """Add mod, as in the original Mod Manager: a ZIP, a folder or one game file. A package with its own mod.json is
+    imported as it is; anything else becomes a data mod named after it (see wrap). Remove mod takes it out again."""
+    if not source.exists():
+        raise ValueError("Choose a mod ZIP, folder or file.")
+    with operation_lock(), tempfile.TemporaryDirectory(prefix="rtw-add-", dir=HERE) as temp:
+        root, package, skipped = Path(temp)/"in", Path(temp)/"mod", []
+        if source.is_dir():
+            found = list(source.rglob("*"))
+            if any(p.is_symlink() for p in found):
+                raise ValueError("The folder contains a link.")
+            if len(found) > 10000 or sum(p.stat().st_size for p in found if p.is_file()) > MAX_PACKAGE_BYTES:
+                raise ValueError("The mod exceeds the 256 MB / 10,000 file limit.")
+            shutil.copytree(source, root)
+        elif source.suffix.lower() == ".zip":
+            unpack(source, root)
+        else:
+            if source.stat().st_size > MAX_PACKAGE_BYTES:
+                raise ValueError("The file exceeds 256 MB.")
+            root.mkdir(); shutil.copy2(source, root/source.name)
+        manifests = list(root.rglob("mod.json"))
+        if len(manifests) > 1:
+            raise ValueError("A package must contain exactly one mod.json.")
+        if manifests:
+            package = manifests[0].parent
+        else:
+            package.mkdir(); skipped = wrap(root, source.stem if source.is_file() else source.name, package)
+        manifest = json.loads((package/"mod.json").read_text(encoding="utf-8-sig"))
+        manifest["added"] = True
+        write_json(package/"mod.json", manifest)
+        mod = read_manifest(package)
+        destination = LIBRARY / mod["id"]
+        if destination.exists():
+            raise ValueError(f"A mod with the ID {mod['id']} already exists. Remove it first to add another version.")
+        shutil.copytree(package, destination)
+    message = f"Added {mod['name']}. Double-click it to turn it on."
+    if mod.get("overrides"):
+        message += f" It replaces the same files of {', '.join(mod['overrides'])} while both are on."
+    if skipped:
+        message += f" Left out (not game files): {', '.join(skipped[:5])}" + (", ..." if len(skipped) > 5 else "")
+    return {"ok": True, "message": message, "status": status()}
+
+
+def remove_package(ident):
+    """Remove mod, for mods added with Add mod: it must be off, and it moves to backups/removed-mods."""
+    with operation_lock():
+        mods, _ = catalog()
+        if ident not in mods:
+            raise ValueError("Select a mod to remove.")
+        if not mods[ident].get("added"):
+            raise ValueError(f"{mods[ident]['name']} comes with the mods. Turn it off instead.")
+        if ident in load_state()["enabled"]:
+            raise ValueError("Turn the mod off before removing it.")
+        destination = HERE / "backups" / "removed-mods" / f"{ident}-{dt.datetime.now():%Y%m%d-%H%M%S}"
+        destination.parent.mkdir(parents=True, exist_ok=True)
+        shutil.move(mods[ident]["folder"], str(destination))
+    return {"ok": True, "message": f"Removed {mods[ident]['name']}. A copy is in {destination}.", "status": status()}
 
 
 def export_package(ident, output):
@@ -497,7 +609,7 @@ def runtime_info(diagnose=False):
 
 def main():
     parser = argparse.ArgumentParser(description=__doc__)
-    parser.add_argument("command", choices=("bootstrap", "status", "runtime-plan", "runtime-diagnostics", "apply", "stage-runtime", "verify", "import", "export", "launch", "cheats-list", "cheats-inspect", "cheats-edit", "live-list", "live-inspect", "live-progress", "live-edit", "advanced-inspect", "advanced-edit", "sub-library", "sub-evaluate", "sub-save", "sub-inspect", "sub-apply", "sub-live-prepare"))
+    parser.add_argument("command", choices=("bootstrap", "status", "runtime-plan", "runtime-diagnostics", "apply", "stage-runtime", "verify", "import", "add", "remove", "export", "launch", "cheats-list", "cheats-inspect", "cheats-edit", "live-list", "live-inspect", "live-progress", "live-edit", "advanced-inspect", "advanced-edit", "sub-library", "sub-evaluate", "sub-save", "sub-inspect", "sub-apply", "sub-live-prepare"))
     parser.add_argument("--blueprint-id")
     parser.add_argument("--revision",type=int)
     parser.add_argument("--sub-index",type=int)
@@ -509,6 +621,7 @@ def main():
     parser.add_argument("--pid", type=int)
     parser.add_argument("--enabled", default="")
     parser.add_argument("--zip", type=Path)
+    parser.add_argument("--path", type=Path)
     parser.add_argument("--mod")
     parser.add_argument("--accept-experimental", action="store_true")
     parser.add_argument("--save", type=Path)
@@ -573,6 +686,14 @@ def main():
             result = stage_runtime([value for value in args.enabled.split(",") if value])
         elif args.command == "verify":
             result = verify()
+        elif args.command == "add":
+            if not args.path:
+                raise ValueError("Choose a mod ZIP, folder or file.")
+            result = add_package(args.path.resolve())
+        elif args.command == "remove":
+            if not args.mod:
+                raise ValueError("Select a mod to remove.")
+            result = remove_package(args.mod)
         elif args.command == "import":
             if not args.zip:
                 raise ValueError("Choose a ZIP package.")

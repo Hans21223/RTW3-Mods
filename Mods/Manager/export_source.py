@@ -71,7 +71,8 @@ def export(target):
     for name, path in exported.items():
         (target/name).parent.mkdir(parents=True, exist_ok=True)
         (target/name).write_bytes(path.read_bytes())
-    (target/"README.md").write_text(README, encoding="utf-8")
+    if not (target/"README.md").exists():   # after the first export the README is edited on GitHub
+        (target/"README.md").write_text(README, encoding="utf-8")
     (target/".gitattributes").write_text("* -text\n", encoding="utf-8")   # game data files stay byte-exact
     return len(exported)
 

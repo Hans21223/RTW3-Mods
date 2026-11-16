@@ -17,6 +17,9 @@ USE
 - Always start the game with Launch while mods are on: starting it from Steam leaves out the mods' game changes.
 - Most mods are experimental. Play them in a separate test campaign and keep copies of saves you care about.
 - Select a mod to read what it does.
+- Add mod adds a mod from a ZIP, a folder or game files (for example your own ResearchAreas3.dat). Loose game files
+  go where the game keeps them; a file another mod also has replaces that mod's copy while both are on. Remove mod
+  takes an added mod out again.
 
 UPDATES
 When a new version is out, the manager offers it when it opens. Close the game and click Yes: it downloads the

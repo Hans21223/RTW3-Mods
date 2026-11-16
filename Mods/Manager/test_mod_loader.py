@@ -254,6 +254,49 @@ class LoaderTests(unittest.TestCase):
             with self.assertRaisesRegex(ValueError, "Tips.txt"):
                 campaign_mod.verify()
 
+    def test_add_mod_turns_loose_game_files_into_a_sub_mod_that_wins_either_way(self):
+        self.mod("base")                                        # supplies Data/Tips.txt
+        source = self.root/"Faster tips"; source.mkdir()
+        (source/"Tips.txt").write_bytes(b"sub tips\r\n")        # no folder: goes where the game keeps Tips.txt
+        (source/"notes.md").write_text("how to")                 # not a game file
+        answer = loader.add_package(source)
+        self.assertIn("notes.md", answer["message"])
+        manifest = json.loads((self.library/"faster-tips"/"mod.json").read_text())
+        self.assertEqual((manifest["added"], manifest["overrides"], manifest["files"]),
+                         (True, ["base"], [{"source": "Files/Data/Tips.txt", "target": "Data/Tips.txt"}]))
+        for order in (["base", "faster-tips"], ["faster-tips", "base"]):
+            loader.apply(order)
+            self.assertEqual((self.game/"Data/Tips.txt").read_bytes(), b"sub tips\r\n", order)
+        with self.assertRaisesRegex(ValueError, "already exists"):
+            loader.add_package(source)
+        with self.assertRaisesRegex(ValueError, "Turn the mod off"):
+            loader.remove_package("faster-tips")
+        with self.assertRaisesRegex(ValueError, "comes with the mods"):
+            loader.remove_package("base")
+        loader.apply(["base"])
+        self.assertEqual((self.game/"Data/Tips.txt").read_bytes(), b"new tips\r\n")
+        loader.remove_package("faster-tips")
+        self.assertFalse((self.library/"faster-tips").exists())
+        self.assertEqual(len(list((self.manager/"backups"/"removed-mods").iterdir())), 1)
+
+    def test_add_mod_imports_packages_and_zipped_game_folders(self):
+        package = self.root/"package.zip"
+        with zipfile.ZipFile(package, "w") as z:
+            z.writestr("pack/mod.json", json.dumps({"schema": 1, "id": "zipped", "name": "Zipped", "version": "2.0.0",
+                       "description": "x", "kind": "data", "files": [{"source": "Files/a.dat", "target": "Data/a.dat"}]}))
+            z.writestr("pack/Files/a.dat", b"a")
+        loader.add_package(package)
+        self.assertTrue(json.loads((self.library/"zipped"/"mod.json").read_text())["added"])
+        loose = self.root/"Loose.zip"
+        with zipfile.ZipFile(loose, "w") as z:
+            z.writestr("Loose/Data/b.dat", b"b")
+        loader.add_package(loose)
+        self.assertEqual(json.loads((self.library/"loose"/"mod.json").read_text())["files"],
+                         [{"source": "Files/Data/b.dat", "target": "Data/b.dat"}])
+        nothing = self.root/"readme.txt"; nothing.write_text("hi")
+        with self.assertRaisesRegex(ValueError, "Nothing in it"):
+            loader.add_package(nothing)
+
     def test_release_install_bootstraps_only_the_supported_untouched_game(self):
         import campaign_mod
         import modern_tree

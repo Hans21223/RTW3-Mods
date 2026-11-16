@@ -99,6 +99,17 @@ class TreeTests(unittest.TestCase):
                 self.assertEqual(modern.check_payload(), hashlib.sha256(self.payload).hexdigest())
                 p.write_bytes(self.original)
                 with self.assertRaisesRegex(ValueError, "table differs"): modern.check_payload()
+                # A research-speed sub-mod: earlier years, other costs and chances, same technologies.
+                faster = self.payload.replace(b"Y-S-T engine;1891;Y;100;6;30;", b"Y-S-T engine;1885;Y;90;4;30;")
+                self.assertNotEqual(faster, self.payload); p.write_bytes(faster)
+                self.assertEqual(modern.check_payload(), hashlib.sha256(faster).hexdigest())
+                lines = self.payload.split(b"\r\n")
+                first = next(i for i, line in enumerate(lines) if line.startswith(b"Y-S-T engine;"))
+                lines[first], lines[first+1] = lines[first+1], lines[first]           # two technologies swapped
+                p.write_bytes(b"\r\n".join(lines))
+                with self.assertRaisesRegex(ValueError, "moved"): modern.check_payload()
+                p.write_bytes(self.payload.replace(b"Y-S-T engine;1891;", b"Y-S-T engine;1849;"))
+                with self.assertRaisesRegex(ValueError, "can't be read"): modern.check_payload()
 
 
 class NativeResearchTests(unittest.TestCase):

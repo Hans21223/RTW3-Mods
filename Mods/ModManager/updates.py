@@ -14,7 +14,7 @@ import re
 import urllib.request
 import zipfile
 
-VERSION = "2026.11.17"   # this release; the GitHub tag and the ZIP name carry the same number
+VERSION = "2026.11.17.2"   # this release; the GitHub tag and the ZIP name carry the same number
 REPO = "Hans21223/RTW3-Mods"
 ASSET = r"RTW3-Mods-Beta-([\d.]+)\.zip"
 MANIFEST = "Mods/ModManager/release-files.txt"

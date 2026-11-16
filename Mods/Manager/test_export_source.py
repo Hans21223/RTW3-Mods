@@ -24,6 +24,9 @@ class ExportTests(unittest.TestCase):
             self.assertEqual((clone/".git"/"config").read_text(), "kept")
             self.assertIn("# RTW3-Mods", (clone/"README.md").read_text())
             self.assertEqual((clone/".gitattributes").read_text(), "* -text\n")
+            (clone/"README.md").write_text("edited on GitHub")
+            export.export(clone)
+            self.assertEqual((clone/"README.md").read_text(), "edited on GitHub")   # never overwritten
             for name in names:
                 self.assertNotRegex(name, r"vanilla/|backups/|baseline/|vendor/|\.text\.bin$|_report\.json$|state\.json$")
 

@@ -71,7 +71,7 @@ def dark(win):
 
 def gui(hidden=False):
     import tkinter as tk
-    from tkinter import messagebox, ttk
+    from tkinter import filedialog, messagebox, ttk
     import updates
 
     mods, enabled, working = {}, [], False
@@ -101,8 +101,10 @@ def gui(hidden=False):
         if box.curselection():
             m = selected()
             needs = ", ".join(mods[i]["name"] if i in mods else i for i in m.get("requires", []))
+            replaces = ", ".join(mods[i]["name"] if i in mods else i for i in m.get("overrides", []))
             text.insert("1.0", f"{m['name']} {m['version']}" + ("  (experimental)" if m.get("experimental") else "")
-                        + (f"\nNeeds: {needs}" if needs else "") + "\n\n" + m["description"])
+                        + (f"\nNeeds: {needs}" if needs else "") + (f"\nReplaces files of: {replaces}" if replaces else "")
+                        + "\n\n" + m["description"])
         text.configure(state="disabled")
 
     def busy(message, work, done):
@@ -134,7 +136,9 @@ def gui(hidden=False):
             if hidden:
                 raise SystemExit(f"selftest failed: {value}")
             text = str(value)
-            if "before loading a campaign" in text:   # a mod's title-screen guard: a campaign opened mid-launch
+            # Only the title-screen guard means a campaign opened mid-launch; launch.py adds "retry before loading a
+            # campaign" to every startup failure, so that phrase alone says nothing.
+            if "no live AI rule swap" in text:
                 text = ("A campaign was started or loaded before every mod had finished loading, so the mods stopped "
                         "to protect it.\n\nClose Rule the Waves 3 without saving, click Launch again, and wait until "
                         "this window says the mods are loaded.")
@@ -161,6 +165,44 @@ def gui(hidden=False):
     def disable_all():
         if enabled and messagebox.askyesno("Disable all", "Turn every mod off and put the game's original files back?"):
             apply([], "Turning every mod off...")
+
+    def add_mod():
+        """As in the original Mod Manager: ZIPs or files (cancel to pick a folder); each pick becomes one mod."""
+        if working:
+            return
+        picked = filedialog.askopenfilenames(title="Mod files: .zip, or game files such as .dat (cancel to pick a folder)")
+        picked = [p for p in (list(picked) or [filedialog.askdirectory(title="Mod folder")]) if p]
+        if not picked:
+            return
+
+        def work():
+            answers = [loader("add", "--path", p) for p in picked]
+            return dict(answers[-1], message=" ".join(a["message"] for a in answers))
+
+        def done(answer):
+            show(answer)
+            status["text"] = answer["message"]
+            if "Left out" in answer["message"]:
+                messagebox.showinfo("Add mod", answer["message"])
+
+        busy("Adding mods...", work, done)
+
+    def remove_mod():
+        if working:
+            return
+        m = selected()
+        if not m.get("added"):
+            raise RuntimeError(f"{m['name']} comes with the mods. Turn it off instead.")
+        if not messagebox.askyesno("Remove mod", f"Remove {m['name']}?\n\nIts files leave the game, your original files "
+                                   "come back, and the mod moves to Mods\\Manager\\backups\\removed-mods."):
+            return
+
+        def work():
+            if m["id"] in enabled:
+                loader("apply", "--enabled", ",".join(i for i in enabled if i != m["id"]))
+            return loader("remove", "--mod", m["id"])
+
+        busy(f"Removing {m['name']}...", work, lambda answer: (show(answer), status.configure(text=answer["message"])))
 
     def launch():
         win.attributes("-topmost", True)   # stays over the game's title screen, where the wait message is needed
@@ -242,7 +284,8 @@ def gui(hidden=False):
     text.pack(fill="x", padx=8, pady=(6, 0))
     bottom = ttk.Frame(win)
     bottom.pack(fill="x", padx=8, pady=6)
-    for label, fn in [("Enable / Disable", toggle), ("Disable all", disable_all), ("Launch", launch)]:
+    for label, fn in [("Add mod", add_mod), ("Enable / Disable", toggle), ("Remove mod", remove_mod),
+                      ("Disable all", disable_all), ("Launch", launch)]:
         ttk.Button(bottom, text=label, command=guarded(fn)).pack(side="left", padx=(0, 6))
     status = ttk.Label(win, text="Double-click a mod to turn it on or off. Close the game first.")
     status.pack(fill="x", padx=8, pady=(0, 6))

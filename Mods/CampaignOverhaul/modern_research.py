@@ -323,11 +323,24 @@ def build(allocation, details):
     return blocks+sensor_blocks, plans+sensor_plans, flag
 
 
+def structure(raw):
+    """What the patches rely on: the branches and, in order, each technology's ID and prerequisite. Years, costs,
+    chances, names and texts may differ (a research-speed sub-mod)."""
+    return [[(row["id"], row["prerequisite"]) for row in area["rows"]] for area in tree.parse(raw)]
+
+
 def check_payload():
     expected, _ = tree.render()
     current = (rt.GAME/"Data/ResearchAreas3.dat").read_bytes()
     if current != expected:
-        raise ValueError("Apply Expanded Timeline in the manager before launching. The research table differs from this adapter.")
+        try:
+            same = structure(current) == structure(expected)
+        except ValueError as error:   # includes a non-ASCII file
+            raise ValueError(f"Data/ResearchAreas3.dat can't be read: {error}")
+        if not same:
+            raise ValueError("Apply Expanded Timeline in the manager before launching. The research table differs from "
+                             "this adapter: a technology was added, removed, moved or given another prerequisite "
+                             "(years, costs and chances may change).")
     return hashlib.sha256(current).hexdigest()
 
 

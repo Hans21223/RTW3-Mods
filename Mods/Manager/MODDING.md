@@ -147,8 +147,21 @@ mod.json, either at its root or inside one mod folder. Existing mod IDs are
 never overwritten by imports.
 
 Dependencies use mod IDs in `requires`. Incompatibilities use IDs in `conflicts`.
-If two enabled mods declare the same target file, combine the changes into a
-separate compatibility mod and disable the originals.
+A sub-mod lists in `overrides` the mods whose files it replaces: while both are
+on, its copy of a shared target file wins, whichever was enabled first. Any
+other two enabled mods that declare the same target file are refused; combine
+the changes into a separate compatibility mod and disable the originals.
+
+The RTW3 Mod Manager's **Add mod** takes a ZIP, a folder or game files. A
+package with its own mod.json is imported as it is. Anything else becomes a data
+mod named after it: each file goes from the first folder named like one of the
+game's (`Data/`, `Images/`, ...), or, for a file in no such folder, to where the
+game keeps a file of that name; files it can't place are left out and named.
+`overrides` is filled in with the mods that supply the same files, and the
+manifest gets `"added": true`, which lets **Remove mod** take it out again (into
+`Mods/Manager/backups/removed-mods`). Expanded Timeline accepts a replaced
+`ResearchAreas3.dat` that keeps its technologies, branches, order and
+prerequisites; years, costs and chances may change.
 
 ## Extend the runtime loader
 
