@@ -15,7 +15,7 @@ Not in the repository: the game's files, third-party packages (capstone 5.0.9 an
 `Manager/native-designer-inspection.text.bin`/`.json`, the game-code dump the tests read (`native_designer.py`
 makes it from your own copy of Rule the Waves 3 1.01.44).
 
-### PowerShell (build scripts)
+# PowerShell (build scripts)
 
 Two scripts in `Mods/Manager` compile the older C# tools with the C# compiler built into Windows
 (.NET Framework 4 `csc.exe`), so no Visual Studio is needed:
