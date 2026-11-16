@@ -38,7 +38,6 @@ audited and rebalanced, followed by multi-year campaign testing.
 
 ## What was preserved
 
-- Existing `IronWaves.exe`, its launcher, custom designs and scenarios.
 - User saves and preferences; the update does not copy Steam's `Save` directory.
 - The separate Steam installation's files.
 - Pre-update installation files, saved under `backups/` with a SHA-256 manifest.
