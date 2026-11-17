@@ -56,15 +56,18 @@ needed, and the box only changes while the pointer is over it:
 
 - number boxes (displacement, speed, calibres, gun counts and the others) step
   by the box's own step;
-- the armour lists (belt, deck, conning tower, turrets and the others) step one
-  thickness;
+- the drop-down lists step one item: the armour lists (belt, deck, conning
+  tower, turrets and the others) one thickness, and the text lists too
+  (accommodation, freeboard, range, belt coverage, propulsion, engine priority,
+  fire control, turret era and style);
 - small up/down arrow buttons (500-ton displacement steps, flight deck armour,
   sponson radius, the superstructure editor) click once per notch.
 
 Up when the wheel turns away from you; hold **Shift** for ten steps. Changes go
 through the control itself, so the game's limits apply and the design
-recalculates as if you had clicked. Over the ship picture the wheel still zooms;
-other lists (ship type, nation, propulsion) ignore it. The designer installs the
+recalculates as if you had clicked. Over the ship picture the wheel still zooms.
+Ship type and nation ignore it: changing them rebuilds the design, so a stray
+turn of the wheel never does. The designer installs the
 handler each time it opens, unless the form already has another one.
 
 Hold the **middle mouse button** and drag over the ship picture to pan it (the

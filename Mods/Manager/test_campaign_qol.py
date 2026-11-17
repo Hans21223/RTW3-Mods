@@ -105,6 +105,7 @@ class QoLTests(unittest.TestCase):
         i=self.info;handler,stop=0x1200000,0x120f000
         form,box,child,plain,handled,sp,point=0x1301000,0x1302000,0x1302400,0x1303000,0x1304000,0x1508000,0x1306000
         combo,other,items,button,inner,stub=0x1307000,0x1307400,0x1307800,0x1308000,0x1308400,0x1309000
+        typed,bare=0x1307a00,0x1307c00                   # the form's Ship type list; a list without OnChange
         def run(control,delta,shift=0,value=100,increment=5,index=3,count=6,owner=form):
             m=self.vm();m.mem_write(handler,qol.wheel_handler(handler,i))
             m.mem_write(box,struct.pack("<I",i["spin_vmt"]));m.mem_write(box+i["increment"],struct.pack("<i",increment))
@@ -112,15 +113,16 @@ class QoLTests(unittest.TestCase):
             m.mem_write(child,struct.pack("<I",child_vmt));m.mem_write(child+i["increment"],struct.pack("<i",increment))
             m.mem_write(child_vmt-0x30,struct.pack("<I",0x1305300));m.mem_write(0x1305300,struct.pack("<I",i["spin_vmt"]))
             m.mem_write(plain,struct.pack("<I",plain_vmt));m.mem_write(plain_vmt-0x30,struct.pack("<I",0))
-            for armour,change in ((combo,i["armour_change"]),(other,0x5555)):          # an armour list; the type list
-                m.mem_write(armour,struct.pack("<I",i["combo_vmt"]));m.mem_write(armour+i["combo_items"],struct.pack("<I",items))
-                m.mem_write(armour+i["combo_change"],struct.pack("<II",change,form))
+            for listed,change in ((combo,stub+0x50),(other,stub+0x50),(typed,stub+0x50),(bare,0)):
+                m.mem_write(listed,struct.pack("<I",i["combo_vmt"]));m.mem_write(listed+i["combo_items"],struct.pack("<I",items))
+                m.mem_write(listed+i["combo_change"],struct.pack("<II",change,form if change else 0))
+            m.mem_write(form+i["ship_type"],struct.pack("<I",typed));m.mem_write(form+i["nation"],struct.pack("<I",0x1307e00))
             m.mem_write(i["combo_vmt"]+i["get_index"],struct.pack("<I",stub));m.mem_write(i["combo_vmt"]+i["set_index"],struct.pack("<I",stub+0x10))
             m.mem_write(items,struct.pack("<I",items_vmt));m.mem_write(items_vmt+i["count_slot"],struct.pack("<I",stub+0x20))
             for b in (button,inner):m.mem_write(b,struct.pack("<I",i["button_vmt"]))
             m.mem_write(button+i["up_click"],struct.pack("<II",stub+0x30,form));m.mem_write(button+i["down_click"],struct.pack("<II",stub+0x40,form))
             m.mem_write(inner+i["up_click"],struct.pack("<II",0,0))
-            for c in (box,child,plain,combo,other,button,inner):m.mem_write(c+i["owner"],struct.pack("<I",owner))
+            for c in (box,child,plain,combo,other,typed,bare,button,inner):m.mem_write(c+i["owner"],struct.pack("<I",owner))
             m.mem_write(form+i["owner"],struct.pack("<I",0x1301800));m.mem_write(0x1301800+i["owner"],struct.pack("<I",0))
             calls=[]
             def native(vm,address,size,_):
@@ -129,7 +131,7 @@ class QoLTests(unittest.TestCase):
                 if address==i["find_window"]:calls.append(("find",eax))
                 elif address==i["set_value"]:calls.append(("value",eax,edx))
                 elif address==stub+0x10:calls.append(("index",eax,edx))
-                elif address==i["armour_change"]:calls.append(("change",eax,edx))
+                elif address==stub+0x50:calls.append(("change",eax,edx))
                 elif address in (stub+0x30,stub+0x40):calls.append(("up" if address==stub+0x30 else "down",eax,edx))
                 elif address not in results:return
                 top=vm.reg_read(UC_X86_REG_ESP);vm.reg_write(UC_X86_REG_EAX,results.get(address,0))
@@ -152,7 +154,9 @@ class QoLTests(unittest.TestCase):
         self.assertEqual(run(combo,-120,shift=1),([("index",combo,0),("change",form,combo)],1))   # clamped at the top
         self.assertEqual(run(combo,120,index=5),([],1))                 # already the last item: nothing changes
         self.assertEqual(run(combo,120,count=0),([],0))
-        self.assertEqual(run(other,120),([],0))                         # other lists (ship type, nation): native
+        self.assertEqual(run(other,120),([("index",other,4),("change",form,other)],1))   # text lists too (Accommodation)
+        self.assertEqual(run(typed,120),([],0))                         # Ship type (and Nation): native
+        self.assertEqual(run(bare,120),([],0))                          # a list without OnChange: native
         self.assertEqual(run(button,120),([("up",form,button)],1))      # spin buttons click themselves
         self.assertEqual(run(button,-120,shift=1),([("down",form,button)]*10,1))
         self.assertEqual(run(inner,120),([],0))                         # no click handler
@@ -301,7 +305,7 @@ class QoLTests(unittest.TestCase):
         self.assertEqual(found["clock"],self.info["clock"]+delta)
         self.assertEqual(found["build"],self.info["build"]+delta)
         self.assertEqual((found["form_show"],found["spin_vmt"]),(self.info["form_show"]+delta,self.info["spin_vmt"]+delta))
-        self.assertEqual((found["find_window"],found["armour_change"]),(self.info["find_window"]+delta,self.info["armour_change"]+delta))
+        self.assertEqual((found["find_window"],found["ship_type"]),(self.info["find_window"]+delta,self.info["ship_type"]))
         self.assertEqual({k:v-delta for k,v in found["colony"].items()},self.info["colony"])
         changed=bytearray(self.blob);changed[0x97ba3c-0x301000]^=1
         with self.assertRaises(ValueError):qol.discover(bytes(changed),0x301000)

@@ -43,14 +43,16 @@ COLONY = dict(ui=0x7B9B78, ui_set=0x7B9B96, turn=0x7C95B1, proceed=0x7C95D8, ski
               blockade=0x8203B8, strength=0x7326CC, success=0x7C97D5, success_native=0x7C97DC, success_done=0x7C97E2)
 # Designer mouse wheel: FormShow installs a form OnMouseWheel handler that steps the box under the
 # mouse pointer (Vcl.Controls.FindVCLWindow), whatever has the focus: a TSpinEdit by its Increment through
-# its own SetValue, a TSpinButton through its own click events, an armour list (TComboBox whose OnChange
-# is cbBChange) by one item and its OnChange. Range clamps and change handlers run natively. Published
+# its own SetValue, a TSpinButton through its own click events, a drop-down list (TComboBox with an OnChange:
+# every designer list) by one item and its OnChange, except Ship type and Nation, which rebuild the design and
+# stay native so a stray wheel turn cannot change them. Range clamps and change handlers run natively. Published
 # field offsets and ItemIndex accessor slots are confirmed in the game's RTTI, the classes by name;
 # TStrings.GetCount is VMT slot 14h (native Items.Count calls) and TComponent.FOwner +4 (Name is +8).
 WHEEL = dict(form_show=0x5cd03c, spin_vmt=0x58f214, get_value=0x590c6c, set_value=0x590cc4, find_window=0x44fa44,
              combo_vmt=0x46bb60, button_vmt=0x58e93c)
 WHEEL_FIELDS = dict(on_mouse_wheel=0x150, increment=0x310, owner=4, combo_change=0x2e0, combo_items=0x304,
-                    up_click=0x2d8, down_click=0x2e0, get_index=0x16c, set_index=0x170, count_slot=0x14)
+                    up_click=0x2d8, down_click=0x2e0, get_index=0x16c, set_index=0x170, count_slot=0x14,
+                    ship_type=0x550, nation=0x55c)   # TfrmDesignMain2 cbType, cbNation
 PICTURE = dict(globe=0x7cc, rotate_button=0x350, middle=2)   # TMouseZoomButton: mzbLeft, mzbRight, mzbMiddle, mzbNone
 
 
@@ -59,6 +61,12 @@ def published(blob, name):
     needle = bytes([len(name)])+name.encode()
     getters = [struct.unpack_from("<I", blob, m.start()-22)[0] for m in re.finditer(re.escape(needle), blob)]
     return {get & 0xFFFFFF for get in getters if get >> 24 == 0xFF}
+
+
+def form_field(blob, name):
+    """Offsets of published form fields called `name` (vmtFieldTable records: offset, type index, short name)."""
+    needle = bytes([len(name)])+name.encode()
+    return {struct.unpack_from("<I", blob, m.start()-6)[0] for m in re.finditer(re.escape(needle), blob) if m.start() >= 6}
 
 
 def discover(blob, base, settings=None):
@@ -124,9 +132,10 @@ def discover(blob, base, settings=None):
                    (("OnMouseWheel", WHEEL_FIELDS["on_mouse_wheel"]), ("Increment", WHEEL_FIELDS["increment"]),
                     ("OnChange", WHEEL_FIELDS["combo_change"]), ("Items", WHEEL_FIELDS["combo_items"]),
                     ("OnUpClick", WHEEL_FIELDS["up_click"]), ("OnDownClick", WHEEL_FIELDS["down_click"])))
+            or WHEEL_FIELDS["ship_type"] not in form_field(blob, "cbType")
+            or WHEEL_FIELDS["nation"] not in form_field(blob, "cbNation")
             or 8 not in published(blob, "Name")):
         raise ValueError("Unsupported designer number boxes for the mouse wheel.")
-    wheel["armour_change"] = rt.method_address(blob, base, "cbBChange")
     # Ship picture: the designer's TGlobe4 (its native wheel zoom reads it at [form+7CCh], Projection +2E0h)
     # rotates its spherical view, which pans the drawing, with MouseRotateButton; the DFM leaves it mzbNone.
     zoom = 0x5E84CC+delta
@@ -173,7 +182,9 @@ def wheel_handler(address, info):
     for vmt, kind in ((info["spin_vmt"], "spin"), (info["button_vmt"], "button")):
         c.emit(b"\x8b\xc3\xba"); c.u32(vmt); c.branch(b"\xe8","is"); c.branch(b"\x0f\x85",kind)
     c.emit(b"\x8b\xc3\xba"); c.u32(info["combo_vmt"]); c.branch(b"\xe8","is"); c.branch(b"\x0f\x84","done")
-    c.emit(b"\x81\xbb"); c.u32(info["combo_change"]); c.u32(info["armour_change"]); c.branch(b"\x0f\x85","done")
+    c.emit(b"\x83\xbb"); c.u32(info["combo_change"]); c.emit(b"\x00"); c.branch(b"\x0f\x84","done")   # no OnChange
+    for field in ("ship_type", "nation"):
+        c.emit(b"\x3b\x9d"); c.u32(info[field]); c.branch(b"\x0f\x84","done")
     c.emit(b"\x8b\xc3\x8b\x10\xff\x92"); c.u32(info["get_index"]); c.emit(b"\x8b\xe8\x8d\x3c\x2e")   # EBP index, EDI wanted
     c.emit(b"\x8b\x83"); c.u32(info["combo_items"]); c.emit(b"\x8b\x10\xff\x52"+bytes([info["count_slot"]]))
     c.emit(b"\x48"); c.branch(b"\x0f\x8c","done")                                # empty list
