@@ -69,8 +69,7 @@ _ADAPTERS = (
     # native through modern_research.normalize); attaching last keeps their checks on untouched code anyway.
     Adapter("big-guns", "big_guns", after=("campaign-security", "campaign-qol", "research-traits", "research-budget",
                                            "modern-research", "live-cheats", "vls-cells")),
-    Adapter("super-superfiring-turret", "super_superfiring", requires=("large-hulls",),
-            after=("large-hulls", "big-guns")),
+    Adapter("super-superfiring-turret", "super_superfiring", after=("large-hulls", "big-guns")),
     # The frigate type reroutes 1,600 native reads; attaching last lets it skip the reads others already hook.
     Adapter("frigate-type", "frigate_type", requires=("modern-research",), after=(
         "calendar-days", "torpedo-initiative", "fair-ai", "detection-only-evasion", "week-display", "large-hulls",

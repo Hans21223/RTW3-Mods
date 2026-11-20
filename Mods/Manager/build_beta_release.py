@@ -18,8 +18,8 @@ import zipfile
 MODS = Path(__file__).resolve().parents[1]
 MANAGER, OVERHAUL, LIBRARY, WINDOW = MODS/"Manager", MODS/"CampaignOverhaul", MODS/"Library", MODS/"ModManager"
 SHIPPED = ("aircraft-improvements", "battle-ai", "big-guns", "campaign-events", "campaign-qol", "extended-ship-graphics",
-           "frigate-test", "historical-decolonization", "large-hulls", "legacy-fleet", "research-budget", "timeline-2030",
-           "weekly-calendar")
+           "frigate-test", "historical-decolonization", "large-hulls", "legacy-fleet", "research-budget",
+           "super-superfiring-turret", "timeline-2030", "weekly-calendar")
 CLI_ONLY = ("advanced_saves", "custom_decisions", "submarine_designs", "submarine_factory")   # mod_loader commands the window never runs
 DATA = (OVERHAUL/"frigate_type_sites.json", MANAGER/"vendor/capstone/lib/capstone.dll",
         MANAGER/"vendor/capstone-5.0.9.dist-info/LICENSE.TXT")

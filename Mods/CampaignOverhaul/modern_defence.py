@@ -16,7 +16,9 @@ the player's doctrine count in it:
   last twice as long and each engagement is weaker.
 - Quad-packed light SAMs (modern_tree.QUAD_PACK research): a light SAM VLS bank holds four missiles a cell.
   FireSAM spends whole missiles from a bank, so three engagements in four the light SAMs fired go back into a
-  VLS bank that is not full: four times the engagements from the same cells.
+  VLS bank that is not full: four times the engagements from the same cells, against missiles and aircraft alike
+  (the two anti-aircraft FireSAM calls go through a wrapper; before 1.43.5 only missile defence got them back).
+  The displays still count cells: an 8-cell bank shows 8.
 - Readout: the battle ship panel's status line (fire and flight-deck warnings), when it is empty, shows the
   missiles a ship with launchers has left, as "SAM n, SSM n" (loaded and reloads, not destroyed mounts).
 - Electronic warfare: the game decoys a missile with 4% + 9% a level of its hidden ECM technology (0x91AF38,
@@ -50,7 +52,10 @@ SITES = (("shots", 0x91ADF1, "33c98bd38bc6"), ("handled", 0x91AE38, "8b8e010e000
          ("decoy", 0x91AFAA, "8bc5e8bb34ffff"))
 DESIGN_YEAR, KIND, LAND = 0xB28, 0x9D3, 12
 SKIMMERS = (32, 33)   # missile codes (SAMIntercept's 4th argument): medium and light SSMs; 31 heavy, 30 other
-NATIVE = dict(operational=0x90E46C, random=0x307834, set_text=0x451CA0, no_shot=0x91AF28, shot=0x91AE05)
+NATIVE = dict(operational=0x90E46C, random=0x307834, set_text=0x451CA0, no_shot=0x91AF28, shot=0x91AE05,
+              fire_sam=0x917F54)
+# The anti-aircraft FireSAM(ship, kind, 0) calls; the other two callers fire heavy SAMs only (kind 1).
+CALLS = (("aa_fire", 0x95FDC4, "e88b81fbff"), ("aa_fire2", 0x95FE18, "e83781fbff"))
 MOUNT = dict(tubes=4, kind=0xE, reloads=0xF, destroyed=0xF0, loaded=0xF1)      # a ship's missile mounts: list at +9Eh
 MOUNTS, LIGHT_SAM, QUAD = 0x9E, 3, 4
 
@@ -65,7 +70,7 @@ def discover(blob, base, normalized):
     for (address, size, _), digest in zip(WINDOWS, DIGESTS):
         if hashlib.sha256(normalized[address-BASE:address-BASE+size]).hexdigest() != digest:
             raise ValueError("Missile defence refuses changed native code at "+hex(address)+".")
-    for name, address, original in SITES:
+    for name, address, original in SITES+CALLS:
         if blob[address-BASE:address-BASE+len(original)//2].hex() != original:
             raise ValueError("Missile defence refuses changed native code.")
     import modern_combat as combat
@@ -73,6 +78,7 @@ def discover(blob, base, normalized):
     info = {k: v+delta for k, v in {**NATIVE, **{k: combat.NATIVE[k] for k in ("has_research", "nation")}}.items()}
     info["main"] = struct.unpack_from("<I", blob, combat.MAIN_LOAD-BASE+1)[0]
     info["sites"] = {name: address+delta for name, address, _ in SITES}
+    info["calls"] = {name: address+delta for name, address, _ in CALLS}
     import modern_extension
     info["fighting_vmt"] = modern_extension.NATIVE["fighting_vmt"]+delta
     return info
@@ -105,7 +111,12 @@ def build(page, info, doctrine, flight):
     c.mark("back"); c.branch(b"\xe9", n["sites"]["handled"]+6)
     code["handled"] = c.finish()
     # After FireSAM (EAX missiles fired, EBX kind, ESI ship): quad-packed light SAMs go back three times in four.
-    c = Code(at["fired"]); c.emit(b"\x60\x83\xfb"+bytes([LIGHT_SAM])); c.branch(b"\x0f\x85", "out")
+    c = Code(at["fired"]); c.branch(b"\xe8", "refund"); c.emit(b"\x48\x85\xc0"); c.branch(b"\x0f\x8c", n["no_shot"])
+    c.branch(b"\xe9", n["shot"])
+    # The anti-aircraft FireSAM(EAX ship, EDX kind, CL) calls come here, so their light SAMs come back too.
+    c.mark("wrapper"); c.emit(b"\x53\x56\x8b\xf0\x8b\xda"); c.branch(b"\xe8", n["fire_sam"]); c.branch(b"\xe8", "refund")
+    c.emit(b"\x5e\x5b\xc3")
+    c.mark("refund"); c.emit(b"\x60\x83\xfb"+bytes([LIGHT_SAM])); c.branch(b"\x0f\x85", "out")
     c.emit(b"\x85\xc0"); c.branch(b"\x0f\x8e", "out"); c.emit(b"\x8b\xf8")
     combat.researched(c, n, b"\x8b\x56"+bytes([SHIP["nation"]]), tree.QUAD_PACK, "asked"); c.emit(b"\x84\xc0"); c.branch(b"\x0f\x84", "out")
     c.emit(b"\xb8"); c.u32(QUAD); c.branch(b"\xe8", n["random"]); c.emit(b"\x85\xc0"); c.branch(b"\x0f\x84", "out")
@@ -114,8 +125,9 @@ def build(page, info, doctrine, flight):
     c.branch(b"\x0f\x85", "mount"); c.emit(b"\x83\x78"+bytes([MOUNT["tubes"]])+b"\x08"); c.branch(b"\x0f\x8c", "mount")
     c.emit(b"\x8b\x98"); c.u32(MOUNT["loaded"]); c.emit(b"\x3b\x58"+bytes([MOUNT["tubes"]])); c.branch(b"\x0f\x8d", "mount")
     c.emit(b"\x01\xb8"); c.u32(MOUNT["loaded"])
-    c.mark("out"); c.emit(b"\x61\x48\x85\xc0"); c.branch(b"\x0f\x8c", n["no_shot"]); c.branch(b"\xe9", n["shot"])
+    c.mark("out"); c.emit(b"\x61\xc3")
     code["fired"] = c.finish()
+    wrapper = at["fired"]+c.labels["wrapper"]
 
     # puts: ESI zero-ended text -> EDI; putn: EAX as decimal -> EDI.
     c = Code(at["puts"]); c.mark("next"); c.emit(b"\x66\xad\x66\x85\xc0"); c.branch(b"\x0f\x84", "end"); c.emit(b"\x66\xab"); c.branch(b"\xe9", "next")
@@ -187,4 +199,6 @@ def build(page, info, doctrine, flight):
     plans = [patch("Missile defence: "+name, n["sites"][name], bytes.fromhex(original),
                    b"\xe9"+struct.pack("<i", at[name]-n["sites"][name]-5)+b"\x90"*(len(original)//2-5))
              for name, _, original in SITES]
+    plans += [patch("Missile defence: "+name, n["calls"][name], bytes.fromhex(original),
+                    b"\xe8"+struct.pack("<i", wrapper-n["calls"][name]-5)) for name, _, original in CALLS]
     return blocks, plans

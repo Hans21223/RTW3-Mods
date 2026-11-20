@@ -789,8 +789,9 @@ deal with this turn. Every ship had the same fire control in it. Now
 - **Quad-packed light SAMs** (Compact self-defence VLS modules, 1992): a light
   SAM VLS bank holds four missiles a cell. The game spends whole missiles from
   a bank, so three engagements in four the light SAMs fired go back into the
-  bank: the cells last four times as long. The designer still shows the cell
-  count, and the weight is unchanged.
+  bank: the cells last four times as long, against missiles and aircraft alike
+  (before 1.43.5 only missile defence got them back). The designer, the ship
+  information and the battle panel still count cells, so 8 cells show as 8.
 - **Missiles left.** In battle, the ship panel's status line (where "On fire!"
   and "No flight ops!" appear) shows `SAM n, SSM n` for a ship with missile
   launchers when it has nothing else to say: loaded missiles and reloads,

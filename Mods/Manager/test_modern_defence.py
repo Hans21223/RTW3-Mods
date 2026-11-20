@@ -72,6 +72,24 @@ class DefenceTests(unittest.TestCase):
             self.assertEqual([w.get(m+loaded) for m in (box, full, bank)], [0, 16, 6+back], case)
             self.assertEqual((w.reg("EAX"), w.reg("EBX"), w.reg("ESI"), w.reg("ESP")), (fired-1 & 0xFFFFFFFF, kind, SHIP, STACK+0x8000), case)
 
+    def test_light_sams_fired_at_aircraft_come_back_too(self):
+        # Only the missile-defence FireSAM call had the refund, so against aircraft a cell held one missile (issue #1).
+        loaded = defence.MOUNT["loaded"]
+        for site in INFO["calls"].values():
+            for owned, kind, fired, roll, back in (({tree.QUAD_PACK}, 3, 2, 1, 2), ({tree.QUAD_PACK}, 3, 2, 0, 0),
+                                                   (set(), 3, 2, 1, 0), ({tree.QUAD_PACK}, 2, 2, 1, 0)):
+                w = self.ship(5); w.owned = owned
+                w.stubs[INFO["random"]] = lambda: roll
+                w.stubs[INFO["fire_sam"]] = lambda: fired if (w.reg("EAX"), w.reg("EDX")) == (SHIP, kind) else -1
+                box, full, bank = self.mounts((3, 2, 0, 4, 0), (3, 16, 16, 0, 0), (3, 16, 6, 0, 0))
+                for reg, value in dict(EAX=SHIP, EDX=kind, ECX=0, EBX=0x1111, ESI=0x2222, EDI=0x5678, ESP=STACK+0x8000).items():
+                    w.vm.reg_write(globals()["UC_X86_REG_"+reg], value)
+                w.vm.emu_start(site, site+5, count=5000)                  # the patched call returns past itself
+                case = (hex(site), owned, kind, roll)
+                self.assertEqual([w.get(m+loaded) for m in (box, full, bank)], [0, 16, 6+back], case)
+                self.assertEqual((w.reg("EAX"), w.reg("EBX"), w.reg("ESI"), w.reg("EDI"), w.reg("ESP")),
+                                 (fired, 0x1111, 0x2222, 0x5678, STACK+0x8000), case)
+
     def test_the_battle_panel_shows_the_missiles_left(self):
         for mounts, shown in ((((1, 2, 2, 6, 0), (3, 16, 9, 0, 0), (4, 8, 3, 0, 0), (2, 8, 8, 0, 1), (0, 4, 4, 4, 0)), "SAM 17, SSM 3"),
                               (((5, 4, 0, 0, 0),), "SAM 0, SSM 0"), (((0, 4, 4, 0, 0),), ""), ((), "")):

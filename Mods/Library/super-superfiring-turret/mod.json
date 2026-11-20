@@ -1,17 +1,15 @@
 {
   "schema": 1,
   "id": "super-superfiring-turret",
-  "name": "Super-Superfiring Turret Positions (Z/F/G/H/I)",
-  "version": "0.2.0",
+  "name": "Super-Superfiring Turrets (BB/BBB/XX/XXX)",
+  "version": "1.0.0",
   "author": "RTW3 Mod Manager",
-  "description": "Adds five selectable raised turret positions: Z, F, G, H and I. Requires Historical and Paper Hulls (Large Hulls) and a restart through Play with mods. RTW3 stores raised/not-raised as a boolean, so these add mount positions but do not create a separately modeled third height. Existing B, V and X behavior is preserved.",
+  "description": "Up to three raised turrets forward and three aft: after B the ship designer's Add turret list offers BB and then BBB, after X it offers XX and XXX. They are copies of B and X: same arcs and raised level, saved as B and X, and the main gun list labels them BB, BBB, XX and XXX. A copy is placed one turret spacing further towards midships for each extra B or X, and weighs one more barbette step (BB x1.20 and BBB x1.30 of a plain turret, against B's x1.10; XX x1.10 and XXX x1.15, against X's x1.05). Big ships carry more centreline mounts before they count as crowded: one more for every full 15,000 t above 10,000 t, up to 12. Restart through Play with mods.",
   "kind": "runtime",
   "experimental": true,
-  "requires": ["large-hulls"],
+  "requires": [],
   "conflicts": [],
   "overrides": [],
-  "files": [
-    {"source": "Files/Data/gunpos.txt", "target": "Data/gunpos.txt"}
-  ],
+  "files": [],
   "runtime": {"adapter": "super-superfiring-turret"}
 }
