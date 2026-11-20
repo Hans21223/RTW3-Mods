@@ -1,0 +1,17 @@
+{
+  "schema": 1,
+  "id": "super-superfiring-turret",
+  "name": "Super-Superfiring Turret Positions (Z/F/G/H/I)",
+  "version": "0.2.0",
+  "author": "RTW3 Mod Manager",
+  "description": "Adds five selectable raised turret positions: Z, F, G, H and I. Requires Historical and Paper Hulls (Large Hulls) and a restart through Play with mods. RTW3 stores raised/not-raised as a boolean, so these add mount positions but do not create a separately modeled third height. Existing B, V and X behavior is preserved.",
+  "kind": "runtime",
+  "experimental": true,
+  "requires": ["large-hulls"],
+  "conflicts": [],
+  "overrides": [],
+  "files": [
+    {"source": "Files/Data/gunpos.txt", "target": "Data/gunpos.txt"}
+  ],
+  "runtime": {"adapter": "super-superfiring-turret"}
+}

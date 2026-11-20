@@ -27,7 +27,9 @@ ALLOWED_ROOTS = {"data", "designs", "flags", "images", "scenarios", "shipparts",
 CONTENT_EXTENSIONS = {".dat", ".txt", ".bmp", ".png", ".jpg", ".jpeg", ".gif", ".wav", ".mp3", ".ogg", ".sdf", ".des", ".acs", ".lyr", ".act", ".ndt", ".nsc", ".ini", ".ttp", ".tdf", ".hus", ".tus", ".eqs"}
 RESERVED = {"con", "prn", "aux", "nul", *(f"com{i}" for i in range(1, 10)), *(f"lpt{i}" for i in range(1, 10))}
 MAX_PACKAGE_BYTES = 256 * 1024 * 1024
-RELEASE_EXE = "355e55650b0eb565bfda5ba71e2a9a6697371a2ba612582dbf9bd769f242a4f2"   # Steam build 24739009, 1.01.44
+# The build the mods were made on (Steam 24739009, 1.01.44). Any build may run them: each runtime mod checks the
+# game code it patches when it loads and refuses changed code. Only for this one is the original research file known.
+RELEASE_EXE = "355e55650b0eb565bfda5ba71e2a9a6697371a2ba612582dbf9bd769f242a4f2"
 sys.path.insert(0, str(GAME / "Mods" / "CampaignOverhaul"))
 import campaign_mod
 import weekly_runtime
@@ -199,13 +201,12 @@ def bootstrap():
         legacy = campaign_mod.state()
         if not legacy.get("upgrade"):   # a release install: the player's own game folder, no Steam-copy update
             import modern_tree
-            if sha(GAME / "RTW3.exe") != RELEASE_EXE:
-                raise ValueError("These mods need Rule the Waves 3 1.01.44 (Steam build 24739009). Update the game in Steam.")
-            if sha(GAME / "Data" / "ResearchAreas3.dat") != modern_tree.VANILLA_SHA256:
+            exe = sha(GAME / "RTW3.exe")
+            if exe == RELEASE_EXE and sha(GAME / "Data" / "ResearchAreas3.dat") != modern_tree.VANILLA_SHA256:
                 raise ValueError("Data/ResearchAreas3.dat is not the game's original file. In Steam, verify the integrity "
                                  "of the game files, then open the Mod Manager again.")
             write_json(STATE, {"schema": 1, "enabled": [], "applied": {}, "originals": {}, "history": [],
-                               "game_sha256": RELEASE_EXE, "build": "24739009"})
+                               "game_sha256": exe, "build": "24739009" if exe == RELEASE_EXE else "other"})
             return status()
         if not legacy.get("upgrade", {}).get("complete"):
             raise ValueError("Finish the local Steam-copy update before initializing the manager.")
@@ -214,7 +215,9 @@ def bootstrap():
         event_folder.mkdir(parents=True, exist_ok=True)
         (event_folder / "Events.dat").write_bytes(event_data)
         tips = (campaign_mod.HERE / "vanilla" / "Tips.txt").read_bytes()
-        (event_folder / "Tips.txt").write_bytes(b"Naval Staff Briefings: 24 reworked campaign decisions are active.\r\n" + tips)
+        briefings = (b"Naval Staff Briefings: all 100 event groups offer three choices with available Budget, Prestige and Tension effect notes.\r\n"
+                     b"Special outcomes follow the original RTW3 event rules.\r\n")
+        (event_folder / "Tips.txt").write_bytes(briefings + tips)
         was_enabled = legacy.get("events", False)
         if was_enabled:
             with contextlib.redirect_stdout(io.StringIO()):
@@ -302,8 +305,6 @@ def apply(enabled):
         ensure_closed()
         current = load_state()
         mods, plan, runtime = resolve_plan(enabled)
-        if sha(GAME / "RTW3.exe") != current["game_sha256"]:
-            raise ValueError("The game executable changed. Recheck compatibility before loading mods.")
         check_managed_files(current)
         for key, item in plan.items():
             if key not in current["originals"]:
@@ -382,8 +383,6 @@ def status():
 
 def verify():
     current = load_state()
-    if sha(GAME / "RTW3.exe") != current["game_sha256"]:
-        raise ValueError("The game executable changed. Recheck compatibility before loading mods.")
     check_managed_files(current)
     mods, plan, runtime = resolve_plan(current["enabled"])
     for key, item in plan.items():
@@ -609,7 +608,7 @@ def runtime_info(diagnose=False):
 
 def main():
     parser = argparse.ArgumentParser(description=__doc__)
-    parser.add_argument("command", choices=("bootstrap", "status", "runtime-plan", "runtime-diagnostics", "apply", "stage-runtime", "verify", "import", "add", "remove", "export", "launch", "cheats-list", "cheats-inspect", "cheats-edit", "live-list", "live-inspect", "live-progress", "live-edit", "advanced-inspect", "advanced-edit", "sub-library", "sub-evaluate", "sub-save", "sub-inspect", "sub-apply", "sub-live-prepare"))
+    parser.add_argument("command", choices=("bootstrap", "status", "runtime-plan", "runtime-diagnostics", "apply", "stage-runtime", "verify", "import", "add", "remove", "export", "launch", "cheats-list", "cheats-inspect", "cheats-edit", "live-list", "live-inspect", "live-progress", "live-edit", "decision-list", "decision-status", "decision-apply", "advanced-inspect", "advanced-edit", "sub-library", "sub-evaluate", "sub-save", "sub-inspect", "sub-apply", "sub-live-prepare"))
     parser.add_argument("--blueprint-id")
     parser.add_argument("--revision",type=int)
     parser.add_argument("--sub-index",type=int)
@@ -632,6 +631,9 @@ def main():
     parser.add_argument("--turns", type=int)
     parser.add_argument("--all-projects", choices=("build", "refit"))
     parser.add_argument("--action", choices=("research-all", "fast-aircraft", "refill-ammo"))
+    parser.add_argument("--campaign-key", default="")
+    parser.add_argument("--decision-id", default="")
+    parser.add_argument("--decision-mode", choices=("apply", "start", "installment"))
     args = parser.parse_args()
     try:
         if args.command in ("runtime-plan", "runtime-diagnostics"):
@@ -654,6 +656,19 @@ def main():
                 result = advanced_saves.inspect(args.save, args.section, args.query, args.offset)
             else:
                 with operation_lock(): result = advanced_saves.edit(args.save, json.loads(args.changes), args.sha)
+        elif args.command.startswith("decision-"):
+            import custom_decisions
+            if args.command == "decision-list":
+                result = custom_decisions.listing()
+            elif args.command == "decision-status":
+                if args.pid is None or not args.campaign_key:
+                    raise ValueError("Open a live campaign and enter its campaign profile name.")
+                result = custom_decisions.status(args.pid, args.campaign_key)
+            else:
+                if args.pid is None or not args.campaign_key or not args.decision_id or not args.decision_mode:
+                    raise ValueError("Select a live campaign, profile, decision and action.")
+                with operation_lock():
+                    result = custom_decisions.apply(args.pid, args.campaign_key, args.decision_id, args.decision_mode)
         elif args.command.startswith("live-"):
             import live_cheats
             if args.command == "live-list":

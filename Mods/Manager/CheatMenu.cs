@@ -1,7 +1,9 @@
 using System;
 using System.Collections;
 using System.Collections.Generic;
+using System.Diagnostics;
 using System.Drawing;
+using System.IO;
 using System.Linq;
 using System.Threading.Tasks;
 using System.Web.Script.Serialization;
@@ -21,7 +23,7 @@ internal sealed partial class CampaignEditorPanel : UserControl
     private NumericUpDown buildTurns;
     private CheckBox editShip, revealEnemy, forceDaytime, clearWeather;
     private Label note, shipCaption;
-    private Button apply, refresh, fastBuild, fastRefit, fastBuildAll, fastRefitAll, researchAll, fastAircraft, refillAmmo;
+    private Button apply, refresh, fastBuild, fastRefit, fastBuildAll, fastRefitAll, researchAll, fastAircraft, refillAmmo, decisionsButton;
     private ProgressBar technologyBar;
     private Label technologyText;
     private ComboBox technologyBranches;
@@ -108,7 +110,8 @@ internal sealed partial class CampaignEditorPanel : UserControl
         apply = new Button { Text = live ? "Apply live changes" : "Back up and apply", Width = 165, Height = 33, Enabled = false };
         refresh = new Button { Text = live ? "Refresh live game" : "Refresh saves", Width = 150, Height = 33 };
         Button addFunds = new Button { Text = "+100,000 funds", Width = 145, Height = 33 };
-        foreach (Button button in new[] { apply, refresh, addFunds }) { button.FlatStyle = FlatStyle.Flat; button.BackColor = Color.FromArgb(27, 38, 50); button.ForeColor = ForeColor; buttons.Controls.Add(button); }
+        decisionsButton = new Button { Text = "Campaign decisions", Width = 180, Height = 33, Visible = live };
+        foreach (Button button in new[] { apply, refresh, addFunds, decisionsButton }) { button.FlatStyle = FlatStyle.Flat; button.BackColor = Color.FromArgb(27, 38, 50); button.ForeColor = ForeColor; buttons.Controls.Add(button); }
         apply.BackColor = Color.FromArgb(33, 131, 130);
         root.Controls.Add(buttons, 0, 17); root.SetColumnSpan(buttons, 2);
         note = new Label { Dock = DockStyle.Fill, ForeColor = Color.FromArgb(155, 174, 191), Text = "Income uses the game's native budget level and resource base.\nChanging build turns changes per-turn construction spending, preserving the ship's total cost.", AutoEllipsis = true };
@@ -131,6 +134,7 @@ internal sealed partial class CampaignEditorPanel : UserControl
         fastAircraft.Click += async delegate { await ApplyAllProjects("fast-aircraft"); };
         refillAmmo.Click += async delegate { await ApplyAllProjects("refill-ammo"); };
         addFunds.Click += delegate { fields["funds"].Value = Math.Min(fields["funds"].Maximum, fields["funds"].Value + 100000); };
+        decisionsButton.Click += delegate { OpenDecisions(); };
         apply.Click += async delegate { await Apply(); };
         UpdateProjectControls();
     }
@@ -153,6 +157,21 @@ internal sealed partial class CampaignEditorPanel : UserControl
         forceDaytime.Enabled = live && hash != null && !IsBusy && forceDaytime.Tag != null;
         clearWeather.Enabled = live && hash != null && !IsBusy && clearWeather.Tag != null;
         refillAmmo.Enabled = live && allEnabled && refillAmmo.Tag != null;
+    }
+
+    private void OpenDecisions()
+    {
+        Choice save = saves.SelectedItem as Choice;
+        if (!live || save == null || hash == null) {
+            if (!quiet) MessageBox.Show(FindForm(), "Load a campaign and refresh live cheats before opening decisions.", "Campaign decisions", MessageBoxButtons.OK, MessageBoxIcon.Information);
+            return;
+        }
+        Choice nation = nations.SelectedItem as Choice;
+        string profile = nation == null ? "My campaign" : "Campaign " + nation.Label;
+        Form window = new Form { Text = "Custom Campaign Decisions", Size = new Size(680, 540), MinimumSize = new Size(600, 460),
+                                 StartPosition = FormStartPosition.CenterParent, BackColor = BackColor, ForeColor = ForeColor };
+        window.Controls.Add(new DecisionEditorPanel(backend, Convert.ToInt32(save.Id), profile));
+        window.Show(FindForm());
     }
 
     private void StageFastProject()
@@ -360,5 +379,128 @@ internal sealed partial class CampaignEditorPanel : UserControl
         }
         catch (Exception error) { Error(error); }
         finally { IsBusy = false; apply.Enabled = hash != null && (live || !gameRunning); refresh.Enabled = true; saves.Enabled = true; nations.Enabled = true; UpdateProjectControls(); }
+    }
+}
+
+internal sealed class DecisionEditorPanel : UserControl
+{
+    private sealed class DecisionChoice
+    {
+        internal string Id, Name, Mode, Description;
+        internal Dictionary<string, object> Data;
+        public override string ToString() { return Name; }
+    }
+
+    private readonly Func<string[], Task<Dictionary<string, object>>> backend;
+    private readonly int pid;
+    private readonly ComboBox decisions;
+    private readonly TextBox profile;
+    private readonly Label detail, status;
+    private readonly Button apply, reload;
+    private bool busy;
+    private int year;
+    private string activeId;
+    private int paid, duration, lastYear;
+
+    internal DecisionEditorPanel(Func<string[], Task<Dictionary<string, object>>> callback, int processId, string defaultProfile)
+    {
+        backend = callback; pid = processId;
+        Dock = DockStyle.Fill; AutoScroll = true; Padding = new Padding(18);
+        BackColor = Color.FromArgb(18, 26, 35); ForeColor = Color.FromArgb(229, 236, 243); Font = new Font("Segoe UI", 10);
+        TableLayoutPanel root = new TableLayoutPanel { Dock = DockStyle.Top, Height = 420, ColumnCount = 1, RowCount = 7 };
+        root.RowStyles.Add(new RowStyle(SizeType.Absolute, 35)); root.RowStyles.Add(new RowStyle(SizeType.Absolute, 35));
+        root.RowStyles.Add(new RowStyle(SizeType.Absolute, 105)); root.RowStyles.Add(new RowStyle(SizeType.Absolute, 90));
+        root.RowStyles.Add(new RowStyle(SizeType.Absolute, 42)); root.RowStyles.Add(new RowStyle(SizeType.Absolute, 42));
+        root.RowStyles.Add(new RowStyle(SizeType.Percent, 100)); Controls.Add(root);
+        root.Controls.Add(new Label { Text = "Campaign profile (reuse this name for the same campaign)", AutoSize = true }, 0, 0);
+        profile = new TextBox { Dock = DockStyle.Fill, Text = defaultProfile, BackColor = Color.FromArgb(27, 38, 50), ForeColor = ForeColor };
+        root.Controls.Add(profile, 0, 1);
+        decisions = new ComboBox { Dock = DockStyle.Fill, DropDownStyle = ComboBoxStyle.DropDownList, BackColor = Color.FromArgb(27, 38, 50), ForeColor = ForeColor };
+        root.Controls.Add(decisions, 0, 2);
+        detail = new Label { Dock = DockStyle.Fill, ForeColor = Color.FromArgb(196, 211, 224), AutoEllipsis = true };
+        root.Controls.Add(detail, 0, 3);
+        FlowLayoutPanel actions = new FlowLayoutPanel { Dock = DockStyle.Fill };
+        apply = new Button { Text = "Apply decision", Width = 190, Height = 34, Enabled = false, BackColor = Color.FromArgb(33, 131, 130), ForeColor = Color.White, FlatStyle = FlatStyle.Flat };
+        reload = new Button { Text = "Reload decisions", Width = 160, Height = 34, BackColor = Color.FromArgb(27, 38, 50), ForeColor = ForeColor, FlatStyle = FlatStyle.Flat };
+        Button open = new Button { Text = "Edit decision file", Width = 155, Height = 34, BackColor = Color.FromArgb(27, 38, 50), ForeColor = ForeColor, FlatStyle = FlatStyle.Flat };
+        actions.Controls.Add(apply); actions.Controls.Add(reload); actions.Controls.Add(open); root.Controls.Add(actions, 0, 4);
+        status = new Label { Dock = DockStyle.Fill, ForeColor = Color.FromArgb(155, 174, 191), AutoEllipsis = true };
+        root.Controls.Add(status, 0, 5);
+        root.Controls.Add(new Label { Dock = DockStyle.Fill, ForeColor = Color.FromArgb(155, 174, 191),
+            Text = "One-time decisions apply immediately. Projects charge the first year when started; use the annual installment button after each later year. Save your campaign in RTW3 to keep the changes." }, 0, 6);
+        decisions.SelectedIndexChanged += delegate { UpdateSelection(); };
+        profile.KeyDown += async delegate(object sender, KeyEventArgs args) {
+            if (args.KeyCode == Keys.Enter) { args.SuppressKeyPress = true; await RefreshStatus(); }
+        };
+        reload.Click += async delegate { await Reload(); };
+        apply.Click += async delegate { await ApplySelected(); };
+        open.Click += delegate {
+            try { Process.Start(new ProcessStartInfo("notepad.exe", "\"" + Path.Combine(AppDomain.CurrentDomain.BaseDirectory, "Mods", "CampaignOverhaul", "custom_decisions.json") + "\"") { UseShellExecute = false }); }
+            catch (Exception error) { status.Text = error.Message; }
+        };
+        Load += async delegate { await Reload(); };
+    }
+
+    private async Task Reload()
+    {
+        if (busy) return; busy = true; apply.Enabled = false; reload.Enabled = false;
+        try {
+            Dictionary<string, object> response = await backend(new[] { "decision-list" });
+            decisions.Items.Clear();
+            foreach (object raw in (ArrayList)response["decisions"]) {
+                Dictionary<string, object> item = (Dictionary<string, object>)raw;
+                decisions.Items.Add(new DecisionChoice { Id = item["id"].ToString(), Name = item["name"].ToString(), Mode = item["mode"].ToString(),
+                    Description = item.ContainsKey("description") ? item["description"].ToString() : "", Data = item });
+            }
+            if (decisions.Items.Count > 0) decisions.SelectedIndex = 0;
+            status.Text = "Editable definitions: " + response["file"];
+        } catch (Exception error) { status.Text = error.Message; }
+        finally { busy = false; reload.Enabled = true; UpdateSelection(); }
+        await RefreshStatus();
+    }
+
+    private async Task RefreshStatus()
+    {
+        if (busy || String.IsNullOrWhiteSpace(profile.Text)) return;
+        try {
+            Dictionary<string, object> response = await backend(new[] { "decision-status", "--pid", pid.ToString(), "--campaign-key", profile.Text.Trim() });
+            year = Convert.ToInt32(response["year"]);
+            Dictionary<string, object> record = response["progress"] as Dictionary<string, object>;
+            Dictionary<string, object> project = record == null ? null : record["project"] as Dictionary<string, object>;
+            activeId = project != null && Convert.ToBoolean(project["active"]) ? project["id"].ToString() : null;
+            paid = project == null ? 0 : Convert.ToInt32(project["paid"]);
+            duration = project == null ? 0 : Convert.ToInt32(project["duration_years"]);
+            lastYear = project == null ? 0 : Convert.ToInt32(project["last_year"]);
+            status.Text = response["nation"] + " | campaign year " + year + " | funds " + Convert.ToInt64(response["funds"]).ToString("N0") +
+                          (activeId == null ? " | no active project" : " | project " + paid + "/" + duration + " installments, last paid " + lastYear);
+        } catch (Exception error) { status.Text = error.Message; activeId = null; }
+        UpdateSelection();
+    }
+
+    private void UpdateSelection()
+    {
+        DecisionChoice choice = decisions.SelectedItem as DecisionChoice;
+        if (choice == null) { apply.Enabled = false; return; }
+        detail.Text = choice.Description;
+        if (choice.Mode == "instant") { apply.Text = "Apply decision"; apply.Width = 190; apply.Enabled = !busy; }
+        else if (activeId == null) { apply.Text = "Start project (first payment now)"; apply.Width = 245; apply.Enabled = !busy; }
+        else if (activeId == choice.Id) { apply.Text = "Apply annual installment"; apply.Width = 220; apply.Enabled = !busy && year > lastYear; }
+        else { apply.Text = "Another project is active"; apply.Width = 220; apply.Enabled = false; }
+    }
+
+    private async Task ApplySelected()
+    {
+        DecisionChoice choice = decisions.SelectedItem as DecisionChoice;
+        if (busy || choice == null) return;
+        if (String.IsNullOrWhiteSpace(profile.Text)) { status.Text = "Enter a campaign profile name first."; return; }
+        string mode = choice.Mode == "instant" ? "apply" : activeId == choice.Id ? "installment" : "start";
+        busy = true; apply.Enabled = false; reload.Enabled = false;
+        try {
+            Dictionary<string, object> response = await backend(new[] { "decision-apply", "--pid", pid.ToString(), "--campaign-key", profile.Text.Trim(),
+                "--decision-id", choice.Id, "--decision-mode", mode });
+            status.Text = response["message"].ToString();
+        } catch (Exception error) { status.Text = error.Message; }
+        finally { busy = false; reload.Enabled = true; UpdateSelection(); }
+        await RefreshStatus();
     }
 }

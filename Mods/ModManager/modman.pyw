@@ -217,6 +217,26 @@ def gui(hidden=False):
             print(f"selftest ok: {box.size()} mods listed, {len(enabled)} on")
             return win.destroy()
         check_updates()
+        watch_game()
+
+    def watch_game():
+        """A game window that answers nothing for a minute: where it is stuck goes to hang-report.txt."""
+        import queue, threading
+        import hang_report
+        reports = queue.Queue()
+        threading.Thread(target=hang_report.watch, args=(reports.put,), daemon=True).start()
+
+        def poll():
+            if not reports.empty():
+                reports.get()
+                status["text"] = "Rule the Waves 3 stopped responding: saved Mods\\ModManager\\hang-report.txt"
+                win.attributes("-topmost", True)
+                messagebox.showwarning("Rule the Waves 3 isn't responding", "The game hasn't responded for a minute. "
+                                       "Where it is stuck is saved in Mods\\ModManager\\hang-report.txt.\n\nIf it stays "
+                                       "frozen, close it and send that file with your report.")
+                win.attributes("-topmost", False)
+            win.after(2000, poll)
+        poll()
 
     def check_updates():
         """A newer release on GitHub, offered once a start; offline or GitHub busy: just said on the status line."""

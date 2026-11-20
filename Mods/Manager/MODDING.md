@@ -29,17 +29,20 @@ is needed, set the `RTW3_PYTHON` environment variable to its executable path.
   priorities for a selected player model, with its role fixed. Develops a native
   successor prototype while preserving existing aircraft. See
   [AIRCRAFT_IMPROVEMENTS.md](AIRCRAFT_IMPROVEMENTS.md).
-- **Naval Staff Briefings:** 24 rewritten events in the original 81 slots.
-  Since 7 November 2026 the events that ended in 1999 run to 2050 (the
-  extended campaign had none after 1999), and 13 modern events (1950-2050)
-  were added: oil crises, missile tests, satellites, piracy, cyber intrusions,
-  missile arms talks, freedom-of-navigation patrols, drone boats, shipyard
-  automation, nuclear port visits, hypersonic missiles, space programmes and
-  defence reviews. They use only the native conditions and effects listed in
-  `Data/BuldCampEventConditions.txt`; the game reads at most 100 events.
-  Since 13 November 2026 six Cold War events (1947-1990) fill the last slots:
-  a blockaded city, a nationalised canal, island missiles, a seized
-  intelligence ship, a grounded submarine and incidents at sea.
+- **Naval Staff Briefings:** revises all 100 event groups, including stock,
+  modern and Cold War events. Every active response has a third choice and a
+  short Budget, Prestige and Tension effect note; several duplicate or
+  one-sided outcomes have been corrected. The notes expose the native event
+  table values, while dated triggers, nation targets and engine conditions
+  remain intact except for the declared response adjustments. The game reads
+  at most 100 events. See `EVENT_DECISIONS.md` for the review scope and the
+  limits of the native event format.
+- **Historical Decolonization - Player and AI:** adds automatic, dated
+  self-government and independence transfers for territories still held by
+  their historical administering power. Applies equally to player and AI.
+  The game's separate random possession-upheaval events remain unchanged.
+  Independent territories become Neutral; this does not create playable
+  countries. See [DECOLONIZATION.md](DECOLONIZATION.md).
 - **Seven-Day Calendar and Week Display:** an experimental runtime mod that adds
   seven days per turn and shows `Week 1` to `Week 5` beside the native campaign
   month/year (merged from Week Beside Month, 16 November 2026). **Economy,
@@ -49,6 +52,12 @@ is needed, set the `RTW3_PYTHON` environment variable to its executable path.
   CVL aircraft limits using researched built and unbuilt examples. Preserves
   native machinery through 90,000 tons and uses a documented estimate above it.
   See `HISTORICAL_HULLS.md` for limits, sources and retained design restrictions.
+- **Extended Ship Graphics - 100 Saved Visuals:** optional companion to
+  Historical and Paper Hulls. Raises the designer's added-graphics list from 25
+  to 100; the separate builder can split detailed plan-view shapes into
+  native-compatible saved pieces. The game's six native superstructure controls
+  and 25 points per native shape stay unchanged. See
+  [SHIP_GRAPHICS_100.md](SHIP_GRAPHICS_100.md).
 - **Manual Legacy Fleet - All Start Years:** exposes the optional native manual
   fleet checkbox in 1890, 1900, 1920 and 1935, with the correct previous design year.
 - **Live Cheats - In-game F10 Menu:** a visible companion launcher/hotkey for
@@ -166,7 +175,7 @@ prerequisites; years, costs and chances may change.
 ## Extend the runtime loader
 
 The adapters are implemented in `Mods/CampaignOverhaul/weekly_runtime.py`,
-`week_display.py`, `large_hulls.py`, `legacy_fleet.py`, `live_cheats.py` and
+`week_display.py`, `large_hulls.py`, `ship_visual_layers.py`, `legacy_fleet.py`, `live_cheats.py` and
 `timeline_2030.py`, `in_game_submarines.py` and `submarine_factory.py`.
 The two reviewed AI adapters use `ai_runtime.py` and `ai_rules.py`; they attach
 before a campaign is loaded and do not edit saved options or personal saves.

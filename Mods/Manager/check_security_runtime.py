@@ -10,7 +10,7 @@ import ai_runtime
 
 
 def check():
-    live.memory.configure(); ai_runtime.checked_game()
+    live.memory.configure()
     saved = json.loads(security.REPORT.read_text(encoding="utf-8"))
     if not saved.get("attached") or dict(rt.process_candidates()).get(saved["pid"]) != rt.GAME/"RTW3.exe":
         raise ValueError("No current campaign-security session.")

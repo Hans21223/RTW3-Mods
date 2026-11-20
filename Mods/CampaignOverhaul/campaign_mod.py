@@ -15,6 +15,8 @@ GAME = HERE.parent.parent
 STATE = HERE / "state.json"
 EXCLUDE = {"Mods", ".git", ".agents", ".codex", "Save", "_TimeStretch_Backup"}
 BASE_FILES = ("Events.dat", "Tips.txt", "ResearchAreas3.dat", "AircraftBasicData3.dat")
+EVENT_BASE = HERE / "event_mechanics_base.dat"
+EVENT_OUTCOMES = HERE / "event_outcomes.json"
 
 
 def digest(path):
@@ -115,10 +117,78 @@ def parse_events(raw):
     return groups
 
 
+EVENT_CONSEQUENCES = {
+    1: "technology-sharing agreement",
+    2: "treaty negotiations",
+    3: "submarine build requirement",
+    4: "submarine build requirement",
+    5: "destroyer build requirement",
+    6: "destroyer build requirement",
+    7: "cruiser build requirement",
+    8: "cruiser build requirement",
+    9: "battleship build requirement",
+    10: "reduced battleship build requirement",
+    11: "social reform proposal",
+    12: "unrest increase",
+    13: "technology leak risk",
+    14: "technology gain",
+    15: "possible unrest increase",
+    16: "possible unrest relief",
+    20: "sabotage operation",
+    25: "possession rebellion risk",
+    30: "cruiser colonial deployment",
+    31: "battleship colonial deployment",
+    40: "arms-control talks",
+    41: "stronger arms-control talks",
+    50: "peace negotiations",
+    51: "low-chance peace negotiations",
+    52: "peace on victory terms",
+    53: "peace on defeat terms",
+    54: "peace negotiations",
+    55: "peace with gains",
+    56: "continue the war",
+    60: "army setback risk",
+    61: "army victory chance",
+    65: "revolution risk",
+    66: "crew-quality improvement, half-maintenance cost",
+    70: "base resources -500",
+    71: "base resources +500",
+    72: "half-maintenance cost",
+}
+
+
+def event_effect_hint(row):
+    """One response's effects: its non-zero Budget, Prestige and Tension and its special outcome."""
+    parts = [f"{label} {int(value):+d}" for label, value in zip(("Budget", "Prestige", "Tension"), row[1:4])
+             if value.strip() and int(value)]
+    condition = int(row[5]) if row[5].strip() else 0
+    if condition:
+        parts.append(EVENT_CONSEQUENCES.get(condition, f"native condition {condition}"))
+    return ", ".join(parts) or "no change"
+
+
 def render_events():
-    original = (HERE / "vanilla" / "Events.dat").read_bytes()
+    if not EVENT_BASE.is_file() or not EVENT_OUTCOMES.is_file():
+        raise ValueError("The full event baseline or authored outcome table is missing.")
+    original = EVENT_BASE.read_bytes()
     groups = parse_events(original)
+    stock_groups = parse_events((HERE / "vanilla" / "Events.dat").read_bytes())
     pack = json.loads((HERE / "events.json").read_text(encoding="utf-8"))
+    outcomes = json.loads(EVENT_OUTCOMES.read_text(encoding="utf-8"))
+    if len(groups) != 100:
+        raise ValueError(f"Expected the complete 100-event table; found {len(groups)} groups.")
+    disabled_questions = outcomes.get("disabled_questions", [])
+    if (not isinstance(disabled_questions, list) or
+            any(type(slot) is not int or not 0 <= slot < len(groups) for slot in disabled_questions) or
+            len(set(disabled_questions)) != len(disabled_questions)):
+        raise ValueError("Disabled event questions must be a unique list of valid event slots.")
+    for slot in disabled_questions:
+        question = groups[slot][0]
+        if slot != 46 or "Socialists in Parliament" not in question[0] or question[5] != "21":
+            raise ValueError(f"Refusing to disable an unrecognized high-funds parliamentary event in slot {slot}.")
+        # The engine has no disabled-event flag. Move this trigger outside the
+        # supported campaign era while preserving its response records.
+        question[6:8] = ["9999", "9999"]
     seen = set()
     for event in pack:
         number = event["slot"]
@@ -126,7 +196,7 @@ def render_events():
             raise ValueError(f"Duplicate or invalid event slot {number}.")
         seen.add(number)
         group = groups[number]
-        if event["match"] not in group[0][0]:
+        if number >= len(stock_groups) or event["match"] not in stock_groups[number][0][0]:
             raise ValueError(f"Event slot {number} changed in this game build.")
         # Keep every trigger, year window, target nation, government flag and
         # numeric response unchanged. Special engine event indexes stay valid.
@@ -140,6 +210,56 @@ def render_events():
             if not caption or not row[0] or any(c in caption for c in ";\r\n"):
                 raise ValueError(f"Invalid caption for slot {number}.")
             row[0] = caption
+
+    for slot_text, response in outcomes.get("add_responses", {}).items():
+        slot = int(slot_text)
+        if not 0 <= slot < len(groups):
+            raise ValueError(f"Invalid response slot {slot}.")
+        answer = int(response["answer"])
+        if answer not in (0, 1, 2):
+            raise ValueError(f"Invalid answer index {answer} in slot {slot}.")
+        row = groups[slot][answer + 1]
+        if row != ["", "", "", "", "", "0"]:
+            raise ValueError(f"Slot {slot}, answer {answer} is not an unused response.")
+        effect = response["outcome"]
+        if len(effect) != 5 or any(not isinstance(value, int) for value in effect):
+            raise ValueError(f"Invalid effect values for slot {slot}, answer {answer}.")
+        row[0] = response["caption"]
+        row[1:] = [str(value) for value in effect]
+        row[0].encode("ascii")
+
+    for slot_text, responses in outcomes.get("overrides", {}).items():
+        slot = int(slot_text)
+        if not 0 <= slot < len(groups):
+            raise ValueError(f"Invalid outcome override slot {slot}.")
+        for answer_text, effect in responses.items():
+            answer = int(answer_text)
+            if answer not in (0, 1, 2) or len(effect) != 5 or any(not isinstance(value, int) for value in effect):
+                raise ValueError(f"Invalid outcome override for slot {slot}, answer {answer}.")
+            row = groups[slot][answer + 1]
+            if row == ["", "", "", "", "", "0"]:
+                raise ValueError(f"Cannot override an unused response in slot {slot}, answer {answer}.")
+            row[1:] = [str(value) for value in effect]
+
+    for slot_text, responses in outcomes.get("captions", {}).items():
+        slot = int(slot_text)
+        if not 0 <= slot < len(groups):
+            raise ValueError(f"Invalid caption slot {slot}.")
+        for answer_text, caption in responses.items():
+            answer = int(answer_text)
+            if answer not in (0, 1, 2) or not caption or any(c in caption for c in ";\r\n"):
+                raise ValueError(f"Invalid caption for slot {slot}, answer {answer}.")
+            caption.encode("ascii")
+            groups[slot][answer + 1][0] = caption
+
+    for slot, group in enumerate(groups):
+        active = [row for row in group[1:] if row != ["", "", "", "", "", "0"]]
+        if len(active) != 3:
+            raise ValueError(f"Slot {slot} must present three distinct, active responses; found {len(active)}.")
+        # The answer buttons are one line 737/849/737 px wide and clip what doesn't fit (XX/YY grow into nation
+        # names); the question label wraps over five lines, and every question plus this fits in four.
+        group[0][0] += " Effects: " + " ".join(f"({n}) {event_effect_hint(row)}." for n, row in enumerate(active, 1))
+
     newline = "\r\n" if b"\r\n" in original else "\n"
     rendered = newline.join(";".join(row) for group in groups for row in group)
     if original.endswith((b"\r", b"\n")):
@@ -149,10 +269,25 @@ def render_events():
     baseline = parse_events(original)
     if len(parsed) != len(baseline):
         raise ValueError("Event count changed.")
-    for after, before in zip(parsed, baseline):
-        if any(a[1:] != b[1:] for a, b in zip(after, before)):
-            raise ValueError("An engine condition or outcome changed.")
-    return output, len(seen), len(groups)
+    additions = {(int(slot), int(response["answer"]))
+                 for slot, response in outcomes.get("add_responses", {}).items()}
+    overrides = {(int(slot), int(answer))
+                 for slot, responses in outcomes.get("overrides", {}).items()
+                 for answer in responses}
+    for slot, (after, before) in enumerate(zip(parsed, baseline)):
+        expected_question = before[0][1:]
+        if slot in disabled_questions:
+            expected_question[5:7] = ["9999", "9999"]
+        if after[0][1:] != expected_question:
+            raise ValueError(f"Question mechanics changed in event {slot}.")
+        for answer, (a, b) in enumerate(zip(after[1:], before[1:])):
+            if (slot, answer) in additions:
+                if b != ["", "", "", "", "", "0"]:
+                    raise ValueError(f"Added answer overwrote a native response in event {slot}.")
+                continue
+            if (slot, answer) not in overrides and a[1:] != b[1:]:
+                raise ValueError(f"Undeclared event effect change in event {slot}, answer {answer}.")
+    return output, len(groups), len(groups)
 
 
 def apply_events():
@@ -168,7 +303,8 @@ def apply_events():
         raise ValueError("Events.dat has untracked edits. Preserve them before applying.")
     dest.write_bytes(output)
     tips = (HERE / "vanilla" / "Tips.txt").read_bytes()
-    marker = b"Campaign Overhaul: reworked naval staff briefings and choices are active. Engine turns remain monthly unless the experimental weekly runtime mod is attached.\r\n"
+    marker = (b"Naval Staff Briefings: all 100 event groups offer three choices with available Budget, Prestige and Tension effect notes.\r\n"
+              b"Special outcomes follow the original RTW3 event rules.\r\n")
     tip_dest = GAME / "Data" / "Tips.txt"
     known_tips = current.get("tips_sha256") or digest(HERE / "vanilla" / "Tips.txt")
     if digest(tip_dest) != known_tips:
@@ -176,8 +312,8 @@ def apply_events():
     tip_dest.write_bytes(marker + tips)
     current.update(events=True, events_sha256=digest(dest), tips_sha256=digest(tip_dest))
     save_json(STATE, current)
-    print(f"Applied {changed} reworked events within the original {total} event slots.")
-    print("All original event conditions, dates, targets and game effects preserved.")
+    print(f"Applied effect notes and three choices across all {total} event groups.")
+    print("Declared outcome adjustments are checked against the saved 100-event baseline.")
 
 
 def restore_events():
@@ -263,7 +399,7 @@ def verify():
         output, changed, total = render_events()
         if (GAME / "Data" / "Events.dat").read_bytes() != output:
             raise ValueError("Installed events differ from the generated event pack.")
-        print(f"Event validation passed: {changed} reworked, {total} total; all mechanics preserved.")
+        print(f"Event validation passed: {total} groups, 300 annotated choices; declared outcome changes only.")
     print(f"Verified {len(expected)} installed files. Official Steam executable is byte exact.")
     print(f"Rollback backup: {record['backup']}")
 

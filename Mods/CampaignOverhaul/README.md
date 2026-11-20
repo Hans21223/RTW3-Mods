@@ -12,11 +12,14 @@ event pack and runtime mod. Select your mods and choose **Play with mods**.
 Start a new campaign to ensure the new event text loads. See
 `Mods/Manager/MODDING.md` for the current loader and package format.
 
-The events cover procurement, naval exercises, export contracts, foreign port
-visits, colonial crises, arms talks, cabinet decisions and economic downturns.
-Choices make their existing tradeoffs clearer. All 81 original event slots,
-numeric outcomes, conditions, nation targets and year windows are preserved.
-This pack changes event writing, not event frequency or game mechanics.
+The 100 event groups cover stock campaign incidents, naval policy and
+procurement, plus modern and Cold War scenarios. Each group now offers three
+responses, with compact Budget, Prestige and Tension notes so trade-offs are
+visible before choosing. Targeted changes remove duplicate or lopsided
+responses; other dates, triggers, targets and native special conditions stay
+as authored. The event system still uses the game's fixed set of three
+response rows and its existing effect rules. See
+`Mods/Manager/EVENT_DECISIONS.md` for the authored changes and limitations.
 
 ## Weekly experiment
 
@@ -35,6 +38,18 @@ with the weekly clock will behave the same when continued in monthly mode.
 The hidden week-length control in the game is not used as evidence that all
 systems support weekly turns. A full conversion still needs monthly systems
 audited and rebalanced, followed by multi-year campaign testing.
+
+## Historical independence
+
+The optional **Historical Decolonization - Player and AI** mod adds automatic,
+date-led transfers for listed territories on both sides. It also prevents the
+native rebellion system from granting independence to core regions such as
+Western USA, and suppresses random secession from territories with a scheduled
+historical release. The mod's dated transfers bypass that protection. Other
+native possession events remain active. RTW3 represents many independent
+territories as Neutral and cannot create playable countries, so this does not
+create their government, fleet or diplomacy. See
+`Mods/Manager/DECOLONIZATION.md` for details.
 
 ## What was preserved
 

@@ -39,7 +39,7 @@ def write(handle, address, data):
     buf = c.create_string_buffer(data)
     size = c.c_size_t()
     if not rt.K.WriteProcessMemory(handle, address, buf, len(data), c.byref(size)) or size.value != len(data):
-        raise rt.win_error("Could not write the week display buffer")
+        raise rt.win_error(f"Could not write runtime buffer at {address:#x} ({len(data)} bytes)")
     if rt.read(handle, address, len(data)) != data:
         raise ValueError("Week display write did not verify.")
 

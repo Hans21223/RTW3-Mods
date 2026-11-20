@@ -654,7 +654,7 @@ def attach(wait=30):
     import ai_runtime as ai
     import live_cheats as live
     import week_display as memory
-    ai.checked_game(); memory.configure(); deadline = time.monotonic()+wait
+    memory.configure(); deadline = time.monotonic()+wait
     while True:
         games = [(p,s) for p,s in rt.process_candidates() if s == rt.GAME/"RTW3.exe"]
         if len(games) == 1: break

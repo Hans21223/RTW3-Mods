@@ -34,6 +34,8 @@ _ADAPTERS = (
         "max_tons": (90000, 280000), "dd_tons": (3800, 280000), "cl_tons": (14000, 280000),
         "ke_tons": (2500, 280000), "cvl_tons": (16000, 280000),
         "cv_tons": (16000, 280000), "cvl_aircraft": (34, 127)}),
+    Adapter("ship-visual-layers", "ship_visual_layers", "pid", after=("large-hulls",),
+            requires=("large-hulls",)),
     Adapter("legacy-fleet", "legacy_fleet"),
     Adapter("timeline-2030", "timeline_2030", "kwargs", {"end_year": (1890, 9998), "cutoff_year": (1891, 9999)}),
     Adapter("campaign-security", "campaign_security", requires=("live-cheats",)),
@@ -41,6 +43,7 @@ _ADAPTERS = (
         "max_active_ships": (50, 10000), "max_building_ships": (1, 1000), "min_procurement_days": (1, 90),
         "invade_possessions": (0, 1)},
         after=("campaign-security",)),
+    Adapter("historical-decolonization", "decolonization", after=("campaign-qol",)),
     Adapter("battle-ai", "battle_ai", "settings", {
         "contact_memory_minutes": (1, 60), "memory_radius_yards": (5000, 100000),
         "capital_max_advance_yards": (2000, 20000), "capital_gun_range_percent": (50, 90),
@@ -66,12 +69,14 @@ _ADAPTERS = (
     # native through modern_research.normalize); attaching last keeps their checks on untouched code anyway.
     Adapter("big-guns", "big_guns", after=("campaign-security", "campaign-qol", "research-traits", "research-budget",
                                            "modern-research", "live-cheats", "vls-cells")),
+    Adapter("super-superfiring-turret", "super_superfiring", requires=("large-hulls",),
+            after=("large-hulls", "big-guns")),
     # The frigate type reroutes 1,600 native reads; attaching last lets it skip the reads others already hook.
     Adapter("frigate-type", "frigate_type", requires=("modern-research",), after=(
         "calendar-days", "torpedo-initiative", "fair-ai", "detection-only-evasion", "week-display", "large-hulls",
         "legacy-fleet", "timeline-2030", "campaign-security", "campaign-qol", "battle-ai", "research-traits",
         "research-budget", "aircraft-improvements", "modern-research", "live-cheats", "in-game-submarines",
-        "vls-cells", "big-guns")),
+        "vls-cells", "big-guns", "super-superfiring-turret")),
 )
 REGISTRY = {adapter.id: adapter for adapter in _ADAPTERS}
 SCHEMAS = {ident: adapter.bounds for ident, adapter in REGISTRY.items()}

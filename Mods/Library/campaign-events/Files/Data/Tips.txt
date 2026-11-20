@@ -1,4 +1,5 @@
-Naval Staff Briefings: 24 reworked campaign decisions are active.
+Naval Staff Briefings: all 100 event groups offer three choices with available Budget, Prestige and Tension effect notes.
+Special outcomes follow the original RTW3 event rules.
 Tactical battle: Use search line formation if you have a small force and want to find the enemy.
 Tactical battle: With a division selected, you can move the mouse and see distance and estimated time to reach the cursor location in the status bar to the lower right.
 Tactical battle: With a division selected, press ctrl and click the map to change division course towards the cursor and run the game. It will pause when the division reaches the point.

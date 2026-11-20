@@ -1,0 +1,16 @@
+A - Forward
+B - Forward superimposed
+C - Forward midships
+D - Port forward wing
+E - Stbd forward wing
+Q - Midships
+R - Port aft wing
+S - Stbd aft wing
+W - Aft midships
+X - Aft superimposed
+Y - Aft 
+Z - Super-superfiring
+F - Super-superfiring (2)
+G - Super-superfiring (3)
+H - Super-superfiring (4)
+I - Super-superfiring (5)

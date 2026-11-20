@@ -297,29 +297,25 @@ class LoaderTests(unittest.TestCase):
         with self.assertRaisesRegex(ValueError, "Nothing in it"):
             loader.add_package(nothing)
 
-    def test_release_install_bootstraps_only_the_supported_untouched_game(self):
+    def test_release_install_runs_any_build_and_checks_the_known_builds_research(self):
         import campaign_mod
         import modern_tree
         research = self.game/"Data"/"ResearchAreas3.dat"
-        research.write_bytes(b"original research table")
+        research.write_bytes(b"time-stretched research table")
         loader.STATE.unlink()
         with patch.object(campaign_mod, "state", return_value={}), \
-             patch.object(modern_tree, "VANILLA_SHA256", loader.sha(research)):
-            with self.assertRaisesRegex(ValueError, "1.01.44"):
-                loader.bootstrap()
-            with patch.object(loader, "RELEASE_EXE", loader.sha(self.game/"RTW3.exe")):
-                research.write_bytes(b"time-stretched research table")
+             patch.object(modern_tree, "VANILLA_SHA256", hashlib.sha256(b"original research table").hexdigest()):
+            with patch.object(loader, "RELEASE_EXE", loader.sha(self.game/"RTW3.exe")):   # the build the mods know
                 with self.assertRaisesRegex(ValueError, "ResearchAreas3.dat"):
                     loader.bootstrap()
                 self.assertFalse(loader.STATE.exists())
-                research.write_bytes(b"original research table")
-                self.assertEqual(loader.bootstrap()["enabled"], [])
-                self.mod("first")
-                loader.apply(["first"])
-                self.assertEqual(loader.verify()["enabled"], ["first"])   # no Steam-copy record to check
-                (self.game/"RTW3.exe").write_bytes(b"patched engine")
-                with self.assertRaisesRegex(ValueError, "executable changed"):
-                    loader.verify()
+            # Another build (a later update, another store): set up; each mod checks the game code when it loads.
+            self.assertEqual(loader.bootstrap()["build"], "other")
+            self.mod("first")
+            loader.apply(["first"])
+            (self.game/"RTW3.exe").write_bytes(b"updated engine")                 # the game updates
+            loader.apply(["first"])
+            self.assertEqual(loader.verify()["enabled"], ["first"])
 
     def test_ai_mods_route_separately_and_require_experimental_acknowledgement(self):
         for ident in ("torpedo-initiative", "fair-ai", "detection-only-evasion"):

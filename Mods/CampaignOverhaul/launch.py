@@ -62,11 +62,10 @@ def main():
             if choice != 6:
                 return 0
         steam = steam_path()
-        if not steam.is_file():
-            raise ValueError("Steam was not found. Open Steam and sign in before launching this copy.")
-        # Normal Steam app environment; the official executable and Steam client
-        # still perform their ordinary license checks. No replacement DLLs.
-        subprocess.Popen([str(steam), "-silent"], stdin=subprocess.DEVNULL, stdout=subprocess.DEVNULL, stderr=subprocess.DEVNULL)
+        if steam.is_file():   # a Steam copy needs Steam running; other copies (Matrix) start on their own
+            # Normal Steam app environment; the official executable and Steam client
+            # still perform their ordinary license checks. No replacement DLLs.
+            subprocess.Popen([str(steam), "-silent"], stdin=subprocess.DEVNULL, stdout=subprocess.DEVNULL, stderr=subprocess.DEVNULL)
         env = os.environ.copy()
         env.update(SteamAppId="2008100", SteamGameId="2008100")
         visible = subprocess.STARTUPINFO()
@@ -77,7 +76,7 @@ def main():
         if not weekly:
             time.sleep(4)
             if game.poll() is not None:
-                raise ValueError("The local game exited during startup. Check that Steam is signed in and owns RTW3.")
+                raise ValueError("The game exited during startup. For the Steam version, check that Steam is signed in.")
         runtime_host.wait_session(game.pid)
         result = runtime_host.run(selected, settings, game.pid)
         if not result["ok"]:

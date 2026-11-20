@@ -1,400 +1,400 @@
-The Navy League wants your annual speech to set the tone for the coming estimates debate. Merchants want safer sea lanes, while the press demands a stronger fleet. What case will you make?;15;;;;27;1890;1935;0
+The Navy League wants your annual speech to set the tone for the coming estimates debate. Merchants want safer sea lanes, while the press demands a stronger fleet. What case will you make? Effects: (1) Budget -1, Prestige -1, Tension -1. (2) Tension +1. (3) Budget +1, Prestige +1, Tension +2.;15;;;;27;1890;1935;0
 Argue for restraint and peaceful trade, accepting a smaller naval budget and criticism from the League.;-1;-1;-1;10;0
 Promise to defend our trade and bases without naming an enemy, even if other powers remain suspicious.;0;0;1;10;0
 Name XX as the danger and demand a larger navy, gaining influence while sharpening the rivalry.;1;1;2;99;0
-A dispute with XX over access to an overseas port has become a colonial crisis. Local commanders want a clear policy before a minor encounter becomes a war. What do you advise?;13;;;;0;1890;1940;0
+A dispute with XX over access to an overseas port has become a colonial crisis. Local commanders want a clear policy before a minor encounter becomes a war. What do you advise? Effects: (1) Budget +1, Prestige +1, Tension +3. (2) Budget +2, Tension +1. (3) Budget +1, Prestige -1, Tension -1.;13;;;;0;1890;1940;0
 Stand firm and publicly back our claims. The fleet will gain support, but the risk of war rises sharply.;1;1;3;99;0
 Request emergency naval funding while negotiations continue, accepting some additional tension.;2;0;1;99;0
 Accept a diplomatic concession to buy time for the fleet, at a cost to our standing.;1;-1;-1;99;0
-There has been an uprising in an African country in the focus of great power colonial ambitions. We need to send a force to evacuate our nationals and protect our interests. What size should the expeditionary force be?;99;;;;0;1890;2050;0
+There has been an uprising in an African country in the focus of great power colonial ambitions. We need to send a force to evacuate our nationals and protect our interests. What size should the expeditionary force be? Effects: (1) Tension +1. (2) Prestige +1, Tension +2, cruiser colonial deployment. (3) Budget +1, Prestige +2, Tension +3, battleship colonial deployment.;99;;;;0;1890;2050;0
 A gunboat.;0;0;1;10;0
 A cruiser.;0;1;2;10;30
 A battleship.;1;2;3;10;31
-The YY has made an ill-considered statement about XX. What is your response when asked by a foreign journalist?;9;;;;3;1890;2050;0
+The YY has made an ill-considered statement about XX. What is your response when asked by a foreign journalist? Effects: (1) Budget +1, Prestige -1. (2) Tension +1. (3) Budget +1, Prestige +1, Tension +2.;9;;;;3;1890;2050;0
 Try to explain that the quote was taken out of context.;1;-1;0;99;0
 You will not comment on policy issues. ;0;0;1;99;0
 Agree wholeheartedly with the YY.;1;1;2;99;0
-Delegates at the Hague propose mutual limits on naval construction. Your staff warns that a promise without verification could leave the fleet at a disadvantage. What instructions do you send?;99;;;;0;1900;2050;0
+Delegates at the Hague propose mutual limits on naval construction. Your staff warns that a promise without verification could leave the fleet at a disadvantage. What instructions do you send? Effects: (1) Prestige +1, Tension +1. (2) arms-control talks. (3) Budget -1, Prestige -1, Tension -2, stronger arms-control talks.;99;;;;0;1900;2050;0
 Reject binding limits and defend our freedom to build, despite the diplomatic cost.;0;1;1;10;0
 Explore an agreement without promising reductions before acceptable terms emerge.;0;0;0;10;40
 Support reciprocal reductions and a serious arms agreement, accepting less funding and domestic criticism.;-1;-1;-2;10;41
-Naval intelligence reports a new shipbuilding programme in XX. Its purpose is uncertain, but newspapers are already comparing hulls and guns. How should the cabinet respond?;13;;;;0;1890;2050;0
+Naval intelligence reports a new shipbuilding programme in XX. Its purpose is uncertain, but newspapers are already comparing hulls and guns. How should the cabinet respond? Effects: (1) Budget +2, Prestige +1, Tension +2. (2) Tension +1. (3) Prestige -1, Tension -1.;13;;;;0;1890;2050;0
 Demand a funded naval response and warn publicly about XX, strengthening our hand and the rivalry.;2;1;2;99;0
 Express confidence in the fleet without seeking more money, even if the statement irritates XX.;0;0;1;99;0
 Use diplomatic channels to lower the temperature, accepting accusations of complacency.;0;-1;-1;99;0
-There has been a political murder in the Balkans. What is your advice on how to handle the crisis?;99;;;;0;1890;1950;0
+There has been a political murder in the Balkans. What is your advice on how to handle the crisis? Effects: (1) Budget +1, Prestige +1, Tension +2. (2) Budget +1, Prestige -1, Tension +1. (3) Tension +1.;99;;;;0;1890;1950;0
 Demand that the guilty are brought to justice, even at the risk of war.;1;1;2;10;0
 There should be a diplomatic solution to the crisis.;1;-1;1;10;0
 Nations stupid enough to put their fingers in the Balkan fire should realise that they can get burned.;0;0;1;10;0
-The training squadron is due to visit foreign ports. The itinerary is settled, but the ships selected will determine whether the cruise looks like instruction, diplomacy, or a show of force. What do you recommend?;99;;;;0;1890;2050;0
+The training squadron is due to visit foreign ports. The itinerary is settled, but the ships selected will determine whether the cruise looks like instruction, diplomacy, or a show of force. What do you recommend? Effects: (1) Prestige +1, Tension +1. (2) no change. (3) Budget +1, Prestige -1.;99;;;;0;1890;2050;0
 Show our newest capital ships. The display builds prestige but draws foreign suspicion.;0;1;1;10;0
 Send a representative squadron and keep the visit routine.;0;0;0;10;0
 Use older ships and make the case for replacement funding, accepting an unimpressive public showing.;1;-1;0;10;0
-A new hawkish Government wants to raise armament expenditures. What is your reaction?;99;;;;26;1890;2050;-1
+A new hawkish Government wants to raise armament expenditures. What is your reaction? Effects: (1) Budget +2, Tension +2. (2) Budget +1, Tension +1. (3) Prestige -1.;99;;;;26;1890;2050;-1
 Excellent! This will ensure the security of our nation!;2;0;2;10;0
 A good Navy is not a provocation to war, it is the surest guaranty of peace, but it must be coupled with careful diplomacy.;1;0;1;10;0
 We should be careful not to raise international tensions right now.;0;-1;0;10;0
-The YY wants to raise armament expenditures. What is your reaction?;99;;;;26;1890;2050;1
+The YY wants to raise armament expenditures. What is your reaction? Effects: (1) Budget +2, Tension +2. (2) Budget +1, Tension +1. (3) Prestige -1.;99;;;;26;1890;2050;1
 Excellent! This will ensure the safety of our nation.;2;0;2;10;0
 A strong navy is the foundation of our security, but it must be coupled with careful diplomacy.;1;0;1;10;0
 We should be careful not to raise international tensions right now.;0;-1;0;10;0
-A new liberal Government wants to reduce arms expenditures. What is your reaction?;99;;;;11;1890;2050;-1
+A new liberal Government wants to reduce arms expenditures. What is your reaction? Effects: (1) Tension +1. (2) Budget -1, Tension -1, social reform proposal. (3) Budget -2, Prestige -1, Tension -2, social reform proposal.;99;;;;11;1890;2050;-1
 This will spell doom for our naval power! We will be at the mercy of other nations that are better prepared.;0;0;1;10;0
 We can live with this, provided that our foreign policy is tempered and responsible.;-1;0;-1;10;11
 This is good. The world needs a pause from rampant military spending.;-2;-1;-2;10;11
-The PX wants to reduce arms expenditures and spend more on the civilian sector. What is your reaction?;99;;;;11;1890;2050;1
+The PX wants to reduce arms expenditures and spend more on the civilian sector. What is your reaction? Effects: (1) Tension +1. (2) Budget -1, Tension -1, social reform proposal. (3) Budget -2, Prestige -1, Tension -2, social reform proposal.;99;;;;11;1890;2050;1
 This will create serious risks! We will be at the mercy of nations that are better prepared.;0;0;1;10;0
 We can live with this, provided that our foreign policy is tempered and responsible.;-1;0;-1;10;11
 This is good. The world needs a pause from rampant military spending.;-2;-1;-2;10;11
-A domestic engineering firm seeks permission to exchange naval research with a partner in XX. Shared testing could accelerate development, but the relationship would outlast the present diplomatic mood. Your decision?;9;;;;0;1890;2050;0
+A domestic engineering firm seeks permission to exchange naval research with a partner in XX. Shared testing could accelerate development, but the relationship would outlast the present diplomatic mood. Your decision? Effects: (1) Tension +1. (2) Tension -1, technology-sharing agreement. (3) technology leak risk.;9;;;;0;1890;2050;0
 Refuse access to our work, accepting a chill in relations.;0;0;1;99;0
 Authorize the technology-sharing agreement and pursue better relations with XX.;0;0;-1;99;1
-;;;;;0
-A major foreign policy crisis has erupted with XX. What is your advice on how to handle the situation?;13;;;;17;1890;2050;0
+Permit a time-limited exchange of non-sensitive trials, accepting a residual leak risk.;0;0;0;99;13
+A major foreign policy crisis has erupted with XX. What is your advice on how to handle the situation? Effects: (1) Budget +2, Prestige +1, Tension +4. (2) Budget +1, Tension +2. (3) Prestige -1, Tension +1.;13;;;;17;1890;2050;0
 If war is to come, it might just as well come now!;2;1;4;99;0
 We should act to safeguard our interests, but in a responsible and proportional way.;1;0;2;99;0
 We should be prepared to make compromises to avoid antagonising XX.;0;-1;1;99;0
-The new government in XX promises a less confrontational naval policy. A major newspaper asks whether this is a chance for better relations or merely a pause in the arms race. What do you say?;9;;;;14;1890;2050;0
+The new government in XX promises a less confrontational naval policy. A major newspaper asks whether this is a chance for better relations or merely a pause in the arms race. What do you say? Effects: (1) Budget +1, Prestige +1, Tension +1. (2) Tension -1. (3) Budget -1, Tension -2.;9;;;;14;1890;2050;0
 Warn that the threat remains. The statement strengthens support for our navy but raises tension.;1;1;1;99;0
 Welcome the opening cautiously and judge the government by its actions.;0;0;-1;99;0
 Publicly endorse closer cooperation, accepting that reduced tension may weaken our budget case.;-1;0;-2;99;0
-XX proposes a security arrangement to settle recurring naval disputes. The foreign ministry sees an opportunity, while your planners worry that closer ties will be used to justify naval cuts. What is your advice?;9;;;;13;1890;2050;0
+XX proposes a security arrangement to settle recurring naval disputes. The foreign ministry sees an opportunity, while your planners worry that closer ties will be used to justify naval cuts. What is your advice? Effects: (1) Budget -2, Tension -2, treaty negotiations. (2) Budget -1, Tension -1. (3) Budget +1, Tension +1.;9;;;;13;1890;2050;0
 Open treaty negotiations and accept the likely pressure for a smaller naval budget.;-2;0;-2;99;2
 Seek a broader diplomatic understanding, lowering tensions without a bilateral commitment.;-1;0;-1;10;0
 Reject the arrangement and make the case for an independent, better-funded fleet.;1;0;1;99;0
-There has been a rebellion in the X2 possession of ;9;;;;25;1890;2050;0
+There has been a rebellion in the X2 possession of  Effects: (1) Tension +1, native condition 26. (2) possession rebellion risk. (3) Tension -1, native condition 27.;9;;;;25;1890;2050;0
 We should support the rebels to create trouble for XX.;0;0;1;99;26
 We should not involve ourselves in this.;0;0;0;99;25
 Such unpleasantries could be contagious. We should help XX to root out the rebels.;0;0;-1;99;27
-After a visit by the fleet of XX, reporters ask for your professional assessment. Your officers have noticed both capable ships and weaknesses, but a public comment will be read as policy. What do you tell them?;9;;;;0;1890;2050;0
+After a visit by the fleet of XX, reporters ask for your professional assessment. Your officers have noticed both capable ships and weaknesses, but a public comment will be read as policy. What do you tell them? Effects: (1) Prestige -1, Tension -1. (2) no change. (3) Prestige +1, Tension +1.;9;;;;0;1890;2050;0
 Praise their capability generously, improving relations while inviting unfavourable comparisons at home.;0;-1;-1;99;0
 Thank the visiting crews and avoid comparing the two fleets.;0;0;0;99;0
 Declare our fleet clearly superior, pleasing supporters at the expense of relations.;0;1;1;99;0
-The cabinet asks for a practical way to prevent the next naval incident from becoming a war. The staff has prepared three approaches, each with a different political cost. Which do you support?;15;;;;0;1890;2050;0
+The cabinet asks for a practical way to prevent the next naval incident from becoming a war. The staff has prepared three approaches, each with a different political cost. Which do you support? Effects: (1) Budget -1, Tension -1, arms-control talks. (2) Budget +1, Tension +1. (3) treaty negotiations.;15;;;;0;1890;2050;0
 Seek an arms conference and a lower level of naval expenditure to ease the rivalry.;-1;0;-1;10;40
 Request a stronger naval budget and make deterrence our public policy.;1;0;1;10;0
 Seek a negotiated security arrangement with XX.;0;0;0;99;2
-The YY has made a foreign policy gaffe. You are asked to smooth things over by the naval secretary.;15;;;;3;1890;2050;0
+The YY has made a foreign policy gaffe. You are asked to smooth things over by the naval secretary. Effects: (1) Prestige +1, Tension +1. (2) Prestige -1. (3) Budget +1, Tension +2.;15;;;;3;1890;2050;0
 I would never presume to undercut the authority of the YY.;0;1;1;10;0
 Agree to make a bland statement diluting the effects of the remark made by the YY.;0;-1;0;10;0
 Divert attention by making a statement criticising the adventurous foreign policy of XX.;1;0;2;99;0
-With our technology lagging, an influential shipyard owner offers political backing for more naval funds if his yards receive a larger share of future orders. The arrangement would help the estimates but compromise your independence. What do you do?;99;;;;24;1890;2050;0
+With our technology lagging, an influential shipyard owner offers political backing for more naval funds if his yards receive a larger share of future orders. The arrangement would help the estimates but compromise your independence. What do you do? Effects: (1) Budget +1, Prestige -1. (2) Prestige +1. (3) Budget +1.;99;;;;24;1890;2050;0
 Accept his backing to strengthen the budget, knowing the favour will damage my reputation.;1;-1;0;99;0
 Reject preferential treatment and defend competitive procurement, preserving my professional standing.;0;1;0;99;0
-;;;;;0
-A new naval secretary believes destroyers are the most important part of the navy. He wants you to build at least Z1 additional destroyers.;99;;;;4;1896;2050;0
+Seek open competition for the contracts, gaining some funds without promising one yard exclusive orders.;1;0;0;99;0
+A new naval secretary believes destroyers are the most important part of the navy. He wants you to build at least Z1 additional destroyers. Effects: (1) Budget -1, Prestige -2. (2) destroyer build requirement. (3) Budget +1, Prestige +1, destroyer build requirement.;99;;;;4;1896;2050;0
 I will not let the navy be micromanaged in this way.;-1;-2;0;99;0
 Well, we do not really need that many, but we could build half that number of destroyers.;0;0;0;99;6
 Of course sir.;1;1;0;99;5
-A new naval secretary has read a book on naval strategy extolling cruiser warfare. He wants you to build at least Z2 additional cruisers.;99;;;;4;1890;1955;0
+A new naval secretary has read a book on naval strategy extolling cruiser warfare. He wants you to build at least Z2 additional cruisers. Effects: (1) Budget -1, Prestige -2. (2) cruiser build requirement. (3) Budget +1, Prestige +1, cruiser build requirement.;99;;;;4;1890;1955;0
 I will not let the navy be micromanaged in this way.;-1;-2;0;99;0
 Well, we do not really need that many cruisers, but we could build half that number of cruisers.;0;0;0;99;8
 Of course sir.;1;1;0;99;7
-The YY wants battleships to increase our national prestige. He wants you to build Z3 additional battleships.;99;;;;4;1890;1946;0
-I will not let the navy be micromanaged in this way.;-1;-2;0;99;0
-Of course sir.;1;1;1;10;10
-;;;;;0
-A cruiser conducting a covert survey has grounded inside a minor power's waters. The local authorities demand an inspection before releasing her. The cabinet needs your recommendation before the incident becomes public.;99;;;;0;1890;2050;0
+The YY wants battleships to increase our national prestige. He wants you to build Z3 additional battleships. Effects: (1) Budget -1, Prestige -2. (2) Budget +1, Prestige +1, Tension +1, reduced battleship build requirement. (3) Budget +2, Tension +2, battleship build requirement.;99;;;;4;1890;1946;0
+Decline the political order and risk losing influence with the naval secretary.;-1;-2;0;99;0
+Approve the reduced battleship requirement now, with a limited increase in support and tension.;1;1;1;10;10
+Submit a fully costed plan for the full battleship requirement, gaining support while sharpening rivalry.;2;0;2;10;9
+A cruiser conducting a covert survey has grounded inside a minor power's waters. The local authorities demand an inspection before releasing her. The cabinet needs your recommendation before the incident becomes public. Effects: (1) Prestige +1, Tension +2. (2) Prestige -1. (3) Tension +1, technology leak risk.;99;;;;0;1890;2050;0
 Demand immediate release and threaten a naval demonstration, gaining prestige but raising wider tensions.;0;1;2;10;0
 Accept responsibility for a navigation error and negotiate release, accepting public embarrassment.;0;-1;0;10;0
 Permit the inspection, accepting foreign suspicion and the risk of a technology leak.;0;0;1;10;13
-A close-quarters manoeuvre at a ceremonial fleet review ends in a collision with a ship from XX. Both captains blame the other, and photographs have reached the newspapers. How should the navy explain it?;9;;;;0;1890;2050;0
+A close-quarters manoeuvre at a ceremonial fleet review ends in a collision with a ship from XX. Both captains blame the other, and photographs have reached the newspapers. How should the navy explain it? Effects: (1) Tension +1. (2) Prestige -1. (3) Tension -1.;9;;;;0;1890;2050;0
 Blame the crew of XX and defend our captain, at the cost of relations.;0;0;1;99;0
 Call it an unfortunate accident and avoid accusations, accepting criticism of our navy.;0;-1;0;99;0
-;;;;;0
-During a port visit, officers obtain embarrassing evidence about senior visitors from XX. Naval intelligence sees diplomatic value, but releasing it would damage the next round of talks. What do you order?;9;;;;0;1890;2050;0
-Let the story reach the press and put XX under pressure.;0;0;1;99;0
+Commission a joint inquiry and avoid assigning blame before the evidence is reviewed.;0;0;-1;99;0
+During a port visit, officers obtain embarrassing evidence about senior visitors from XX. Naval intelligence sees diplomatic value, but releasing it would damage the next round of talks. What do you order? Effects: (1) Prestige +1, Tension +2. (2) Tension -1. (3) no change.;9;;;;0;1890;2050;0
+Release the evidence publicly to pressure XX, gaining standing but sharply escalating the dispute.;0;1;2;99;0
 Keep the material confidential and protect the diplomatic relationship.;0;0;-1;99;0
-;;;;;0
-An uprising in China makes it necessary to send an expeditionary force. What is your recommendation?;99;;;;0;1890;1950;0
+Use the evidence privately as leverage, gaining influence without a public confrontation.;0;0;0;99;0
+An uprising in China makes it necessary to send an expeditionary force. What is your recommendation? Effects: (1) Prestige +1, Tension +1, cruiser colonial deployment. (2) cruiser colonial deployment. (3) Tension -1.;99;;;;0;1890;1950;0
 We must send a strong force to safeguard our interests.;0;1;1;10;30
 We should take part in a multinational force.;0;0;0;10;30
 We should keep out of foreign adventures.;0;0;-1;10;0
-The YY proposes a multinational naval visit and seamanship competition. It could improve the navy's standing and reduce suspicion abroad, but the hospitality and support bill will come from current fleet funds. Do you support it?;99;;;;0;1890;2050;0
+The YY proposes a multinational naval visit and seamanship competition. It could improve the navy's standing and reduce suspicion abroad, but the hospitality and support bill will come from current fleet funds. Do you support it? Effects: (1) no change. (2) Prestige +1, Tension -1, half-maintenance cost. (3) Prestige -1, Tension -1.;99;;;;0;1890;2050;0
 Decline and retain the money for fleet requirements.;0;0;0;10;0
 Host the gathering, gaining prestige and easing tensions at a cost of half the fleet's maintenance bill.;0;1;-1;10;72
-;;;;;0
-A major yard has a South American export order ready for approval. The contract promises useful revenue for the naval sector, but foreign access to the design creates a lasting technology-leak risk. What do you recommend?;99;;;;0;1890;2050;0
-Authorize the export and take the revenue, accepting the risk to sensitive technology.;300;0;0;99;13
+Send a small delegation rather than host, easing suspicion but risking criticism at home.;0;-1;-1;10;0
+A major yard has a South American export order ready for approval. The contract promises useful revenue for the naval sector, but foreign access to the design creates a lasting technology-leak risk. What do you recommend? Effects: (1) Budget +300, technology leak risk. (2) no change. (3) Budget +100, Prestige -1, Tension -1, technology leak risk.;99;;;;0;1890;2050;0
+Authorize the full export and take the larger revenue, accepting a technology-leak risk.;300;0;0;99;13
 Refuse the contract and protect the design, forgoing the revenue.;0;0;0;99;0
-;;;;;0
-XX offers a reciprocal reduction in naval spending during a period of high tension. Your planners suspect an attempt to slow our programme, while diplomats see a chance to break the cycle. What position do you take?;13;;;;17;1890;2050;0
+Offer a smaller licensed export, taking less revenue and accepting a technology-leak risk.;100;-1;-1;99;13
+XX offers a reciprocal reduction in naval spending during a period of high tension. Your planners suspect an attempt to slow our programme, while diplomats see a chance to break the cycle. What position do you take? Effects: (1) Tension +1. (2) Budget -2, Tension -2. (3) Tension -1, arms-control talks.;13;;;;17;1890;2050;0
 Reject the proposal as a manoeuvre and maintain our guard, increasing tension.;0;0;1;99;0
 Accept mutual restraint and the naval funding cuts that follow.;-2;0;-2;99;0
 Propose an international arms conference before committing to reductions.;0;0;-1;99;40
-A revolution in an African country has left some of our nationals stranded. What do we do?;99;;;;0;1890;2050;0
+A revolution in an African country has left some of our nationals stranded. What do we do? Effects: (1) Budget +1, Prestige +1, Tension +2, cruiser colonial deployment. (2) Budget +1, Tension +1, cruiser colonial deployment. (3) Prestige -1, Tension -1.;99;;;;0;1890;2050;0
 Send a strong squadron to bombard the capital until our citizens are released.;1;1;2;10;30
 Join an international squadron sent to contain the violence.;1;0;1;10;30
 Resolve the crisis via diplomatic means.;0;-1;-1;10;0
-A ship on exercise has fired on a fishing vessel from XX, killing members of its crew. Conflicting reports are circulating, and the foreign ministry needs an immediate public position. What do you advise?;9;;;;0;1890;2050;0
+A ship on exercise has fired on a fishing vessel from XX, killing members of its crew. Conflicting reports are circulating, and the foreign ministry needs an immediate public position. What do you advise? Effects: (1) Tension +1. (2) Prestige -1. (3) Tension -1.;9;;;;0;1890;2050;0
 Defend the ship's action and blame the vessel for entering restricted waters, worsening relations.;0;0;1;99;0
 Apologize publicly and offer compensation, accepting a blow to the navy's reputation.;0;-1;0;99;0
-;;;;;0
-One of our minor allies X3 is threatened by a neighbour. What policy do you recommend?;99;;;;0;1890;2050;0
+Ask for a joint inquiry before deciding blame, reducing friction but offering no immediate compensation.;0;0;-1;99;0
+One of our minor allies X3 is threatened by a neighbour. What policy do you recommend? Effects: (1) Budget +1, Tension +1. (2) Tension -1, arms-control talks. (3) Prestige -1, Tension -1.;99;;;;0;1890;2050;0
 Back our ally unconditionally.;1;0;1;10;0
 Call an international peace conference.;0;0;-1;10;40
 Try to get our ally to back down and defuse the situation discreetly.;0;-1;-1;10;0
-A new Government wants to reduce naval spending in favour of social programmes. What is your comment?;99;;;;0;1890;2050;-1
+A new Government wants to reduce naval spending in favour of social programmes. What is your comment? Effects: (1) Tension +1. (2) Budget -1. (3) Budget -2, Tension -1, social reform proposal.;99;;;;0;1890;2050;-1
 Get the Navy League to protest against the proposal.;0;0;1;10;0
 Try to get the proposal watered down.;-1;0;0;99;0
 You are only the admiral, and the politicians are in charge.;-2;0;-1;10;11
-You are asked in an interview which nation you see as the most likely enemy in a future war. What is your answer?;15;;;;0;1890;2050;0
+You are asked in an interview which nation you see as the most likely enemy in a future war. What is your answer? Effects: (1) Budget +1, Tension +1. (2) Budget -1, Prestige -1, Tension -1. (3) Budget +1, Tension +1.;15;;;;0;1890;2050;0
 We must be prepared to fight a war against any opponent.;1;0;1;10;0
 I don't see any risk of war in the near future.;-1;-1;-1;10;0
 It is without doubt XX.;1;0;1;99;0
-A regional war seems imminent X3. One of our major arms manufacturers wants to step up exports to the likely belligerents. What is your reaction?;99;;;;0;1890;2050;0
+A regional war seems imminent X3. One of our major arms manufacturers wants to step up exports to the likely belligerents. What is your reaction? Effects: (1) Tension -1. (2) Budget +300, Tension +1. (3) Budget +100.;99;;;;0;1890;2050;0
 We should avoid stoking the fires of war.;0;0;-1;10;0
 A strong arms industry is a guarantee of our national security. We should sell to anyone who wants to buy.;300;0;1;10;0
-;;;;;0
-Another round of fighting has broken out among the Balkan nations. What should our reaction be?;15;;;;0;1890;2050;0
-It is deplorable that it seems impossible to stop the fighting in this region.;0;0;1;10;0
-I wonder what they are serving for dinner at the flag officer's mess?;0;0;1;10;0
-This is no doubt due to the meddling of XX.;0;0;2;99;0
-The Socialist party is doing well in opinion polls, and might want to press for reduced armament expenditure after the upcoming elections. What do you do?;99;;;;11;1890;2050;-1
+Allow only tightly reviewed, non-combat exports, taking modest revenue without openly backing either side.;100;0;0;10;0
+Another round of fighting has broken out among the Balkan nations. What should our reaction be? Effects: (1) Tension +1. (2) no change. (3) Tension +2.;15;;;;0;1890;2050;0
+Condemn the fighting and call for a ceasefire, accepting some diplomatic friction.;0;0;1;10;0
+Avoid taking sides and quietly press regional powers to stop the fighting.;0;0;0;10;0
+Accuse XX of meddling, gaining a firmer stance while increasing tension.;0;0;2;99;0
+The Socialist party is doing well in opinion polls, and might want to press for reduced armament expenditure after the upcoming elections. What do you do? Effects: (1) unrest increase. (2) Prestige -1. (3) Budget -1, social reform proposal.;99;;;;11;1890;2050;-1
 Suppress all socialist propaganda in the navy.;0;0;0;99;12
 Meet with their leaders and talk about the importance of a strong navy to defend our political liberties.;0;-1;0;99;0
 Do nothing, it is a political matter after all.;-1;0;0;99;11
-The YY wants to reduce finance for the navy to build a new palace and a luxurious yacht for the head of state. What do you do?;;;;;15;1890;1935;0
+The YY wants to reduce finance for the navy to build a new palace and a luxurious yacht for the head of state. What do you do? Effects: (1) Budget -1, Prestige +1. (2) Prestige -1. (3) Tension +1.;;;;;15;1890;1935;0
 Of course. The navy will be happy to man the new yacht.;-1;1;0;99;0
 Protest energetically.;0;-1;0;99;0
 Enlist the help of the Navy League to derail the plans for a palace.;0;0;1;10;0
-In a closed cabinet session, the YY asks whether you can guarantee victory over XX. Your staff's assessment lists serious uncertainties, but the cabinet wants a short answer for its foreign policy decision. What do you say?;13;;;;17;1890;2050;0
+In a closed cabinet session, the YY asks whether you can guarantee victory over XX. Your staff's assessment lists serious uncertainties, but the cabinet wants a short answer for its foreign policy decision. What do you say? Effects: (1) Prestige +1, Tension +1. (2) Budget +1, Prestige -1. (3) no change.;13;;;;17;1890;2050;0
 Express complete confidence in victory, gaining prestige and encouraging a harder diplomatic line.;0;1;1;99;0
 State that I cannot make that promise without more naval funding, risking my standing with the cabinet.;1;-1;0;99;0
-;;;;;0
-The steel industry wants a stronger navy. They want you to help convince the YY to increase naval expenditure. What do you do?;99;;;;28;1890;2050;-1
+Give a candid assessment: victory is possible, but cannot be guaranteed on the present evidence.;0;0;0;99;0
+The steel industry wants a stronger navy. They want you to help convince the YY to increase naval expenditure. What do you do? Effects: (1) Budget +1, Tension +1, native condition 73. (2) Prestige +1, native condition 74. (3) Tension -1.;99;;;;28;1890;2050;-1
 Mention the importance of a strong navy and the steel industry for national well-being to the YY.;1;0;1;10;73
 Tell them the navy is not a tool for increasing their profits.;0;1;0;99;74
-;;;;;0
-XX has sent us an ultimatum. Unless we back down there will likely be war. What course of action do you recommend?;14;;;;16;1890;2050;0
+Request an independent costed review before lobbying, keeping the dispute out of public view.;0;0;-1;10;0
+XX has sent us an ultimatum. Unless we back down there will likely be war. What course of action do you recommend? Effects: (1) Budget +2, Tension +10. (2) Budget +1, Prestige -2, Tension -1. (3) Prestige -1, Tension -3.;14;;;;16;1890;2050;0
 If they want to fight, we are ready for them.;2;;10;99;0
 We are not ready for war right now. We should back down.;1;-2;-1;99;0
-;;;;;0
-A sudden and unexpected foreign policy crisis has brought us to the brink of war with XX. What is your advice on how to handle the situation?;9;;;;17;1890;1905;0
+Seek a short neutral mediation window while keeping the fleet on defensive readiness.;0;-1;-3;99;0
+A sudden and unexpected foreign policy crisis has brought us to the brink of war with XX. What is your advice on how to handle the situation? Effects: (1) Budget +2, Prestige +1, Tension +10. (2) Budget +1, Prestige -1, Tension +4. (3) Prestige -3, Tension +1.;9;;;;17;1890;1905;0
 If they are intent on fighting, the navy is ready to do its duty!;2;1;10;99;0
 We should act to safeguard our interests, but be open for a negotiated settlement.;1;-1;4;99;0
 We should try to resolve the crisis peacefully, even if it means making concessions to XX.;0;-3;1;99;0
-A hawkish Government has come to power in XX. This has the potential to increase tensions between our nations. You are asked to comment by a major newspaper.;9;;;;17;1890;2050;0
+A hawkish Government has come to power in XX. This has the potential to increase tensions between our nations. You are asked to comment by a major newspaper. Effects: (1) Budget +1, Prestige +1, Tension +2. (2) no change. (3) Tension +1.;9;;;;17;1890;2050;0
 The policies of XX have always been unpredictable. We need to strengthen our navy to be prepared for anything .;1;1;2;99;0
-We will observe developments carefully and see what comes of it.;0;0;1;99;0
-This is a reason for concern.;0;0;1;99;0
-Our naval expenditure is ruinous! The Government wants to lower the naval budget drastically to balance the national budget. What is your response?;99;;;;18;1890;2050;0
+Observe the new government and wait for its policies before changing course.;0;0;0;99;0
+Warn publicly that the change may increase regional instability.;0;0;1;99;0
+Our naval expenditure is ruinous! The Government wants to lower the naval budget drastically to balance the national budget. What is your response? Effects: (1) Budget -1, Prestige -1. (2) Budget -1, Tension +1. (3) Budget -2.;99;;;;18;1890;2050;0
 Protest vehemently.;-1;-1;0;99;0
 Enlist the help of the Navy League to make the case for a strong navy.;-1;0;1;99;0
 This is a political decision. The navy can only warn of the risks.;-2;0;0;99;0
-The Socialists in Parliament denounce the navy as a bastion of reaction, and manage to pass a bill reducing naval expenditure.;99;;;;21;1890;2050;-1
+The Socialists in Parliament denounce the navy as a bastion of reaction, and manage to pass a bill reducing naval expenditure. Effects: (1) Budget -2. (2) Budget -1, Tension +1. (3) Budget -1, Prestige +1, unrest increase.;99;;;;21;9999;9999;-1
 Lament over brandy and cigars with the other admirals that the socialists are a threat to national security.;-2;0;0;10;0
 Get the Navy League and press to emphasize the naval threats to our nation.;-1;0;1;99;0
 Suppress all socialist propaganda in the navy;-1;1;0;10;12
-Your prestige is running low. Naval influence is waning and the YY wants to divert funds to the army. What is your reaction?;;;;;20;1890;2050;0
+Your prestige is running low. Naval influence is waning and the YY wants to divert funds to the army. What is your reaction? Effects: (1) Tension +1. (2) Budget -1. (3) Prestige -1, Tension -1.;;;;;20;1890;2050;0
 The international situation is very tense. Reducing the naval budget now is not a good idea.;0;0;1;10;0
 The navy will do its best to live up to your expectations in the future.;-1;0;0;99;0
-;;;;;0
-The war party in PX demands immediate action against XX. What is your reaction?;14;;;;16;1890;2050;0
+Accept a temporary transfer with a readiness review, easing tensions at some cost to your standing.;0;-1;-1;10;0
+The war party in PX demands immediate action against XX. What is your reaction? Effects: (1) Budget +1, Prestige +1, Tension +10. (2) Tension +1. (3) Budget +1, Prestige -1.;14;;;;16;1890;2050;0
 An excellent idea!;1;1;10;99;0
 We should wait and provoke them subtly to be the aggressor, thus we will benefit from international opinion.;0;0;1;99;0
 We are not ready for war yet. Let us strengthen the navy and strike later.;1;-1;0;99;0
-The YY suggests preemptive war against XX. What is your reaction?;14;;;;29;1890;2050;0
+The YY suggests preemptive war against XX. What is your reaction? Effects: (1) Budget +1, Prestige +1, Tension +10. (2) Tension +1. (3) Budget +1, Prestige -1.;14;;;;29;1890;2050;0
 An excellent idea!;1;1;10;99;0
 We should wait and provoke them subtly to be the aggressor, thus we will benefit from international opinion.;0;0;1;99;0
 We are not ready for war yet. Let us strengthen the navy and strike later.;1;-1;0;99;0
-Unexpected tax revenue gives the government room for a new investment programme. The navy has been asked to recommend a national priority, and your answer will influence both fleet support and public opinion.;99;;;;0;1890;1940;0
+Unexpected tax revenue gives the government room for a new investment programme. The navy has been asked to recommend a national priority, and your answer will influence both fleet support and public opinion. Effects: (1) Budget +100, Prestige +1, Tension +1. (2) Budget +200. (3) Budget +100, Prestige -1, social reform proposal.;99;;;;0;1890;1940;0
 Make naval expansion the priority, gaining prestige while alarming other powers.;100;1;1;10;0
 Support rail and industrial investment as the strongest case for national prosperity and future revenue.;200;0;0;99;0
 Support modest social programmes, easing domestic pressures at a cost to my standing with naval supporters.;100;-1;0;99;11
-An industrial boom has increased government receipts. Ministers are dividing the proceeds between defence, national transport, and social spending. They ask which investment deserves the navy's support.;99;;;;0;1936;2050;0
+An industrial boom has increased government receipts. Ministers are dividing the proceeds between defence, national transport, and social spending. They ask which investment deserves the navy's support. Effects: (1) Budget +100, Prestige +1, Tension +1. (2) Budget +200. (3) Budget +100, Prestige -1, Tension -1, social reform proposal.;99;;;;0;1936;2050;0
 Press for a stronger fleet, gaining prestige but increasing foreign concern.;100;1;1;10;0
 Back the national highway and industrial programme for broader economic development.;200;0;0;99;0
 Back social spending to improve stability and ease tensions, accepting criticism from naval advocates.;100;-1;-1;99;11
-A sharp recession threatens shipyard employment and the naval estimates. The cabinet must choose how to distribute the hardship, and asks whether the navy can accept a larger share of the cuts. What do you advise?;99;;;;0;1890;2050;0
+A sharp recession threatens shipyard employment and the naval estimates. The cabinet must choose how to distribute the hardship, and asks whether the navy can accept a larger share of the cuts. What do you advise? Effects: (1) Budget -100, Prestige +1, Tension +1, unrest increase. (2) Budget -200, possible unrest increase. (3) Budget -200, Prestige -1, social reform proposal.;99;;;;0;1890;2050;0
 Resist further naval cuts and demand priority for defence, accepting unrest and greater foreign tension.;-100;1;1;10;12
 Accept deeper cuts and rely on private relief, risking further public unrest.;-200;0;0;99;15
 Accept deeper cuts with government social reforms, sacrificing standing to address unemployment.;-200;-1;0;99;11
-The trade unions are organising nationwide protests demanding social reforms and an end to militarism. The Government is asking your advice on how to handle the situation.;99;;;;22;1900;2050;-1
+The trade unions are organising nationwide protests demanding social reforms and an end to militarism. The Government is asking your advice on how to handle the situation. Effects: (1) Prestige +1, unrest increase. (2) no change. (3) Budget -1, Prestige -1, social reform proposal.;99;;;;22;1900;2050;-1
 The rabble has no conception of the external threats facing our nation. Send out the police to scatter them.;0;1;0;99;12
 They are misled by firebrand leaders, but they will soon come to their senses.;0;0;0;99;0
 We should consider some modest social programmes, even if it affects the military budget.;-1;-1;0;99;11
-Protesting workers are turning up outside naval bases urging the sailors to join the revolution. What is your reaction?;99;;;;32;1890;2050;0
+Protesting workers are turning up outside naval bases urging the sailors to join the revolution. What is your reaction? Effects: (1) Prestige +1, unrest increase. (2) no change. (3) Budget -1, Prestige -1, social reform proposal.;99;;;;32;1890;2050;0
 Send out the marines to scatter them, using force if necessary!;0;1;0;99;12
 Hold an inspired speech to the protesters, pointing out the sacrifices necessary by all levels of society.;0;0;0;99;0
 Make an announcement that you will spend money on improving the living conditions of the sailors.;-1;-1;0;99;11
-There have been widespread demonstrations demanding peace and bread. The Government is seeking your advice.;99;;;;31;1890;2050;0
+There have been widespread demonstrations demanding peace and bread. The Government is seeking your advice. Effects: (1) Prestige +1, unrest increase. (2) Prestige -2, peace negotiations. (3) Budget -1, Prestige -1, social reform proposal.;99;;;;31;1890;2050;0
 This is not a time for complaints. They will just have to tighten their belts until we have secured victory.;0;1;0;99;12
 We should sound out the enemy Government for the possibility of a negotiated peace.;0;-2;0;99;50
 We should divert resources from the military to ensure basic living standards for the population.;-1;-1;0;99;11
-The enemy has sent out feelers through neutral nations about a negotiated peace without border changes or reparations. The YY wants to know your opinion.;99;;;;33;1890;2050;0
+The enemy has sent out feelers through neutral nations about a negotiated peace without border changes or reparations. The YY wants to know your opinion. Effects: (1) continue the war. (2) low-chance peace negotiations. (3) Prestige -1, peace negotiations.;99;;;;33;1890;2050;0
 We should not let them get off lightly. Continued operations will secure our total victory!;0;0;0;99;56
 The navy can fight on if needed.;0;0;0;99;51
 We should take the chance to end the war now.;0;-1;0;99;50
-The enemy has sounded us out about a negotiated peace with us gaining disputed border areas and some of their colonies. The YY wants to know your opinion.;99;;;;34;1890;2050;0
+The enemy has sounded us out about a negotiated peace with us gaining disputed border areas and some of their colonies. The YY wants to know your opinion. Effects: (1) continue the war. (2) peace on victory terms. (3) peace with gains.;99;;;;34;1890;2050;0
 We can secure even better terms if we crush them completely! A few more months will do it!;0;0;0;99;56
 We should not let them off cheaply. We should press for hard terms.;0;0;0;99;52
 These terms sound like a good basis for peace negotiations.;0;0;0;99;55
-The YY is considering sending out feelers for peace negotiations and wants to hear your advice on the strategic situation.;99;;;;35;1890;2050;0
+The YY is considering sending out feelers for peace negotiations and wants to hear your advice on the strategic situation. Effects: (1) Prestige +1. (2) low-chance peace negotiations. (3) Prestige -1, peace negotiations.;99;;;;35;1890;2050;0
 We cannot show weakness now! Peace negotiations are out of the question!;0;1;0;99;0
 We could see what the enemy will offer, but we should not accept ceding any land or colonial territory.;0;0;0;99;51
 We should negotiate now and secure a peace before our situation gets even worse.;0;-1;0;99;54
-Considering the dire war situation the Government is debating whether to seek peace. Your opinion on the strategic situation is sought.;99;;;;36;1890;2050;0
+Considering the dire war situation the Government is debating whether to seek peace. Your opinion on the strategic situation is sought. Effects: (1) Prestige +1. (2) peace negotiations. (3) Prestige -1, peace on defeat terms.;99;;;;36;1890;2050;0
 We should fight on until we have secured victories that will give us leverage at the negotiating table.;0;1;0;99;0
 We should sound them out. If we can get releatively lenient terms, we should accept a peace.;0;0;0;99;54
 The situation is desperate and we should seek whatever terms we can get.;0;-1;0;99;53
-The army wants more resources to prepare for an offensive that will break through the front. The YY is asking for your opinion.;99;;;;40;1890;1930;0
+The army wants more resources to prepare for an offensive that will break through the front. The YY is asking for your opinion. Effects: (1) army setback risk. (2) army victory chance. (3) Prestige -1, Tension -1.;99;;;;40;1890;1930;0
 Only the navy can win this war! We should not waste resources on indecisive trench warfare.;0;0;0;99;60
 The navy can get by with less resources for a limited time, but the army had better deliver victory.;0;0;0;99;61
-;;;;;0
-The army wants more resources to prepare for a great offensive that will decide the war. The YY is asking for your opinion.;99;;;;40;1931;2050;0
+Release only a limited tranche and review results before further transfers, with no army outcome guaranteed.;0;-1;-1;99;0
+The army wants more resources to prepare for a great offensive that will decide the war. The YY is asking for your opinion. Effects: (1) army setback risk. (2) army victory chance. (3) Prestige -1, Tension -1.;99;;;;40;1931;2050;0
 I cannot see how driving tanks around the countryside can decide the war. True victory lies at sea!;0;0;0;99;60
 Very well, let the army try to accomplish something apart from casualty lists.;0;0;0;99;61
-;;;;;0
-The Government wants to put all effort into winning the war regardless of hardship caused for the population. What do you counsel?;99;;;;38;1890;2050;0
+Release only a limited tranche and review results before further transfers, with no army outcome guaranteed.;0;-1;-1;99;0
+The Government wants to put all effort into winning the war regardless of hardship caused for the population. What do you counsel? Effects: (1) Budget +2, unrest increase. (2) no change. (3) Budget -1, Prestige -1, social reform proposal.;99;;;;38;1890;2050;0
 Total war is the shortest war!;2;0;0;99;12
 We should strike a balance between military expenditure and caring for the population.;0;0;0;99;0
 Revolution from within is as dangerous as defeat on the battlefield. We should divert resources for social programmes.;-1;-1;0;99;11
-XX is taking advantage of our current preoccupation with the war to make unreasonable demands on disputed territories. What reaction do you recommend?;13;;;;38;1890;2050;0
+XX is taking advantage of our current preoccupation with the war to make unreasonable demands on disputed territories. What reaction do you recommend? Effects: (1) Budget +1, Prestige +1, Tension +2. (2) Tension +1. (3) Prestige -1, Tension -2, base resources -500.;13;;;;38;1890;2050;0
 We cannot afford to show weakness now! We can fight them too if it comes to that!;1;1;2;99;0
 Start negotiating with them but try to drag it out.;0;0;1;99;0
 We cannot fight two enemies at once. We should give in to their demands, even if it hurts.;0;-1;-2;99;70
-The YY has returned from a state visit to XX, bringing home a proposal to solve outstanding sources of tension between our nations. What is your response when asked for advice?;14;;;;0;1890;2050;0
+The YY has returned from a state visit to XX, bringing home a proposal to solve outstanding sources of tension between our nations. What is your response when asked for advice? Effects: (1) Budget +1, Tension +1. (2) Budget -1, Tension -2. (3) Tension -1, treaty negotiations.;14;;;;0;1890;2050;0
 We can never trust XX to keep agreements. Better arm for conflict and beat them soundly!;1;0;1;99;0
 We should take this opportunity to promote better understanding between our nations!;-1;0;-2;99;0
-;;;;;0
-We have received an offer of peace from the enemy, but the conditions are rather harsh for us. The YY is asking for your advice.;99;;;;35;1890;2050;0
+Open treaty talks around a verifiable first step, without promising naval cuts in advance.;0;0;-1;99;2
+We have received an offer of peace from the enemy, but the conditions are rather harsh for us. The YY is asking for your advice. Effects: (1) Prestige +1. (2) Prestige -1, peace on defeat terms. (3) low-chance peace negotiations.;99;;;;35;1890;2050;0
 We will not lay down our arms lightly. We should answer their insulting offer with steel;0;1;0;99;0
 Our situation is bad, and we need to take whatever offer we can get.;0;-1;0;99;53
-;;;;;0
-The intelligence service is considering offering safe passage for a revolutionary of some renown to his home country XX. This will foment revolution and may force them to the negotiating table. On the other hand, revolutions tend to be contagious. What do you recommend?;12;;;;31;1890;1935;0
+Reject the terms but open indirect talks for a limited ceasefire, with only a small chance of agreement.;0;0;0;99;51
+The intelligence service is considering offering safe passage for a revolutionary of some renown to his home country XX. This will foment revolution and may force them to the negotiating table. On the other hand, revolutions tend to be contagious. What do you recommend? Effects: (1) Prestige -1. (2) Prestige +1, possible unrest increase. (3) revolution risk.;12;;;;31;1890;1935;0
 We should be careful about stoking the embers of revolution, it may well backfire.;0;-1;0;99;0
 Those revolutionaries can be as dangerous to us as to the enemy! Lock him up and throw away the key!;0;1;0;99;15
 Give him safe passage.;0;0;0;99;65
-The YY proposes a fleet-wide gunnery competition before the next readiness review. It offers a chance to improve crew quality, but live firing and support will add half a maintenance bill to current expenditure. Do you approve?;99;;;;0;1890;1935;0
+The YY proposes a fleet-wide gunnery competition before the next readiness review. It offers a chance to improve crew quality, but live firing and support will add half a maintenance bill to current expenditure. Do you approve? Effects: (1) no change. (2) crew-quality improvement, half-maintenance cost. (3) Budget +1, Prestige -1.;99;;;;0;1890;1935;0
 Decline the competition and preserve current funds.;0;0;0;99;0
 Approve the competition and pay the additional cost for the improvement in crew quality.;0;0;0;99;66
-;;;;;0
-This war is a terrible strain on our society. There is a very real risk of a popular uprising and the YY is considering offering the enemy a compromise peace. What is your response when asked for advice?;99;;;;37;1890;2050;0
+Decline live fire and request funds for shore-based fire-control training instead, with no competition bonus assured.;1;-1;0;99;0
+This war is a terrible strain on our society. There is a very real risk of a popular uprising and the YY is considering offering the enemy a compromise peace. What is your response when asked for advice? Effects: (1) Prestige +1. (2) low-chance peace negotiations. (3) Prestige -1, peace negotiations.;99;;;;37;1890;2050;0
 If we quit now our sacrifices will have been in vain! We should push on for just a little more to secure total victory!;0;1;0;99;0
 Yes, it is time to end the war if possible!;0;0;0;99;51
-;;;;;0
-One of our important dignitaries has been assassinated by a group of anarchists apparently supported by XX. What action would you recommend to the Government?;13;;;;17;1890;2050;0
+Seek a temporary armistice and humanitarian relief before committing to final peace terms.;0;-1;0;99;50
+One of our important dignitaries has been assassinated by a group of anarchists apparently supported by XX. What action would you recommend to the Government? Effects: (1) Budget +1, Tension +7. (2) Budget +1, Prestige -1, Tension +2. (3) Budget +1, Tension +4.;13;;;;17;1890;2050;0
 This is the excuse we need to put them in their place! Issue an ultimatum!;1;0;7;99;0
 We should act in a responsible and restrained manner. This crisis could well escalate to a world war!;1;-1;2;99;0
-;;;;;0
-Our ship SB1 has blown up under mysterious circumstances LL1. There are suspicions that saboteurs from XX might have been responsible. The press is demanding action. What do you recommend?;13;;;;17;1890;2050;0
+Demand evidence and a joint inquiry, keeping forces alert but stopping short of an ultimatum.;1;0;4;99;0
+Our ship SB1 has blown up under mysterious circumstances LL1. There are suspicions that saboteurs from XX might have been responsible. The press is demanding action. What do you recommend? Effects: (1) Budget +1, Tension +10. (2) Budget +1, Prestige -2, Tension +2. (3) Budget +1, Prestige -1, Tension +5.;13;;;;17;1890;2050;0
 This dastardly act cannot remain unavenged! This means war!;1;0;10;99;0
 We should calm things down and wait for an impartial investigation.;1;-2;2;99;0
-;;;;;0
-SB2 There are unfortunately no clues as to who might be behind this underhanded act. The hawk party is demanding resolute action. What do you recommend?;99;;;;10;1910;2050;0
+Run a guarded counterintelligence response while preparing, but not yet ordering, retaliation.;1;-1;5;99;0
+SB2 There are unfortunately no clues as to who might be behind this underhanded act. The hawk party is demanding resolute action. What do you recommend? Effects: (1) Prestige -1, Tension +1. (2) Tension +2. (3) Budget +1, Prestige +1, Tension +7.;99;;;;10;1910;2050;0
 We should take this to the international court in the Hague.;0;-1;1;10;0
 Issue orders to sink any unidentified submarine close to our territorial waters.;0;0;2;10;0
 There is no doubt in my mind which nation is behind this lowly deed! We should issue an ultimatum to XX;1;1;7;11;0
-Some enterprising young officers in Naval Intelligence have hatched a plan to blow up one of the capital ships of XX at anchor. You are asked to give the plan the go ahead.;13;;;;17;1890;2050;0
+Some enterprising young officers in Naval Intelligence have hatched a plan to blow up one of the capital ships of XX at anchor. You are asked to give the plan the go ahead. Effects: (1) no change. (2) sabotage operation. (3) Prestige +1.;13;;;;17;1890;2050;0
 Such underhanded tactics are not in the tradition of our navy! I don't want to hear any more about such tricks!;0;0;0;99;0
 An excellent idea! These chaps are showing the right spirit!;0;0;0;99;20
-;;;;;0
-The new naval secretary believes submarines are the key to victory in a future war. He wants you to build at least Z1 additional submarines.;99;;;;5;1912;2050;0
+Continue surveillance and prepare a contingency plan, but authorize no attack without stronger evidence.;0;1;0;99;0
+The new naval secretary believes submarines are the key to victory in a future war. He wants you to build at least Z1 additional submarines. Effects: (1) Budget -1, Prestige +1. (2) submarine build requirement. (3) Budget +1, submarine build requirement.;99;;;;5;1912;2050;0
 Submarines are underhand, unfair and damned un-X2!;-1;1;0;0;0
 We could perhaps build half that number of submarines as a start?;0;0;0;99;4
 Of course sir.;1;0;0;99;3
-The Government is considering making some symbolic concessions to XX to lower tension between our nations. What is your response when asked for advice?;13;;;;12;1890;2050;0
+The Government is considering making some symbolic concessions to XX to lower tension between our nations. What is your response when asked for advice? Effects: (1) Prestige +1. (2) Tension -1. (3) treaty negotiations.;13;;;;12;1890;2050;0
 We should not consider any  concessions, symbolic or not!;0;1;0;99;0
 We could try to lower tensions if it can be done without compromising our vital interests.;0;0;-1;99;0
-;;;;;0
-The Minister of the interior has raised concerns that the high naval expenditures might lead to increased social unrest. What is your response?;99;;;;23;1890;2050;0
-Bah! A strong navy will make the people proud!;0;0;0;99;0
-The navy could get by with a somewhat lower level of funding.;-1;0;0;99;0
-;;;;;0
-The YY floats the idea of trying to improve relations with XX by making some compromises on outstanding issues. What is your response when asked for advice?;14;;;;12;1890;2050;0
+Open talks on a reciprocal, verifiable step before making any concession.;0;0;0;99;2
+The Minister of the interior has raised concerns that the high naval expenditures might lead to increased social unrest. What is your response? Effects: (1) Tension +1, unrest increase. (2) Budget -1. (3) Budget -2, Tension -1, social reform proposal.;99;;;;23;1890;2050;0
+Keep naval spending high and dismiss the warning, risking a rise in public unrest.;0;0;1;99;12
+Accept a modest naval cut without launching a wider reform programme.;-1;0;0;99;0
+Make deeper cuts and fund modest social reforms, easing pressure at a greater cost to the navy.;-2;0;-1;99;11
+The YY floats the idea of trying to improve relations with XX by making some compromises on outstanding issues. What is your response when asked for advice? Effects: (1) Prestige +1. (2) Tension -1. (3) treaty negotiations.;14;;;;12;1890;2050;0
 Our national pride demands that we take a hard line. We should not compromise on anything!;0;1;0;99;0
 Yes, it is a good idea to try to lower tensions!;0;0;-1;99;0
-;;;;;0
-A new cruiser from XX has just arrived on a goodwill visit and the press is reporting all of its advanced features. A reporter approaches you for a comment. What do you say?;9;;;;0;1890;2050;0
+Begin reciprocal treaty talks, but make no concession until XX offers a verifiable step.;0;0;0;99;2
+A new cruiser from XX has just arrived on a goodwill visit and the press is reporting all of its advanced features. A reporter approaches you for a comment. What do you say? Effects: (1) Budget +1, Prestige -1. (2) no change. (3) Prestige +1, Tension +1.;9;;;;0;1890;2050;0
 Well, with a higher budget, we could have just as advanced ships as that one.;1;-1;0;99;0
 It is certainly a capable ship, but ours are just as good.;0;0;0;99;0
 If that is the best they can come up with, we have nothing to fear from XX.;0;1;1;99;0
-XX is sounding us out about an alliance. The YY thinks this can make it possible to save on defence expenditures. What is your response?;11;;;;13;1890;2050;0 
+XX is sounding us out about an alliance. The YY thinks this can make it possible to save on defence expenditures. What is your response? Effects: (1) Budget -1, Tension -2, treaty negotiations. (2) Tension -1, arms-control talks. (3) Tension +1.;11;;;;13;1890;2050;0 
 This is an excellent idea! Together we can safeguard our interests!;-1;0;-2;99;2
 It would perhaps be better to call an international disarmament conference to reduce tensions.;0;0;-1;10;40
 We will be stronger alone, unencumbered by alliances that might heighten tensions!;0;0;1;99;0
-XX is hosting an international regatta and sail race. Our well trained crew is the favourite to win. What are their instructions?;9;;;;0;1890;2050;0
+XX is hosting an international regatta and sail race. Our well trained crew is the favourite to win. What are their instructions? Effects: (1) Tension -1. (2) Prestige +1, Tension +1. (3) Prestige +1.;9;;;;0;1890;2050;0
 Make sure they finish behind the host nation.;0;0;-1;99;0
 Go for the win!;0;1;1;99;0
-;;;;;0
-The ambassador from XX asks us to slow our naval programme as a gesture of good faith. No matching concession has been offered. The minister asks whether to reject the request, broaden the talks, or make a limited concession.;13;;;;12;1890;2050;0
+Compete to win, then share credit and avoid using the result to provoke the host nation.;0;1;0;99;0
+The ambassador from XX asks us to slow our naval programme as a gesture of good faith. No matching concession has been offered. The minister asks whether to reject the request, broaden the talks, or make a limited concession. Effects: (1) Prestige +1, Tension +1. (2) arms-control talks. (3) Budget -1, Tension -1.;13;;;;12;1890;2050;0
 Reject any limits in forceful terms, strengthening my standing and increasing tension with XX.;0;1;1;99;0
 Insist on a multilateral arms conference before considering naval limits.;0;0;0;10;40
 Offer a measured reduction in naval expenditure to lower international tension.;-1;0;-1;10;0
-Oil prices have quadrupled after a supply embargo, and the treasury warns that fuel for the fleet will strain the estimates. How should the navy respond?;99;;;;0;1973;2050;0
+Oil prices have quadrupled after a supply embargo, and the treasury warns that fuel for the fleet will strain the estimates. How should the navy respond? Effects: (1) Prestige -1. (2) Budget +1, unrest increase. (3) Budget -1, Prestige +1, technology gain.;99;;;;0;1973;2050;0
 Cut exercises and steaming hours, accepting lower readiness.;0;-1;0;10;0
 Ask parliament for an emergency fuel allowance, whatever the public says.;1;0;0;10;12
 Speed up nuclear and fuel-efficient designs, at a high cost now.;-1;1;0;10;14
-A missile test by XX splashed down close to our territorial waters. The press demands a response. What do you advise?;13;;;;0;1960;2050;0
+A missile test by XX splashed down close to our territorial waters. The press demands a response. What do you advise? Effects: (1) Prestige -1, Tension -1. (2) Prestige +1, Tension +1, cruiser build requirement. (3) Budget +1, Prestige +1, Tension +2, destroyer build requirement.;13;;;;0;1960;2050;0
 Protest quietly through diplomatic channels.;0;-1;-1;99;0
 Send a missile cruiser to shadow their next test.;0;1;1;99;8
 Name XX as the threat and demand new air-defence ships.;1;1;2;99;6
-Our new ocean surveillance satellites can be shared with friendly navies or kept secret. Sharing builds trust but risks leaks. What is your decision?;99;;;;0;1976;2050;0
+Our new ocean surveillance satellites can be shared with friendly navies or kept secret. Sharing builds trust but risks leaks. What is your decision? Effects: (1) Prestige +1, Tension -1, technology leak risk. (2) no change. (3) Budget +1, Prestige -1, Tension +1.;99;;;;0;1976;2050;0
 Share the data with friendly navies.;0;1;-1;10;13
 Keep the system secret.;0;0;0;10;0
 Sell access to the highest bidder.;1;-1;1;10;0
-Pirates are seizing merchant ships off the Horn of Africa, and shipping companies ask for naval escorts. How do you respond?;99;;;;0;2005;2050;0
+Pirates are seizing merchant ships off the Horn of Africa, and shipping companies ask for naval escorts. How do you respond? Effects: (1) Prestige +1, cruiser colonial deployment. (2) Prestige +1, Tension -1. (3) Budget +1, Prestige -1.;99;;;;0;2005;2050;0
 Send a cruiser to escort the convoys.;0;1;0;10;30
 Join an international task force with a destroyer.;0;1;-1;10;0
-Let the shipping companies hire private guards.;0;-1;0;10;0
-Naval intelligence has found intruders in our ship design networks, and the evidence points to XX. What is your response?;13;;;;0;2000;2050;0
+Let shipping firms hire private guards, preserving naval funds but losing public credit for the response.;1;-1;0;10;0
+Naval intelligence has found intruders in our ship design networks, and the evidence points to XX. What is your response? Effects: (1) Prestige +1, Tension +2. (2) Budget -1. (3) Prestige -1, technology leak risk.;13;;;;0;2000;2050;0
 Accuse XX publicly and expel their naval attaches.;0;1;2;99;0
 Quietly harden our networks and feed them false data.;-1;0;0;99;0
 Say nothing to avoid a row, accepting the risk of more leaks.;0;-1;0;99;13
-XX proposes talks to limit long-range missiles at sea. What instructions do you send our delegation?;13;;;;0;1970;2050;0
+XX proposes talks to limit long-range missiles at sea. What instructions do you send our delegation? Effects: (1) Prestige +1, Tension +1. (2) arms-control talks. (3) Budget -1, Prestige -1, Tension -2, stronger arms-control talks.;13;;;;0;1970;2050;0
 Refuse any limits on our missile programmes.;0;1;1;99;0
 Open talks without commitments.;0;0;0;99;40
 Support verifiable limits, accepting less funding.;-1;-1;-2;99;41
-XX claims a disputed island chain and warns foreign warships to stay away. Our allies ask whether we will sail through the strait. What do you order?;13;;;;17;1980;2050;0
+XX claims a disputed island chain and warns foreign warships to stay away. Our allies ask whether we will sail through the strait. What do you order? Effects: (1) Prestige +1, Tension +2, destroyer build requirement. (2) Prestige -1. (3) Tension +1.;13;;;;17;1980;2050;0
 Sail a destroyer squadron through the strait.;0;1;2;99;6
 Send a diplomatic note but keep our ships away.;0;-1;0;99;0
 Fly maritime patrol aircraft over the islands instead.;0;0;1;99;0
-Explosive drone boats attacked a merchant ship near one of our bases. Commanders want money for counter-drone defences. What do you decide?;99;;;;0;2018;2050;0
+Explosive drone boats attacked a merchant ship near one of our bases. Commanders want money for counter-drone defences. What do you decide? Effects: (1) Budget -1, Prestige +1, technology gain. (2) no change. (3) Prestige +1, Tension +2.;99;;;;0;2018;2050;0
 Fund new close-in weapons and lasers.;-1;1;0;10;14
 Train the crews to fight them with existing guns.;0;0;0;10;0
 Blame the most hostile power and demand retaliation.;0;1;2;7;0
-Shipyard unions threaten to strike over automated hull construction. What is the navy's position?;99;;;;19;1950;2050;0
+Shipyard unions threaten to strike over automated hull construction. What is the navy's position? Effects: (1) Budget +1, unrest increase. (2) possible unrest relief. (3) Budget -1, social reform proposal.;99;;;;19;1950;2050;0
 Back the automation plans and face the strike.;1;0;0;10;12
 Negotiate a slower transition.;0;0;0;10;16
 Offer the unions a generous settlement.;-1;0;0;10;11
-Protesters are blocking a port visit by one of our nuclear-powered ships, and the host government asks us to stay away. What do you do?;99;;;;0;1965;2050;0
-Cancel the visit quietly.;0;-1;0;10;0
+Protesters are blocking a port visit by one of our nuclear-powered ships, and the host government asks us to stay away. What do you do? Effects: (1) Prestige -1, Tension -1. (2) Prestige +1, Tension +1. (3) no change.;99;;;;0;1965;2050;0
+Cancel the visit quietly, taking a loss of standing to lower tension with the host government.;0;-1;-1;10;0
 Insist on our rights and dock anyway.;0;1;1;10;0
 Send a conventional frigate instead.;0;0;0;10;0
-XX has shown off a hypersonic anti-ship missile, and the admirals warn that our carriers are now vulnerable. What do you ask for?;13;;;;0;2015;2050;0
+XX has shown off a hypersonic anti-ship missile, and the admirals warn that our carriers are now vulnerable. What do you ask for? Effects: (1) Budget +1, Prestige +1, Tension +1, cruiser build requirement. (2) Budget +1, Tension +1, submarine build requirement. (3) Prestige -1.;13;;;;0;2015;2050;0
 An urgent air-defence programme.;1;1;1;99;8
 More submarines to hold their fleet at risk.;1;0;1;99;4
 Nothing new. Our doctrine is sound.;0;-1;0;99;0
-The government offers the navy a share of a new space programme for navigation and targeting satellites. How much do we commit?;99;;;;0;1965;2050;0
+The government offers the navy a share of a new space programme for navigation and targeting satellites. How much do we commit? Effects: (1) Budget -1, Prestige +1, technology gain. (2) no change. (3) Budget +1, Prestige -1.;99;;;;0;1965;2050;0
 A full share, at the expense of shipbuilding.;-1;1;0;10;14
 A modest share.;0;0;0;10;0
 None. Ships come first.;1;-1;0;10;0
-A defence review recommends retiring older ships early to pay for new technology. How do you respond?;99;;;;0;1990;2050;0
+A defence review recommends retiring older ships early to pay for new technology. How do you respond? Effects: (1) Budget -1, technology gain. (2) Budget +1, unrest increase. (3) Budget -2, Prestige -1, Tension -1.;99;;;;0;1990;2050;0
 Accept the cuts and reinvest in research.;-1;0;0;10;14
 Fight the review in parliament.;1;0;0;10;12
 Accept a smaller, cheaper fleet.;-2;-1;-1;10;0
-XX has closed the land routes to a city under our protection, and the garrison has supplies for six weeks. The cabinet asks what the navy can do. What do you advise?;13;;;;0;1947;1965;0
+XX has closed the land routes to a city under our protection, and the garrison has supplies for six weeks. The cabinet asks what the navy can do. What do you advise? Effects: (1) Budget +1, Prestige +1, Tension +2, destroyer build requirement. (2) Tension +1. (3) Prestige -1, Tension -1.;13;;;;0;1947;1965;0
 Run supply convoys under heavy escort and dare them to shoot.;1;1;2;99;6
 Support an airlift and keep the fleet at a distance.;0;0;1;99;0
 Advise negotiation, accepting a loss of standing.;0;-1;-1;99;0
-A government abroad has nationalised a canal our trade depends on, and shipping companies fear for their passage. What do you recommend?;99;;;;0;1950;1980;0
+A government abroad has nationalised a canal our trade depends on, and shipping companies fear for their passage. What do you recommend? Effects: (1) Prestige +1, Tension +1, cruiser colonial deployment. (2) Budget -1, Tension -1. (3) Budget -2, Tension -2.;99;;;;0;1950;1980;0
 Send a cruiser to the canal approaches as a warning.;0;1;1;10;30
-Reroute our shipping around the cape and wait.;0;-1;0;10;0
-Offer naval help to keep the canal open to all flags.;0;0;-1;10;0
-Reconnaissance shows XX basing missiles on an island near our coast. The government wants options before the sites are ready. What do you propose?;13;;;;0;1960;1990;0
+Reroute shipping around the Cape. The delay costs funds but avoids a direct naval challenge.;-1;0;-1;10;0
+Offer an international escort, spending more for a stronger effort to keep the canal open.;-2;0;-2;10;0
+Reconnaissance shows XX basing missiles on an island near our coast. The government wants options before the sites are ready. What do you propose? Effects: (1) Budget +1, Prestige +1, Tension +3, destroyer build requirement. (2) Tension +1. (3) Budget -1, Prestige -1, Tension -1.;13;;;;0;1960;1990;0
 Declare a naval quarantine around the island.;1;1;3;99;6
 Demand their removal through diplomatic channels.;0;0;1;99;0
 Offer to withdraw some of our own forward bases in exchange.;-1;-1;-1;99;0
-XX has seized one of our intelligence ships in international waters and holds the crew. The public demands action. What do you order?;13;;;;0;1955;1990;0
+XX has seized one of our intelligence ships in international waters and holds the crew. The public demands action. What do you order? Effects: (1) Prestige +1, Tension +2, cruiser build requirement. (2) Prestige -1. (3) Prestige +1, Tension +3.;13;;;;0;1955;1990;0
 Send a carrier group to their coast.;0;1;2;99;8
 Negotiate quietly for the crew, even if the ship is lost.;0;-1;0;99;0
 Seize one of their merchant ships in return.;0;1;3;99;0
-A submarine from XX has run aground inside our territorial waters, close to a naval base. Its captain refuses to be boarded. What do you do?;13;;;;0;1950;1990;0
+A submarine from XX has run aground inside our territorial waters, close to a naval base. Its captain refuses to be boarded. What do you do? Effects: (1) Prestige +1, Tension +2, submarine build requirement. (2) Tension +1. (3) Prestige -1, Tension -1.;13;;;;0;1950;1990;0
 Board and inspect it, by force if needed.;0;1;2;99;4
 Tow it out to sea after a formal protest.;0;0;1;99;0
 Let it leave quietly to avoid a crisis.;0;-1;-1;99;0
-After several near collisions between our ships and those of XX, their admiralty proposes rules for encounters at sea. What instructions do you give?;13;;;;0;1965;1990;0
+After several near collisions between our ships and those of XX, their admiralty proposes rules for encounters at sea. What instructions do you give? Effects: (1) Prestige +1, Tension +1. (2) arms-control talks. (3) Prestige -1, Tension -2, stronger arms-control talks.;13;;;;0;1965;1990;0
 Refuse. Our captains will not give way.;0;1;1;99;0
 Open talks without commitments.;0;0;0;99;40
 Sign an agreement on incidents at sea.;0;-1;-2;99;41

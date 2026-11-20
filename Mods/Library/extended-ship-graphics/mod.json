@@ -1,0 +1,18 @@
+{
+  "schema": 1,
+  "id": "extended-ship-graphics",
+  "name": "Extended Ship Graphics - 100 Saved Visuals",
+  "version": "1.0.1",
+  "author": "RTW3 Mod Manager",
+  "description": "Raises the ship designer's added Equipment graphics limit from 25 to 100. Use added graphics as saved superstructure layers. The Ship Graphic Builder packages high-detail shapes as compatible pieces. Native superstructure remains six layers; each individual game graphic retains its 25-point format.",
+  "kind": "runtime",
+  "experimental": true,
+  "requires": [
+    "large-hulls"
+  ],
+  "conflicts": [],
+  "files": [],
+  "runtime": {
+    "adapter": "ship-visual-layers"
+  }
+}

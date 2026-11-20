@@ -41,12 +41,6 @@ def apply_plans(handle, plans):
         raise
 
 
-def checked_game():
-    expected = json.loads((rt.GAME/"Mods/Manager/state.json").read_text(encoding="utf-8"))["game_sha256"]
-    if hashlib.sha256((rt.GAME/"RTW3.exe").read_bytes()).hexdigest() != expected:
-        raise ValueError("The game executable differs from the managed Steam build.")
-
-
 def require_title_screen(handle, layout):
     main = live.integer(handle, layout["main_slot"]) & 0xffffffff
     if not main or live.integer(handle, main + layout["player_field"]):
@@ -55,7 +49,6 @@ def require_title_screen(handle, layout):
 
 def attach(mode, wait=30, settings=None):
     report = report_path(mode)
-    checked_game()
     rt.configure_api()
     deadline = time.monotonic() + wait
     while True:

@@ -17,9 +17,10 @@ import zipfile
 
 MODS = Path(__file__).resolve().parents[1]
 MANAGER, OVERHAUL, LIBRARY, WINDOW = MODS/"Manager", MODS/"CampaignOverhaul", MODS/"Library", MODS/"ModManager"
-SHIPPED = ("aircraft-improvements", "battle-ai", "big-guns", "campaign-events", "campaign-qol", "frigate-test",
-           "large-hulls", "legacy-fleet", "research-budget", "timeline-2030", "weekly-calendar")
-CLI_ONLY = ("advanced_saves", "submarine_designs", "submarine_factory")   # mod_loader commands the window never runs
+SHIPPED = ("aircraft-improvements", "battle-ai", "big-guns", "campaign-events", "campaign-qol", "extended-ship-graphics",
+           "frigate-test", "historical-decolonization", "large-hulls", "legacy-fleet", "research-budget", "timeline-2030",
+           "weekly-calendar")
+CLI_ONLY = ("advanced_saves", "custom_decisions", "submarine_designs", "submarine_factory")   # mod_loader commands the window never runs
 DATA = (OVERHAUL/"frigate_type_sites.json", MANAGER/"vendor/capstone/lib/capstone.dll",
         MANAGER/"vendor/capstone-5.0.9.dist-info/LICENSE.TXT")
 
@@ -54,7 +55,7 @@ def release_files():
     files += [LIBRARY/ident/item["source"] for ident in SHIPPED for item in manifest(ident).get("files", [])]
     files += code_files() + list(DATA)
     files += [p for p in WINDOW.rglob("*") if p.is_file() and "__pycache__" not in p.parts
-              and p.name not in ("README.txt", "modman-error.log")]
+              and p.name not in ("README.txt", "modman-error.log", "hang-report.txt")]
     shipped = {"Mods/" + p.relative_to(MODS).as_posix(): p for p in files}
     shipped["README.txt"] = WINDOW/"README.txt"
     user = os.environ.get("USERNAME", Path.home().name).lower().encode()

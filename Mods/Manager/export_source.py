@@ -14,7 +14,8 @@ MODS = Path(__file__).resolve().parents[1]
 PATTERNS = ("CampaignOverhaul/*.py", "CampaignOverhaul/README.md", "CampaignOverhaul/events.json",
             "CampaignOverhaul/frigate_type_sites.json", "CampaignOverhaul/historical_hulls.json",
             "Manager/*.py", "Manager/*.md", "Manager/*.cs", "Manager/*.ps1",
-            "ModManager/modman.pyw", "ModManager/updates.py", "ModManager/README.txt", "ModManager/LICENSE",
+            "ModManager/modman.pyw", "ModManager/updates.py", "ModManager/hang_report.py", "ModManager/README.txt",
+            "ModManager/LICENSE",
             "ModManager/Mod Manager._pth")
 README = """# RTW3-Mods
 

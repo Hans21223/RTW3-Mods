@@ -370,7 +370,6 @@ def attach(wait=30):
     import ai_runtime
     import live_cheats as live
     import week_display as memory
-    ai_runtime.checked_game()
     payload_hash = check_payload()
     memory.configure()
     deadline = time.monotonic()+wait
