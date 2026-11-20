@@ -31,9 +31,10 @@ TWIN = [(SAM, 2, 10, 1), (SSM, 2, 3, 1)]    # a destroyer template's launchers
 class AIVLSTests(unittest.TestCase):
     def design(self, launchers, *, tons=9000, spare=500, year=1985, research=ALL, banned=(), nation=NATION,
                kind=CL, mode=vls.CONVERT, dock=20000, limit=16000, cell=1, start=False, after_trim=False,
-               knot=300, plate=200, budget=120000, balance=0, funds=50000, wing=100, plane=20):
+               knot=300, plate=200, budget=120000, balance=0, funds=50000, wing=100, plane=20, max_speed=99):
         """launchers: (MountType, tubes, reloads, centreline). Weight left = spare + half the tons a hull has
         grown - cell tons a missile - knot tons a knot above 32 - plate tons a half inch of belt and deck.
+        Above max_speed the recalculation takes a knot off, as the game does for a speed the hull can't make.
         Returns the mounts' (tubes, reloads)."""
         at = {name: STUBS+0x10*i for i, name in enumerate(NAMES)}
         info = dict(at, year=YEAR, mount_vmt=MOUNT_VMT, dd_limit=LIMIT)
@@ -65,13 +66,17 @@ class AIVLSTests(unittest.TestCase):
         put(DESIGN+vls.TYPE, kind, 1); put(DESIGN+vls.WEIGHT_LEFT, weight_left())
         for i, mount in enumerate(mounts): put(ITEMS+4*i, mount)
         flag = lambda value: 0xABCDEF00 | value          # only AL carries a Boolean
+
+        def recalculate(eax, edx, ecx):   # the game's recompute (0x93A738) lowers a speed the hull can't make
+            if get(DESIGN+vls.DESIGN_SPEED) > max_speed: put(DESIGN+vls.DESIGN_SPEED, get(DESIGN+vls.DESIGN_SPEED)-1)
+            put(DESIGN+vls.WEIGHT_LEFT, weight_left())
         self.redrawn = []
         stand_ins = {
             at["adjust_weights"]: (MAIN, lambda eax, edx, ecx: calls.append((edx, ecx))),
             at["has_research"]: (nation, lambda eax, edx, ecx: flag(edx in research)),
             at["centreline"]: (None, lambda eax, edx, ecx: flag(vm.mem_read(eax+0x20, 1)[0])),
             at["missile_allowed"]: (nation, lambda eax, edx, ecx: flag(edx not in banned)),
-            at["recalculate"]: (DESIGN, lambda eax, edx, ecx: put(DESIGN+vls.WEIGHT_LEFT, weight_left())),
+            at["recalculate"]: (DESIGN, recalculate),
             at["rescale"]: (DESIGN, lambda eax, edx, ecx: self.redrawn.append(edx)),
             at["get_nation"]: (MAIN, lambda eax, edx, ecx: nation if edx == NATION_INDEX else 0),
             at["monthly_balance"]: (nation, lambda eax, edx, ecx: balance),
@@ -191,6 +196,12 @@ class AIVLSTests(unittest.TestCase):
                              (big, 22500, (34, 1, 1)))
             self.assertEqual(self.redrawn, [20000])
         self.assertEqual(self.capital(after_trim=False, mode=vls.START, limit=3800), ([(32, 0), (8, 0)], 20000, (32, 0, 0)))
+
+    def test_the_speed_fit_keeps_the_last_speed_the_game_accepts(self):
+        # Raising a speed the game kept lowering, while weight was left, froze the turn (tester report 2026-11-20).
+        self.assertEqual(self.capital(max_speed=33)[2], (33, 3, 3))
+        self.assertEqual(self.capital(max_speed=32)[2], (32, 3, 3))
+        self.destroyer(year=1975, max_speed=33); self.assertEqual(self.fit, (33, 1, 1))
 
     def test_a_carrier_spends_the_larger_hull_on_aircraft_first(self):
         self.assertEqual((self.capital(kind=CV, tons=60000)[2], self.wing), ((34, 2, 2), 130))

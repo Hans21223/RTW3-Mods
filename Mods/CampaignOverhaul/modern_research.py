@@ -302,7 +302,8 @@ def build(allocation, details):
     doctrine_blocks, doctrine_plans, doctrine = shell_doctrine.build(page+0xE000, details["doctrine"])
     sensor_blocks += doctrine_blocks; sensor_plans += doctrine_plans
     import nuclear_subs   # one more page: SSN and SSBN
-    subs_blocks, subs_plans = nuclear_subs.build(page+0xF000, details["subs"], doctrine, page+0x10300)
+    subs_blocks, subs_plans = nuclear_subs.build(page+0xF000, details["subs"], doctrine, page+0x10300,
+                                                  page+0x12000)
     sensor_blocks += subs_blocks; sensor_plans += subs_plans
     import modern_defence   # in the nuclear submarines' page, after their data and texts
     defence_blocks, defence_plans = modern_defence.build(page+0xFC00, details["defence"], doctrine, page+0x10000)
@@ -351,6 +352,20 @@ def verify(handle, plans, key):
             raise ValueError("The modern research attachment changed; operation refused.")
 
 
+def runtime_allocation_size(details):
+    # Existing fixed runtime pages plus the player SSN/SSBN auto-build bridge.
+    return 0x1000*(len(details["getters"])+19)
+
+
+def validate_runtime_blocks(blocks, allocation, size):
+    end = allocation+size
+    for block in blocks:
+        address = block["address"]
+        block_end = address+len(bytes.fromhex(block["bytes"]))
+        if address < allocation or block_end > end:
+            raise ValueError(f"Modern research block exceeds its reserved memory: {block['name']} at {address:#x}.")
+
+
 def attach(wait=30):
     import ai_runtime
     import live_cheats as live
@@ -379,12 +394,13 @@ def attach(wait=30):
         details = discover(blob, base)
         campaign = live.discover(blob, base)
         ai_runtime.require_title_screen(handle, campaign)
-        size = 0x1000*(len(details["getters"])+18)   # getters, loader+sensors, propulsion, extension, railgun (6), combat, recon, navy, AI, AESA, shell doctrine, nuclear submarines, missile flight, ski jump and VTOL
+        size = runtime_allocation_size(details)
         allocation = rt.K.VirtualAllocEx(handle, None, size, 0x3000, 0x40)
         if not allocation: raise rt.win_error("Cannot allocate modern research effects")
         applied = []
         try:
             blocks, plans, flag = build(allocation, details)
+            validate_runtime_blocks(blocks, allocation, size)
             import modern_sensors
             plans += modern_sensors.limit_box(lambda at, n: rt.read(handle, at, n), blob, base)
             for block in blocks: memory.write(handle, block["address"], bytes.fromhex(block["bytes"]))

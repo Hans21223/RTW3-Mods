@@ -111,6 +111,52 @@ class SubTests(unittest.TestCase):
             poor = self.order(site, 0, 20, balance=0)                                           # only the start ignores it
             self.assertEqual(poor, (3, "U-47 SSN") if site == "ai_first" else plain(0))
 
+    def test_player_auto_build_marks_researched_long_range_and_missile_boats(self):
+        w, built = self.world, []
+        next_text = [TEXT+0x1000]
+
+        def cat():
+            slot, suffix = w.reg("EAX"), self.text(w.reg("EDX"))
+            original = self.text(w.get(slot))
+            pointer = self.string(next_text[0], original+suffix)
+            next_text[0] += 0x100
+            w.put(slot, pointer)
+            return 0
+
+        def start():
+            sp = w.reg("ESP")
+            built.append((w.reg("ECX") & 0xFF, self.text(w.get(sp+4))))
+            return 0x777
+
+        w.stubs[INFO["cat"]] = cat
+        w.stubs[INFO["start"]] = start
+        cases = (
+            (3, {tree.SSN}, "S-1", "S-1 SSN"),
+            (4, {tree.SSBN}, "S-2", "S-2 SSBN"),
+            (3, {tree.SSBN}, "S-3", "S-3"),
+            (4, {tree.SSN}, "S-4", "S-4"),
+            (3, {tree.SSN}, "S-5 SSN", "S-5 SSN"),
+            (1, {tree.SSN, tree.SSBN}, "S-6", "S-6"),
+        )
+        for index, (role, owned, name, expected) in enumerate(cases):
+            w.owned = set(owned)
+            pointer = self.string(TEXT+0x2000+index*0x100, name)
+            w.put(FRAME-0xAC, pointer)
+            w.put(STACK+0x8000-4, RETURN)
+            w.put(STACK+0x8000, pointer)
+            for reg, value in dict(EAX=MAIN, EDX=NATION, ECX=role, EBP=FRAME,
+                                   ESP=STACK+0x8000-4).items():
+                w.vm.reg_write(globals()["UC_X86_REG_"+reg], value)
+            w.vm.emu_start(self.at["player_auto"], RETURN, count=10000)
+            self.assertEqual(built[-1], (role, expected))
+
+    def test_modern_research_allocation_contains_every_generated_block(self):
+        base = 0x2000000
+        blocks, _, _ = modern.build(base, DETAILS)
+        size = modern.runtime_allocation_size(DETAILS)
+        modern.validate_runtime_blocks(blocks, base, size)
+        self.assertEqual(size, 0x1D000)
+
     def test_the_list_gains_the_researched_kinds(self):
         w = self.world
         added = []

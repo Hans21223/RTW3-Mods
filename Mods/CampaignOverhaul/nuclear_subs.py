@@ -13,6 +13,8 @@ Computer nations: their build calls (three in the monthly building, one in the s
 routine with a role and a name. With the research, AI_SSBN% of the medium and long range boats they order become
 SSBNs and the next AI_SSN% SSNs, and AI_MISSILE% of their missile submarines SSBNs. In the monthly building only
 for a nation that earns more than it spends; the starting fleet does not ask (its funds are no measure).
+Player automatic monthly builds: after the SSN/SSBN research is available, native long-range and missile auto-build
+orders receive the matching class-name suffix, so their generated boats keep the new kind through construction.
 Classes: a boat keeps the two qualities it is built with (StartBuildingSubmarine: +8 availability, 40 + 3 a
 submarine technology level; +0Ch accuracy, -2 to 1). A nuclear boat gets AVAILABILITY more of the first (no
 snorkelling, fast transits, long patrols) and an SSN one more of the second, to the native best (sonar and fire
@@ -29,6 +31,7 @@ import struct
 
 import modern_tree as tree
 import shell_doctrine as doctrine_rules
+import weekly_runtime as rt
 
 BASE = 0x301000
 SSBN_MISSILES = 4
@@ -56,6 +59,7 @@ WINDOWS = (
     # the computer's orders: name, role (AI choice), StartBuildingSubmarine; the last is AIBuildInitialSubs
     (0x77B82D, 0x27, None), (0x77B918, 0x27, None), (0x77B9F0, 0x27, None), (0x7E438B, 0x1B, None),
     (0x796B6C, 0x8B, None),   # StartBuildingSubmarine, to its exception tail
+    (0x7A9100, 0x78, None),   # AdvanceShipConstruction: player's automatic monthly submarine build
 )
 DIGESTS = (
     "e6a1d31a905525823930a9713deb2dcc0726034385971dfd98e912bd85d55716",
@@ -80,6 +84,7 @@ DIGESTS = (
     "6d2977e273bfeca168702c9d09bee5c59411217ac07ec8b2067e672cb002d07a",
     "ea24a8d95f8c5d4a90d7bf94ef4f12f12f2f5c9f26a22b9126e3b6d7011b5341",
     "bccec693c50f745e4a29b12351dfe0b095256d4856404789d9db96bbf1c50ba4",
+    "51a97185eac189cb5360e78b8df7120531a4a08d87a191bbb170138d3e1abe0a",
 )
 # name, address, bytes replaced, kind
 SITES = (("list", 0x6E2B88, 5, "call"), ("kind", 0x6E46D4, 5, "jump"), ("build", 0x6E3EEA, 5, "call"),
@@ -88,7 +93,8 @@ SITES = (("list", 0x6E2B88, 5, "call"), ("kind", 0x6E46D4, 5, "jump"), ("build",
          ("cost_month", 0x71F4C7, 5, "call"), ("cost_list", 0x7958E3, 5, "call"), ("cost_built", 0x796C24, 5, "call"),
          ("cost_building", 0x796C41, 5, "call"), ("cost_dialog", 0x6E4827, 5, "call"), ("cost_dialog2", 0x6E48A5, 5, "call"),
          ("ai_sub1", 0x77B84F, 5, "call"), ("ai_sub2", 0x77B93A, 5, "call"), ("ai_sub3", 0x77BA12, 5, "call"),
-         ("ai_first", 0x7E43A1, 5, "call"), ("class", 0x796BD0, 6, "jump"))
+         ("ai_first", 0x7E43A1, 5, "call"), ("class", 0x796BD0, 6, "jump"),
+         ("player_auto", 0x7A9159, 5, "call"))
 COST_SITES = dict(cost_month="ebx", cost_list="esi", cost_built="ebx", cost_building="ebx", cost_dialog=None, cost_dialog2=None)
 MISSILE_ENTRY = 0x2C0                        # in the page: modern_railgun's missile-hit hook asks it (EBX missile, ESI ship)
 NATIVE = dict(monthly_balance=0x72D2EC, asg=0x30BCCC, cost=0x796D84, random=0x307834, damage_radar=0x918098, launch=0x876374, fill=0x6E323C, start=0x796B6C, has_research=0x729FA4, pos=0x30C958, cat=0x30C63C, list_get=0x3B6D6C,
@@ -115,6 +121,8 @@ def discover(blob, base, normalized):
     for (address, size, _), digest in zip(WINDOWS, DIGESTS):
         if hashlib.sha256(normalized[address-BASE:address-BASE+size]).hexdigest() != digest:
             raise ValueError("Nuclear submarines refuse changed native code at "+hex(address)+".")
+    if rt.method_address(blob, base, "AdvanceShipConstruction") != base+(0x7A87EC-BASE):
+        raise ValueError("Nuclear submarines refuse a changed automatic-build method.")
     delta = base-BASE
     info = {k: v+delta for k, v in NATIVE.items()}
     info["ships"] = struct.unpack_from("<I", blob, SHIPS_LOAD-BASE+1)[0]
@@ -123,20 +131,27 @@ def discover(blob, base, normalized):
     return info
 
 
-def build(page, info, doctrine, spare):
-    """One page, and the class routine at spare. doctrine: shell_doctrine's entry points (use_torpedo,
-    use_missile, used)."""
+def build(page, info, doctrine, spare, player_auto_page=None):
+    """Submarine hooks and text on the nuclear-sub page; the player auto-build bridge gets its own page.
+    doctrine: shell_doctrine's entry points (use_torpedo, use_missile, used)."""
     from campaign_security import Code
     from hull_rules import patch
+    if player_auto_page is None:
+        player_auto_page = page+0x12000
     at = dict(is_kind=page, list=page+0x80, kind=page+0x100, build=page+0x1C0, salvo=page+0x240,
               missile=page+0x2C0, torpedo=page+0x380, strike=page+0x440, blast=page+0x4C0,
               chosen=page+0x600, last=page+0x604, slot=page+0x60C, record=page+0x640, texts=page+0x800,
+              player_auto=player_auto_page, player_auto_texts=player_auto_page+0x100,
               cost_scale=page+0x580, **{name: page+0xA00+0x20*i for i, name in enumerate(COST_SITES)})
     n, code, texts, cursor, site = info, {}, {}, at["texts"], info["sites"]
     blocks = [dict(name="Nuclear submarines: data", address=at["chosen"], bytes="00"*0x140)]
     for key, text in TEXTS.items():
         body = literal(text); texts[key] = cursor+12
         blocks.append(dict(name="Nuclear submarines: "+key, address=cursor, bytes=body.hex())); cursor += (len(body)+3) & ~3
+    for key, text in (("auto_ssn", " SSN"), ("auto_ssbn", " SSBN")):
+        body = literal(text); texts[key] = cursor+12
+        blocks.append(dict(name="Nuclear submarines: "+key, address=cursor, bytes=body.hex()))
+        cursor += (len(body)+3) & ~3
 
     # is_kind: EAX a name -> EAX 0, 1 (ends in SSN) or 2 (ends in SSBN). Clobbers ECX.
     c = Code(at["is_kind"]); c.emit(b"\x85\xc0"); c.branch(b"\x0f\x84", "none"); c.emit(b"\x8b\x48\xfc")
@@ -298,7 +313,26 @@ def build(page, info, doctrine, spare):
     c.mark("out"); c.emit(b"\x61"+bytes.fromhex(site["class"]["original"])); c.branch(b"\xe9", site["class"]["address"]+6)
     code["class"] = c.finish()
 
-    room = dict(**{"class": 0x80}, ai_sub=0xC0, ai_tail=0x7C, cost_scale=0x40, **dict.fromkeys(COST_SITES, 0x20), is_kind=0x80, list=0x80, kind=0xC0, build=0x80, salvo=0x80, missile=0xC0, torpedo=0xC0,
+    # The player's auto-build path enters AdvanceShipConstruction with the native role in CL and a generated
+    # name on the stack. Preserve that route, but mark researched long-range/missile boats before the native start.
+    # At this call site [ebp-0xAC] owns the generated Delphi string; update the pushed argument after UStrCat.
+    c = Code(at["player_auto"]); c.emit(b"\x9c\x60")
+    c.emit(b"\x8b\x44\x24\x18\x83\xf8\x03"); c.branch(b"\x0f\x85", "maybe_ssbn")
+    c.emit(b"\x8b\x44\x24\x14\xba"); c.u32(tree.SSN); c.branch(b"\xe8", n["has_research"])
+    c.emit(b"\x84\xc0"); c.branch(b"\x0f\x84", "done"); c.branch(b"\xe9", "append_ssn")
+    c.mark("maybe_ssbn"); c.emit(b"\x83\xf8\x04"); c.branch(b"\x0f\x85", "done")
+    c.emit(b"\x8b\x44\x24\x14\xba"); c.u32(tree.SSBN); c.branch(b"\xe8", n["has_research"])
+    c.emit(b"\x84\xc0"); c.branch(b"\x0f\x84", "done"); c.branch(b"\xe9", "append_ssbn")
+    c.mark("append_ssn"); c.emit(b"\xba"); c.u32(texts["auto_ssn"]); c.branch(b"\xe9", "append")
+    c.mark("append_ssbn"); c.emit(b"\xba"); c.u32(texts["auto_ssbn"])
+    c.mark("append"); c.emit(b"\x8b\x85"+struct.pack("<i", -0xAC)); c.branch(b"\xe8", at["is_kind"])
+    c.emit(b"\x85\xc0"); c.branch(b"\x0f\x85", "done")
+    c.emit(b"\x8d\x85"+struct.pack("<i", -0xAC)); c.branch(b"\xe8", n["cat"])
+    c.emit(b"\x8b\x85"+struct.pack("<i", -0xAC)+b"\x89\x44\x24\x28")
+    c.mark("done"); c.emit(b"\x61\x9d"); c.branch(b"\xe9", n["start"])
+    code["player_auto"] = c.finish()
+
+    room = dict(**{"class": 0x80}, ai_sub=0xC0, ai_tail=0x7C, cost_scale=0x40, player_auto=0x100, **dict.fromkeys(COST_SITES, 0x20), is_kind=0x80, list=0x80, kind=0xC0, build=0x80, salvo=0x80, missile=0xC0, torpedo=0xC0,
                 strike=0x80, blast=0x100)
     for name, body in code.items():
         if len(body) > room[name]: raise ValueError("Nuclear submarines code exceeds its reservation: "+name)

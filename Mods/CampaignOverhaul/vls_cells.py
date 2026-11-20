@@ -60,8 +60,9 @@ UNITS_PER_M, ANGLE_PER_DEGREE, VERTICES = 100, 5_400_000, 25
 # a DD hull may grow to tons/3800 of its template (within the nation's dock and the DD class limit), its SAM
 # launchers take the largest bank that fits, and the hull shrinks back to what the cells (cells per ton) and
 # the weight need. In game this runs after AIDesignShip's own hull trim (GROW_SITE), which would undo it.
-# Weight still unused on a hull that stayed larger goes into speed, then belt and deck armour, up to the era's
-# limits: the fast gas-turbine destroyers of the 1970s, the slower and better protected ones after them.
+# Weight still unused on a hull that stayed larger goes into speed (as far as the hull can make it), then belt and
+# deck armour, up to the era's limits: the fast gas-turbine destroyers of the 1970s, the slower and better
+# protected ones after them.
 AI_SITE, START_SITE, GROW_SITE = 0x7B6AD4, 0x81A1E7, 0x7B6B2D
 GROW = ((1975, 6000, 34, 1), (1985, 8000, 32, 2), (2000, 9500, 31, 3))   # from, tons, knots, armour (half inches)
 SPEED, DESIGN_SPEED, BELT, DECK, AIR, FUNDS = 0x38, 0xA20, 0x40, 0x44, 0x9E0, 0x1B5
@@ -540,7 +541,13 @@ def ai_pass(address, info, predicate, scratch):
         c.emit(b"\xff"+bytes([step])); c.u32(DESIGN_SPEED); c.emit(b"\x8b\x83"); c.u32(DESIGN_SPEED)
         c.emit(b"\x89\x43"+bytes([SPEED])); recalculate()
     c.mark("faster"); c.emit(b"\x8b\x83"); c.u32(DESIGN_SPEED); c.emit(b"\x3b\x05"); c.u32(knots); c.branch(b"\x0f\x8d", "thicker")
-    speed(0x83); c.emit(b"\x83\xbb"); c.u32(WEIGHT_LEFT); c.emit(b"\x00"); c.branch(b"\x0f\x8d", "faster"); speed(0x8b)
+    speed(0x83)
+    # The game's recompute lowers a speed the hull can't make (0x93A738: to -1 past its power table, one knot for an
+    # illegal speed/displacement mix), so weight alone would never end this loop: a lowered speed ends it too.
+    c.emit(b"\x8b\x43"+bytes([SPEED])+b"\x3b\x83"); c.u32(DESIGN_SPEED); c.branch(b"\x0f\x84", "kept")
+    c.emit(b"\x89\x83"); c.u32(DESIGN_SPEED); c.branch(b"\xe9", "slower")      # back to the asked speed, then down one
+    c.mark("kept"); c.emit(b"\x83\xbb"); c.u32(WEIGHT_LEFT); c.emit(b"\x00"); c.branch(b"\x0f\x8d", "faster")
+    c.mark("slower"); speed(0x8b)
     c.mark("thicker"); c.emit(b"\x8b\x43"+bytes([BELT])+b"\x3b\x05"); c.u32(armour); c.branch(b"\x0f\x8d", "back")
     c.emit(b"\xff\x43"+bytes([BELT])+b"\xff\x43"+bytes([DECK])); recalculate()
     c.emit(b"\x83\xbb"); c.u32(WEIGHT_LEFT); c.emit(b"\x00"); c.branch(b"\x0f\x8d", "thicker")

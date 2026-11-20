@@ -173,8 +173,11 @@ fits, up to its era's limits:
 | 1985 | 32 kn | 1 in |
 | 2000 | 31 kn | 1.5 in |
 
-A template that is already faster keeps its speed. Armoured destroyers need
-Historical and Paper Hulls, as the growth itself does.
+A template that is already faster keeps its speed. A hull that can't make more
+speed keeps the fastest speed the game accepts for it: the game itself lowers a
+speed the hull can't reach (its "Illegal speed/displacement combination" rule),
+and before 1.43.4 the fitting raised it again and again, which froze the turn.
+Armoured destroyers need Historical and Paper Hulls, as the growth itself does.
 
 **Other types.** The computer's largest templates are 88,000 t (BB), 70,000 t
 (BC), 69,000 t (CV), 26,000 t (CA), 16,000 t (CVL) and 14,000 t (CL). From 1960 a

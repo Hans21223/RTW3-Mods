@@ -854,6 +854,11 @@ of the boat's name:
   missile submarine; building time is the native role's. Do not remove the mark from a boat's name:
   it is what makes it an SSN or SSBN. A boat you name with such an ending
   yourself becomes one.
+- Player auto-build uses the native long-range and missile role selectors. Once
+  researched, auto-built long-range boats receive the ` SSN` name mark and
+  auto-built missile boats receive ` SSBN`; without the matching research they
+  remain ordinary native types. This closes the gap where the automatic build
+  routine created a conventional class from a nuclear-sub selection.
 - Computer nations build them too once they have the research: of the medium
   and long range submarines they order, 10% become SSBNs and 40% SSNs, and half
   of their missile submarines become SSBNs. In the monthly building only a
