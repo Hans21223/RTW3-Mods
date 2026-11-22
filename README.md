@@ -27,5 +27,4 @@ Two scripts in `Mods/Manager` compile the older C# tools with the C# compiler bu
 - `build_submarine_module.ps1` builds `RTW3.SubmarineDesigner.dll`, the 32-bit in-game panel of
   the In-game Submarine Designer mod. With `-LayoutTest` it builds and runs a layout check instead.
 
-Neither is needed for the alpha: the Mod Manager players use is the Python one in `Mods/ModManager`,
-and Live Cheats and the In-game Submarine Designer are not in this release.
+Neither is needed for the alpha: the Mod Manager players use is the Python one in `Mods/ModManager`
