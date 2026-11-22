@@ -2,7 +2,17 @@
 
 Version 0.5's custom firing replacement is deliberately not installed. Native
 current-contact launch decisions, including researched SAM surface fire, remain.
-Only the native fallback that searches the global ship list is bypassed.
+The native fallback that searches the global ship list (targets the shooter's side
+has spotted, behind the nation's missile research and the native identification
+check) runs again: skipping it (0.5.1 to 2026-11-22) left ships under Fire at will
+silent at enemies their own sensors did not hold. Only its one-in-500 pick of a
+friendly ship as the target is removed.
+
+Missile blind fire: a ship that launches missiles (FireSSM) gives its position away
+for BLIND_MINUTES battle minutes. The global search may then pick it although no one
+has sighted it, so ships under Fire at will (and the computer's) answer launches from
+beyond their sensors. Range, arcs, research and the rest of the native search stand.
+A new battle (its clock below the last minute seen) forgets the last battle's launches.
 """
 import hashlib
 import struct
@@ -19,6 +29,8 @@ WINDOWS=(
     (0x91AC14,184,"30d0ee44def55e0cdf8065011f6631d30690de73c5dc38654842c4b57f581bbe"),
     (0x9253B4,1308,"50f4f870b031b6c825dd4d972098443a9cfc6717f682931e6fd89377d8bf80af"),
 )
+BLIND_MINUTES,BLIND_SLOTS=10,64   # how long a launch gives a ship away; launches remembered (a power of two)
+LAUNCH=(0x876374,"558bec83c4e8")  # FireSSM (EDX side, ECX launch position: a ship's +A1Ch): PUSH EBP / MOV EBP,ESP / ADD ESP,-18h
 
 
 def discover(blob,base):
@@ -28,9 +40,50 @@ def discover(blob,base):
     for address,size,digest in WINDOWS:
         if hashlib.sha256(normal[address-BASE:address-BASE+size]).hexdigest()!=digest:
             raise ValueError("Missile range correction refuses changed code at "+hex(address))
-    info.update(world_site=0x87730A+delta,world_exit=0x8775C6+delta,
-                world_original=blob[0x87730A-BASE:0x87730A-BASE+10].hex())
+    # The fallback's same-side candidate: MOV EAX,500 / CALL Random / DEC EAX / JNZ next (one in 500 goes on).
+    info.update(friendly_site=0x8773C1+delta,friendly_next=0x8775B4+delta,
+                friendly_original=blob[0x8773C1-BASE:0x8773C1-BASE+5].hex())
+    # Its sighting check: MOV EAX,[EBP-4] / CMP [EAX+0D55h],1 / JG sighted, else the identification helper.
+    launch=LAUNCH[0]+delta
+    if blob[launch-base:launch-base+6].hex()!=LAUNCH[1]:raise ValueError("Missile blind fire refuses changed FireSSM.")
+    info.update(launch=launch,launch_original=LAUNCH[1],blind_site=0x8773D2+delta,blind_helper=0x8773DE+delta,
+                blind_sighted=0x8773ED+delta,blind_original=blob[0x8773D2-BASE:0x8773D2-BASE+10].hex())
     return info
+
+
+def fresh(c,table):
+    """EDX the battle minute: when it is below the last one seen, a new battle has begun and the launches (the
+    table, then the ring index after it) are wiped, as its ships may reuse the last battle's addresses. Uses ECX, ESI."""
+    last=table+8*BLIND_SLOTS+4
+    c.emit(b"\x3b\x15");c.u32(last);c.emit(b"\x89\x15");c.u32(last);c.branch(b"\x0f\x83","same_battle")
+    c.emit(b"\xbe");c.u32(table);c.emit(b"\xb9");c.u32(BLIND_SLOTS*2+1)
+    c.mark("wipe");c.emit(b"\xc7\x06\x00\x00\x00\x00\x83\xc6\x04\x49");c.branch(b"\x0f\x85","wipe")
+    c.mark("same_battle")
+
+
+def record_thunk(address,info,table,ring):
+    """FireSSM's entry: the launcher (ECX-A1Ch) and the battle minute go into a ring of BLIND_SLOTS. Launches by
+    submarines and aircraft (ECX their +14h) leave entries that match no ship."""
+    c=Code(address);c.emit(b"\x50\x51\x52\x56\x8d\x81"+struct.pack("<i",-0xA1C))   # EAX the launcher
+    c.emit(b"\x8b\x15");c.u32(info["minute_slot"]);c.emit(b"\x8b\x12");fresh(c,table)
+    c.emit(b"\x8b\x0d");c.u32(ring);c.emit(b"\x89\x04\xcd");c.u32(table);c.emit(b"\x89\x14\xcd");c.u32(table+4)
+    c.emit(b"\x41\x83\xe1"+bytes([BLIND_SLOTS-1])+b"\x89\x0d");c.u32(ring)
+    c.emit(b"\x5e\x5a\x59\x58"+bytes.fromhex(info["launch_original"]));c.branch(b"\xe9",info["launch"]+6)
+    return c.finish()
+
+
+def blind_thunk(address,info,table):
+    """The global search's sighting check ([EBP-4] the candidate): sighted (native), or it launched in the last
+    BLIND_MINUTES battle minutes (blind fire), else the native identification helper."""
+    c=Code(address);c.emit(bytes.fromhex(info["blind_original"]));c.branch(b"\x0f\x8f",info["blind_sighted"])
+    c.emit(b"\x51\x52\x56\x57\x8b\x15");c.u32(info["minute_slot"]);c.emit(b"\x8b\x12");fresh(c,table)
+    c.emit(b"\x8b\xfa\xbe");c.u32(table);c.emit(b"\xb9");c.u32(BLIND_SLOTS)
+    c.mark("loop");c.emit(b"\x39\x06");c.branch(b"\x0f\x85","next")
+    c.emit(b"\x8b\xd7\x2b\x56\x04\x83\xfa"+bytes([BLIND_MINUTES]));c.branch(b"\x0f\x86","found")   # now-then <= N
+    c.mark("next");c.emit(b"\x83\xc6\x08\x49");c.branch(b"\x0f\x85","loop")
+    c.emit(b"\x5f\x5e\x5a\x59");c.branch(b"\xe9",info["blind_helper"])
+    c.mark("found");c.emit(b"\x5f\x5e\x5a\x59");c.branch(b"\xe9",info["blind_sighted"])
+    return c.finish()
 
 
 def course_thunk(address,info,ready_range,engageable,counter):
@@ -112,18 +165,27 @@ def course_thunk(address,info,ready_range,engageable,counter):
 
 
 def build(allocation,info,state):
-    positions=dict(ready=allocation+0x10000,course=allocation+0x10400,engageable=allocation+0x10800)
+    positions=dict(ready=allocation+0x10000,course=allocation+0x10400,engageable=allocation+0x10800,
+                   record=allocation+0x10C00,blind=allocation+0x11000,
+                   launches=allocation+0x11400,ring=allocation+0x11400+8*BLIND_SLOTS)   # zeroed by VirtualAllocEx
     routines=dict(ready=legacy.ready_range_thunk(positions["ready"],info),
                   course=course_thunk(positions["course"],info,positions["ready"],positions["engageable"],state+48),
-                  engageable=legacy.engageable_thunk(positions["engageable"],info))
+                  engageable=legacy.engageable_thunk(positions["engageable"],info),
+                  record=record_thunk(positions["record"],info,positions["launches"],positions["ring"]),
+                  blind=blind_thunk(positions["blind"],info,positions["launches"]))
     blocks=[]
     for name,code in routines.items():
         if len(code)>0x400:raise ValueError("Missile range correction exceeds its reservation")
         blocks.append(dict(name="missile_"+name,address=positions[name],bytes=code.hex()))
-    replacement=b"\xe9"+struct.pack("<i",info["world_exit"]-info["world_site"]-5)+b"\x90"*5
-    changes=[patch("Automatic missiles: current contacts only, native launch decisions",info["world_site"],
-                   bytes.fromhex(info["world_original"]),replacement)]
+    replacement=b"\xe9"+struct.pack("<i",info["friendly_next"]-info["friendly_site"]-5)   # same side: next ship
+    changes=[patch("Automatic missiles: spotted targets, never a friendly ship",info["friendly_site"],
+                   bytes.fromhex(info["friendly_original"]),replacement),
+             patch("Missile blind fire: a launch gives the ship away",info["launch"],bytes.fromhex(info["launch_original"]),
+                   b"\xe9"+struct.pack("<i",positions["record"]-info["launch"]-5)+b"\x90"),
+             patch("Missile blind fire: launchers are targets",info["blind_site"],bytes.fromhex(info["blind_original"]),
+                   b"\xe9"+struct.pack("<i",positions["blind"]-info["blind_site"]-5)+b"\x90"*5)]
     return dict(blocks=blocks,patches=changes,positions=positions,allocation_size=0x20000,
+                blind_fire_minutes=BLIND_MINUTES,
                 native_missile_selector_preserved=True,native_sam_surface_fire_preserved=True,
                 custom_firing_selector_installed=False,custom_salvo_throttles_installed=False,
                 screen_role_supported=True,course_control=True,launcher_arc_beam_selection=True,gun_range_disqualifier=False,

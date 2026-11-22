@@ -100,6 +100,7 @@ personal-save edits in this package.
 
 | ID | Year | Technology | Effect |
 | ---: | ---: | --- | --- |
+| 2347 | 1953 | Aerial refuelling (needs 1728 Improved jet engines) | Land-based aircraft +50% range (see Tankers) |
 | 2341 | 1965 | Anti-radiation missiles (needs 1907 Early air to surface missiles) | Jet strike aircraft suppress SAMs (see Electronic warfare and SEAD) |
 | 2342 | 1967 | Self-protection jamming pods (needs 1523 Improved ECM systems) | Strike aircraft jam SAMs (see Electronic warfare and SEAD) |
 | 2338 | 1969 | Vertical take-off jet fighters (needs 1823 Steam catapults) | Light jet fighters are VTOL (see Ski jump) |
@@ -117,6 +118,8 @@ personal-save edits in this package.
 | 2209 | 2005 | Peripheral VLS integration | 1 cell per 51 t |
 | 2339 | 2017 | Low-observable anti-ship missiles (needs 1917 Effective cruise missiles) | Stealthy SSMs (see Hypersonic missiles) |
 | 2340 | 2025 | Hypersonic interceptors (needs 2208) | SAMs better against hypersonic missiles (see Hypersonic missiles) |
+| 2348 | 2027 | Unmanned carrier tankers (needs 2347) | A carrier with its special squadron: its aircraft +30% range (see Tankers) |
+| 2346 | 2026 | Hypervelocity anti-air projectiles (needs 2340) | Railgun main batteries of any calibre count as heavy AA, from three times as far, two aircraft a hit (see Railguns) |
 | 2210 | 2030 | Next-generation VLS modules [projected] | Cells another 10% lighter |
 
 **Naval combat systems (23)**
@@ -148,6 +151,7 @@ personal-save edits in this package.
 | 2313 | 2003 | Integrated power system | Gas turbine ships spare 50% of horsepower as railgun power (was 25%); extra generators in the designer |
 | 2321 | 2009 | Electromagnetic aircraft launch system (needs 1823 Steam catapults) | EMALS (see below) |
 | 2312 | 2020 | Electromagnetic railgun (needs 2313) | Railgun main batteries (see below) |
+| 2345 | 2021 | Interceptor drone swarms (needs 2326) | Ships with helicopters, catapults or a flight deck: +15% to stop incoming missiles, +4 heavy AA; carriers count as having an AEW squadron (see Interceptor drones) |
 | 2316 | 2022 | Shipboard high-energy lasers (needs 2313) | Laser mounts (see below) |
 | 2317 | 2023 | Hypersonic anti-ship missiles (needs 1917 Effective cruise missiles) | Hypersonic SSMs option (see below) |
 | 2333 | 2024 | Explosive unmanned surface vessels | MTB squadrons become USVs (see below) |
@@ -162,7 +166,12 @@ These replace the separate Research Expansion package, merged here on
 4 November 2026 with the same IDs and slots. On 6 November 2026 four technologies
 (2318-2321) were inserted in year order, which moves the later entries' slots;
 campaigns saved before then lose those entries' progress (accepted: the
-campaign they were made for is finished).
+campaign they were made for is finished). On 21 November 2026 2345 (2021) and
+2346 (2026) were inserted the same way: a campaign that has researched the
+later entries of those two branches (2316-2311, and 2210) has their progress
+shifted by one. The same day 2347 (1953) and 2348 (2027) joined the Vertical
+launch systems branch: there every entry from 1957 on moves one row, so a
+campaign past 1953 sees that branch's progress shifted (decided 2026-11-21).
 Its Naval combat systems entries 2301-2307 gave SAM, SSM and anti-missile
 points; here they give the AA, rate-of-fire and damage-control points above.
 
@@ -260,7 +269,9 @@ sets the design back to Oil + Turbine. A nuclear design:
   2023. The designer applies it whenever it recalculates a design, using the
   research of the nation in the designer; built ships keep their weights;
 - carries the same fuel weight at every range setting: 70% of the Medium figure,
-  less than an oil-fired ship at Short range;
+  less than an oil-fired ship at Short range. The designer greys out the Range
+  box for a nuclear design, and enables it again when another propulsion is
+  chosen (unless the design is locked, as for a refit);
 - always reports 100% fuel and burns none in battle, so it is never slowed to
   5 knots "at minimum fuel level" however fast it steams; and
 - is not affected by oil supply shortages, the rule the game already applies to
@@ -306,7 +317,8 @@ A railgun battery:
   rounds keep their speed); past the game's 20-inch penetration tables (16-inch
   railguns and up) the 20-inch value grows with calibre, so every size gains;
 - with DP ticked, counts 1.5 times in the heavy AA factor (three times shorter
-  flight time outweighs about half the rate of fire);
+  flight time outweighs about half the rate of fire); with Hypervelocity
+  anti-air projectiles it counts as heavy AA at any calibre, DP or not (below);
 - fires inert rounds: a railgun ship's main magazines and turrets never flash or
   explode, including diving-shell magazine hits; secondary magazines keep the
   native rules;
@@ -333,6 +345,25 @@ before CIWS, each DP railgun battery (main, secondary or tertiary) gives 20% to
 shoot an incoming missile down with hypervelocity rounds, at most 50%, and a
 third of that against hypersonic missiles. The log reads "Incoming missile shot
 down by railgun."
+
+**Hypervelocity anti-air projectiles** (ID 2346, 2026, after Hypersonic
+interceptors; the HVP round developed for 5-inch guns and railguns). The game
+counts only 3- to 6-inch guns as heavy AA, and a main battery only when it is
+DP, which bigger guns cannot be. With this research a railgun main battery of
+any calibre, DP or not, fires air-burst hypervelocity rounds at aircraft
+(`modern_air_defence.py`):
+
+- **Value:** each railgun counts 20 heavy AA (a 5-inch DP gun counts 9 to 12),
+  or its native value if that is higher. The designer, the ship screens and
+  battles all show it; a ship's heavy AA still grows more slowly past 40.
+- **Range:** heavy AA fires at an incoming air strike in the long-range phase,
+  before it attacks, from every ship near the target within its heavy AA range
+  (about 5,000-6,000 yards; full rate within half of it). A hypervelocity ship's
+  range is three times that, so it covers the other ships of its group.
+- **Spread:** the phase pools the shots of all ships and rolls each. The shots
+  of hypervelocity ships are counted apart, and a hit is theirs with their
+  share: it destroys or damages two aircraft instead of one, and the attack
+  loses both.
 
 Ticking Railgun also ticks Increased elevation
 (railguns fire high-angle for range; unticking Increased elevation removes the
@@ -403,7 +434,11 @@ own data (SHIPBORNE UAV): 120-150 mph, 10-15 hours in the air, a search radar
 like the late floatplanes', no bombs, easy to shoot down. A Floatplane scout
 request still gives a floatplane, and floatplane models already built stay
 floatplanes. Computer nations develop their floatplane scouts as UAV models
-from 2005. Once a nation has a UAV model in service (developed and not
+from 2005, and so does a UAV request: the UAV data starts then, so a request
+completed earlier in the game's aircraft years (behind the calendar at a slow
+research pace) develops floatplane scouts. If any prototype's data fails to
+load, the request skips that prototype instead of stopping the turn with
+"Error in ResolveAircraftRequest". Once a nation has a UAV model in service (developed and not
 withdrawn), its ships launch and recover their scouts without stopping or
 slowing, as if they had a catapult, and the launch prompt reads "Launch search
 UAV(s) from"; until then they handle floatplanes as before. A UAV's radar
@@ -536,6 +571,72 @@ on a ship designed from 1996 by a researching nation is composite. The designer
 cuts that weight to 85% instead of aluminium's 92%, at 130% of the cost instead
 of 115%, and in battle composite ships skip all five aluminium fire penalties.
 
+## Heavy DP guns (7 and 8 inch)
+
+The game lets only 3- to 6-inch guns be dual-purpose, and gives only those
+calibres a heavy AA value. 7- and 8-inch guns may now be DP too, the heavy
+anti-aircraft ship of the late 1940s studies (`modern_air_defence.py`):
+
+- **When:** once the nation has 6 in dual purpose mounting (1934) and 7 and 8
+  in autoloader (1945, the rapid-fire 8-inch of the Des Moines class). Any
+  battery: main, secondary or tertiary.
+- **Turrets:** single or twin only, as for every DP gun; twin mounts also need
+  3 and 4 in twin dual purpose mounting, as the native rule asks.
+- **Heavy AA:** 5 a gun for 7 inches and 4 for 8 inches, one more when
+  autoloaded (a 6-inch DP gun counts 5, or 6; a 5-inch 9 plus gun quality). An
+  autoloaded main battery counts 1.5 times again, as natively. They count as
+  ordinary heavy AA: the game has light, medium and heavy AA only.
+- **Weight:** DP mounts weigh more, as for smaller DP guns.
+
+Computer nations follow the same rule, but their designs only make main
+batteries DP on destroyers, light cruisers and carriers, so their heavy
+cruisers keep plain 8-inch guns.
+
+Without this mod a design with 7- or 8-inch DP guns keeps its DP mark, but
+those guns give no AA and the designer's checks treat the mounts as not
+allowed.
+
+## Tankers
+
+A formation's range in battle is its fuel, filled from its aircraft's
+endurance at each mission and refuelling, and for planning its aircraft's
+combat radius, a third of the endurance (`modern_air_defence.py`).
+
+- **Aerial refuelling** (ID 2347, 1953, after Improved jet engines; KC-97,
+  probe and drogue): aircraft flying from an airfield of a researching nation
+  have 50% more fuel and range. A land tanker can top up a whole strike on the
+  way out. Carrier aircraft are not refuelled by it.
+- **Unmanned carrier tankers** (ID 2348, 2027, after Aerial refuelling; MQ-25
+  Stingray, about 15,000 lb of fuel 500 nm out, a quarter of a Super Hornet's
+  internal fuel for each of four): a carrier's special squadron also flies
+  tanker drones, so while the carrier has its special squadron its aircraft
+  have 30% more fuel and range. The game's special squadrons belong to
+  carriers; airfields have none, which is why land tankers come with the
+  research itself.
+
+Every range check that knows the formation uses it: the computer's strike
+targets, land air priorities, the launch and escort menus (their ranges show
+the bonus) and a formation's own status. The estimates of enemy air ranges
+stay native. Floatplanes from cruisers and tenders get nothing. It acts in
+battle; campaign air rules do not use aircraft range.
+
+## Interceptor drones
+
+**Interceptor drone swarms** (ID 2345, 2021, after Shipborne UAVs; Coyote and
+Roadrunner): every ship with a helicopter deck, a catapult or a flight deck
+carries AI interceptor drones (`modern_air_defence.py`). There are no drones to
+manage and no count: it is a research effect.
+
+- **Missile defence:** 15 more percent in the countermeasure roll each
+  incoming missile (and guided bomb) has to pass, the roll jamming and decoys
+  use (4% plus 9% a level of hidden ECM, plus the electronic warfare suites).
+- **Air defence:** 4 more heavy AA value against air strikes, like one laser.
+- **CAP and radar:** a carrier counts as having an AEW squadron wherever the
+  battle asks for one (longer radar, CAP vectoring onto raids from further out,
+  earlier scrambles), without giving deck space to AEW aircraft.
+
+Computer nations get all of it with the research.
+
 ## USVs, nuclear shells and frigates
 
 **Explosive unmanned surface vessels** (ID 2333, 2024: the Black Sea drone
@@ -579,7 +680,8 @@ CIWS: 15% per mount, at most 60%. Rain or mist halves that, heavy seas halve it
 again, and against a hypersonic missile it is only 30% of the result. Like CIWS,
 lasers are knocked out by superstructure damage. Lasers have unlimited
 magazines. Against air attacks (aircraft and drones) each laser mount adds 4
-to the ship's AA value, in any weather.
+to the ship's AA value; rain or mist halves that, and heavy seas halve it
+again, as for missiles.
 
 Laser counts (and future per-ship systems) are kept in a small extension of
 the native ship objects: designs and the ships built from them carry it into
@@ -907,6 +1009,73 @@ The mark is kept in the save with the doctrine choice.
 
 Tests: `Manager/test_nuclear_subs.py`, `Manager/test_shell_doctrine.py`.
 
+**Nuclear Armageddon** is a separate sub-mod (Library `nuclear-armageddon`,
+[NUCLEAR_ARMAGEDDON.md](NUCLEAR_ARMAGEDDON.md)): nuclear weapons without the
+one-a-battle limits, at the same prices, and nuclear warheads for heavy SSMs and
+heavy SAMs. Without it, everything above stands.
+
+## Nuclear strike console
+
+The battle screen has a red **NUKE** button right of the toolbar's last button
+(auto battle). It is greyed out unless your nation has **Ballistic missile
+submarines** (2337) and at least one SSBN in service (built and not lost).
+
+1. Click **NUKE**. The map cursor becomes a crosshair and the console opens
+   centred under the button (kept inside the window).
+2. Click the target area on the map, the way you pick a target for an air
+   strike. Two dashed red circles show the blast: 2,000 and 5,000 yards. The
+   console's TARGET reads MARKED and the TGT gauge fills. Click **TGT** (the
+   gauge, or the crosshair under it) to pick a new target at any time.
+3. Turn **KEY 1** and **KEY 2**: click each; it turns from SAFE to ARM (about
+   half a second) and the ARM gauge fills with both. Only both keys at ARM arm
+   the strike: STATUS reads ARMED and the LAUNCH button lights red. Click a
+   key again to turn it back.
+4. Click the **glass cover** over LAUNCH: it lifts. Click **LAUNCH** under it
+   to fire. **ABORT** closes the console without firing; the keys go back to
+   SAFE and the glass shuts (also after a launch).
+
+The console (460 x 284 at 96 DPI) shows the two keys, LAUNCH under its glass in
+the middle, the TGT and ARM gauges, and along the bottom SSBNs READY (your SSBNs
+built and not lost), the warhead cost, TARGET, STATUS, the message line and
+ABORT. Its pictures are `Mods/CampaignOverhaul/nuke_console/*.bmp`, drawn by
+`nuke_console_art.py` from the console's own layout; if they are missing the
+console still works, without them.
+
+The strike is a ballistic missile from one of your SSBNs, so no launcher needs
+to be in the battle. Aim at ships you can see: the log says "the missile
+detonates over empty sea" when nothing was within 5,000 yards.
+
+- **Warheads.** Click **WARHEAD** in the bottom strip to cycle them; the target
+  circles show the chosen warhead's reach:
+
+  | Warhead | Price | Every ship sinks within | Nuclear hit within |
+  | --- | ---: | ---: | ---: |
+  | A-BOMB | 1,500 | 2,000 yards | 5,000 yards |
+  | H-BOMB | 4,000 | 6,000 yards | 15,000 yards |
+  | MIRV (from 1970) | 6,000 | 2,000 yards a warhead | 5,000 yards a warhead |
+
+  A MIRV's 4 warheads go to the mark, then to enemy ships your side has
+  contact on (seen or on radar) within 40,000 yards of it, each outside the
+  earlier warheads' kill radius; fewer such ships, fewer warheads. A ship
+  that sinks is gone within the minute (no buoyancy, the game's own sinking
+  timer at one). Without the money nothing is fired.
+- **One a battle.** After the strike NUKE greys out until the battle ends.
+  With Nuclear Armageddon there is no limit.
+- **Blast.** Every ship within the hit radius, friend or foe, takes the nuclear
+  shell's hit (64 inch), and inside the kill radius it sinks; every air
+  formation within the hit radius loses its aircraft.
+  The battle log reports the detonation, and the map shows a fireball and a
+  growing shock ring for about eight seconds.
+- **Rules.** It is a nuclear missile in every other way: no strike while a ban
+  treaty you signed runs, it frees the computer's nuclear missiles (no first
+  use) and raises tension at the next turn (every turn checks since
+  2026-11-22; before, only the turns whose events ran the tension changes
+  did, so the news often never came). The Use nuclear SSBN tick box is not
+  needed: the console is your direct order.
+- Computer nations never use the console. Saves are not changed.
+
+Tests: `Manager/test_nuclear_strike.py`. Not yet tried in a live battle.
+
 ## Starting fleets and economies of the later starts
 
 **Fleets.** In 1947, 1960, 1980 and 2000 each nation starts with its real
@@ -932,6 +1101,12 @@ depressions) is on for the fast-growing economies of the time: Germany, Japan,
 Italy, France and the Soviet Union in 1947 and 1960 (Spain too in 1960), Japan,
 China and Spain in 1980, and China, India and the Southeast Asian Union in
 2000.
+
+**Scripted rebellions.** The game makes Cuba and the Philippines rebel, now and
+then, while Spain owns them. Where Spain is not a nation (the 2000
+superstates), its owner test matched an unowned region and the turn stopped
+with "Error in CheckForceOnForeignStations"; the rebellion now needs Spain to
+exist.
 
 ## Superstates (the 2000 start)
 

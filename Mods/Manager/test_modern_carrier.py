@@ -311,6 +311,17 @@ class UavRequestTests(unittest.TestCase):
             self.assertEqual(seen, [(role_seen, flag_seen, MAIN)], requested)
             self.assertEqual((world.get(flag, 1), world.reg("ESP")), (0, STACK+0x8000))
 
+    def test_a_prototype_that_did_not_load_is_skipped_not_named(self):
+        world = World(); n = world.info; asked = []
+        world.stubs[n["name_taken"]] = lambda: asked.append((world.reg("EAX"), world.get(world.reg("ESP")+4))) or 0
+        start = self.site(world, "prototype_nil")
+        self.run_from(world, start, n["prototype_skip"], EBX=0)                # nil: no name check, not added
+        self.assertEqual(asked, [])
+        model = DATA+0xD000; world.put(model+4, DATA+0xD100)
+        self.run_from(world, start, n["prototype_back"], EBX=model, EBP=STACK+0x9000)
+        self.assertEqual(asked, [(DATA+0xD100, STACK+0x9000)])                # name check with the parent frame
+        self.assertEqual(world.reg("ESP"), STACK+0x8000-4)                    # its frame argument left for POP ECX
+
     def test_uav_models_read_uav_in_the_aircraft_lists_and_a_uav_request_in_its_messages(self):
         world = World(); model = DATA+0xD000
         for role, mark, shown in ((3, sensors.UAV_MARK, carrier.UAV_ROLE), (3, 0, 3), (3, sensors.STEALTH_MARK, 3),
@@ -376,6 +387,11 @@ class ElectronicWarfareTests(unittest.TestCase):
                 self.assertEqual(world.reg("EAX") & 0xFF, aew if kind == carrier.AEW else ew, (hex(site), units))
                 self.assertEqual([world.reg(r) for r in ("EBX", "ESI", "EDI", "EBP", "ESP")],
                                  [0x2345, 0x4567, 0x5678, STACK+0xA000, STACK+0x8000])
+
+    def test_an_aew_squadron_no_longer_logs_cap_vectoring_every_intercept(self):
+        world = World(); world.vm.mem_write(CARRIER, bytes(0xA00)); self.squadrons(world, (CARRIER, 7, 6, 2))
+        self.execute(world, carrier.AEW_LOG, 0x962F5D, EAX=CARRIER)   # past the log call when the check says yes
+        self.assertEqual(world.reg("EIP"), 0x962F5D)
 
     def test_the_nearest_enemy_air_formation_is_returned(self):
         # formations: (side, aircraft, distance); the native routine always returned none

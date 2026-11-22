@@ -307,8 +307,102 @@ class QoLTests(unittest.TestCase):
         self.assertEqual((found["form_show"],found["spin_vmt"]),(self.info["form_show"]+delta,self.info["spin_vmt"]+delta))
         self.assertEqual((found["find_window"],found["ship_type"]),(self.info["find_window"]+delta,self.info["ship_type"]))
         self.assertEqual({k:v-delta for k,v in found["colony"].items()},self.info["colony"])
+        self.assertEqual((found["programme"]["main_var"],found["programme"]["building_text"],found["programme"]["count"]),
+                         (self.info["programme"]["main_var"]+delta,self.info["programme"]["building_text"]+delta,
+                          self.info["programme"]["count"]+delta))
         changed=bytearray(self.blob);changed[0x97ba3c-0x301000]^=1
         with self.assertRaises(ValueError):qol.discover(bytes(changed),0x301000)
+
+
+class BuildingProgrammeTests(unittest.TestCase):
+    """The government building programme counts only ships of the minimum size: the game's own count, run in the
+    emulator with the generated page and patches."""
+    PAGE,MAIN,NATIONS,ITEMS,STACK,RETURN=0x1200000,0x1301000,0x1302000,0x1302100,0x1508000,0x120f000
+    BB,BC,CA,CL,DD,SS,BIG,CRUISERS=0,1,3,4,9,14,18,19
+    PLAYER=[(BB,30000,False,0),(BB,26000,True,0),(BB,10000,True,0),(BC,28000,True,1),(CL,8000,False,0),(DD,1500,False,0)]
+    OTHER=[(BB,50000,False,0),(BC,40000,False,0),(CA,12000,False,0),(CL,6000,False,0)]
+
+    @classmethod
+    def setUpClass(cls):
+        cls.blob=(HERE/"native-designer-inspection.text.bin").read_bytes()
+        cls.info=qol.discover(cls.blob,0x301000)
+
+    def world(self,docks=30000,percent=60):
+        info=dict(self.info,settings=dict(self.info["settings"],build_programme_min_percent=percent))
+        m=Uc(UC_ARCH_X86,UC_MODE_32)
+        for address,size in ((0,0x1000),(0x300000,0x800000),(0x1200000,0x20000),(0x1300000,0x100000),(0x1500000,0x10000)):
+            m.mem_map(address,size)
+        m.mem_write(0x301000,self.blob)
+        image,sites=qol.programme_code(self.PAGE,info)
+        m.mem_write(self.PAGE,image)
+        for _,site,old,new in sites:
+            self.assertEqual(bytes(m.mem_read(site,len(old))),old); m.mem_write(site,new)
+        put=lambda address,value,size=4:m.mem_write(address,(value&(1<<8*size)-1).to_bytes(size,"little"))
+        p=info["programme"]
+        put(p["main_var"],self.MAIN); put(self.MAIN+0xAE4,self.NATIONS); put(self.NATIONS+4,self.ITEMS); put(self.NATIONS+8,2)
+        self.nations=[]
+        for i,ships in enumerate((self.PLAYER,self.OTHER)):
+            nation=0x1310000+i*0x10000; self.nations.append(nation)
+            put(self.ITEMS+4*i,nation); put(nation+0x11D,docks)
+            put(nation+0x109,nation+0x1000); put(nation+0x1004,nation+0x1100); put(nation+0x1008,len(ships))
+            for j,(kind,tons,building,cancelled) in enumerate(ships):
+                ship=nation+0x2000+j*0x100; put(nation+0x1100+4*j,ship)
+                put(ship+0x14,kind,1); put(ship+0x2B,tons); put(ship+0x41,0 if building else 1,1)
+                put(ship+0x25,50 if building else 100); put(ship+0x58,cancelled,1)
+        put(self.MAIN+0x3204,self.nations[0])
+        def boundary(vm,address,size,data):   # GetRemainingBuildTime: its error dialog would need ship data
+            if address==0x821B38:
+                sp=vm.reg_read(UC_X86_REG_ESP); vm.reg_write(UC_X86_REG_EAX,5)
+                vm.reg_write(UC_X86_REG_EIP,int.from_bytes(vm.mem_read(sp,4),"little")); vm.reg_write(UC_X86_REG_ESP,sp+4)
+        m.hook_add(UC_HOOK_CODE,boundary)
+        self.at={k:self.PAGE+v for k,v in qol.PROGRAMME_CODE.items()}
+        return m
+
+    def call(self,m,address,**registers):
+        m.mem_write(self.STACK-4,self.RETURN.to_bytes(4,"little"))
+        for name,value in dict(dict(EBX=0x2345,ESI=0x4567,EDI=0x5678,EBP=0x1509000,ESP=self.STACK-4),**registers).items():
+            m.reg_write(globals()["UC_X86_REG_"+name],value)
+        m.emu_start(address,self.RETURN,count=500000)
+        self.assertEqual([m.reg_read(r) for r in (UC_X86_REG_EBX,UC_X86_REG_ESI,UC_X86_REG_EBP,UC_X86_REG_ESP)],
+                         [0x2345,0x4567,0x1509000,self.STACK])
+        return m.reg_read(UC_X86_REG_EAX)
+
+    def test_the_minimum_is_a_share_of_the_world_average_in_service_capped_by_the_docks(self):
+        m=self.world()
+        minimum=lambda kind:self.call(m,self.at["minimum"],EAX=self.nations[0],EDX=kind)
+        # B, BB or BC in service: 30,000, 50,000, 40,000 t (building ships do not count): 60% of 40,000
+        self.assertEqual([minimum(self.BIG),minimum(self.BB),minimum(self.CRUISERS),minimum(self.DD),minimum(self.SS),
+                          minimum(self.CA)],[24000,24000,5100,900,0,7200])            # 60% of 8,666 t: 5,199.6
+        self.assertEqual(self.call(self.world(docks=20000),self.at["minimum"],EAX=self.nations[0],EDX=self.BIG),18000)
+        self.assertEqual(self.call(self.world(percent=75),self.at["minimum"],EAX=self.nations[0],EDX=self.BIG),27000)
+
+    def test_only_ships_of_the_minimum_size_count_at_the_review(self):
+        m=self.world()
+        count=self.info["programme"]["count"]
+        self.assertEqual(self.call(m,count,EAX=self.nations[0],EDX=self.BIG,ECX=0),2)        # the game alone: any size
+        self.assertEqual(self.call(m,self.at["counted"],EAX=self.nations[0],EDX=self.BIG,ECX=0),1)
+        self.assertEqual(self.call(m,count,EAX=self.nations[0],EDX=self.BIG,ECX=0),2)        # other counts stay native
+        self.assertEqual(int.from_bytes(m.mem_read(self.at["slot"],4),"little"),0)
+        for site in self.info["programme"]["reviews"]+(self.info["programme"]["shown"],):   # the three counts call it
+            self.assertEqual(site+5+struct.unpack("<i",m.mem_read(site+1,4))[0],self.at["counted"])
+
+    def line(self,m,kind):
+        put=lambda address,value,size=4:m.mem_write(address,(value&(1<<8*size)-1).to_bytes(size,"little"))
+        put(self.nations[0]+0x2B6,kind,1)
+        site=self.info["programme"]["line"]
+        for name,value in dict(EAX=0x11,EBX=0x2345,ESI=0x4567,EDI=self.MAIN,EBP=0x1509000,ESP=self.STACK).items():
+            m.reg_write(globals()["UC_X86_REG_"+name],value)
+        m.emu_start(site,site+5,count=200000)
+        self.assertEqual([m.reg_read(r) for r in (UC_X86_REG_EBX,UC_X86_REG_ESI,UC_X86_REG_EDI,UC_X86_REG_ESP)],
+                         [0x2345,0x4567,self.MAIN,self.STACK-4])
+        pointer=int.from_bytes(m.mem_read(self.STACK-4,4),"little")
+        return pointer,bytes(m.mem_read(pointer,2*int.from_bytes(m.mem_read(pointer-4,4),"little"))).decode("utf-16-le")
+
+    def test_the_main_screen_line_shows_the_minimum(self):
+        m=self.world()
+        self.assertEqual(self.line(m,self.BIG)[1]," (24,000 t or more) building")
+        self.assertEqual(self.line(m,self.DD)[1]," (900 t or more) building")
+        self.assertEqual(self.line(m,self.SS),(self.info["programme"]["building_text"]," building"))
 
 
 if __name__=="__main__":unittest.main(verbosity=2)

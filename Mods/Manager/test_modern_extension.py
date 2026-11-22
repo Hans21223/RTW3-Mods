@@ -22,7 +22,7 @@ class World:
     def __init__(self):
         self.vm = vm = Uc(UC_ARCH_X86, UC_MODE_32)
         for address, size in ((0, 0x1000), (0x300000, 0x800000), (DATA, 0x20000), (STACK, 0x10000),
-                              (HEAP, 0x10000), (CODE, 0x20000)):
+                              (HEAP, 0x10000), (CODE, 0x30000)):
             vm.mem_map(address, size)
         vm.mem_write(0x301000, BLOB)
         details = modern.discover(BLOB, 0x301000)

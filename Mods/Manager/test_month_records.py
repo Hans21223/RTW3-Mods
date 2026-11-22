@@ -22,11 +22,24 @@ class MonthRecordTests(unittest.TestCase):
         self.plans = records.plans(self.info, MAIN, TABLE)
 
     def test_every_reference_moves_by_one_constant(self):
-        self.assertEqual(len(self.plans), 52)
+        self.assertEqual(len(self.plans), 80)
         shifts = {(int.from_bytes(bytes.fromhex(p["replacement"]), "little")-int.from_bytes(bytes.fromhex(p["original"]),
                    "little")) & 0xFFFFFFFF for p in self.plans}
         self.assertEqual(shifts, {(TABLE-(MAIN+records.TABLE)) & 0xFFFFFFFF})
-        self.assertTrue(all(records.FIELDS[0] <= d < records.FIELDS[1] for _, d in self.info["sites"]))
+        fields = [d if d < 0x80000000 else (d+records.YEAR) & 0xFFFFFFFF for _, d in self.info["sites"]]
+        self.assertTrue(all(records.FIELDS[0] <= f < records.FIELDS[1] for f in fields))
+
+    def test_the_battle_result_screen_writes_its_record_in_the_moved_table(self):
+        # ShowResultScreen's lea eax,[eax+edx*4-0x2250D5] (EAX main+year*1200, EDX month*25): the record's string
+        # field (+0x10), which in April 2011 lay 24 KB past the window and crashed the screen.
+        site = next(p for p in self.plans if p["address"] == 0x895D80+3)
+        vm = Uc(UC_ARCH_X86, UC_MODE_32)
+        code = bytearray(BLOB[0x895D80-BASE:0x895D87-BASE]); code[3:7] = bytes.fromhex(site["replacement"])
+        vm.mem_map(0x895000, 0x1000); vm.mem_write(0x895D80, bytes(code))
+        for year, month in ((1890, 1), (1990, 12), (2011, 4), (2060, 12)):
+            vm.reg_write(UC_X86_REG_EAX, MAIN+year*records.ROW); vm.reg_write(UC_X86_REG_EDX, month*25)
+            vm.emu_start(0x895D80, 0x895D87)
+            self.assertEqual(vm.reg_read(UC_X86_REG_EAX), TABLE+(year-records.FIRST)*records.ROW+month*100+0x10, year)
 
     def store(self, year, month, value):
         """LoadMonthRecords' store mov [edx+ecx*4+field], eax as patched, for a row and month; returns the vm."""

@@ -199,9 +199,13 @@ def discover(blob, base):
     defence = modern_defence.discover(blob, base, normalized)
     import modern_carrier
     carrier = modern_carrier.discover(blob, base, normalized)
+    import modern_air_defence
+    air = modern_air_defence.discover(blob, base, normalized)
+    import nuclear_strike
+    strike = nuclear_strike.discover(blob, base, normalized)
     return {**layout, "getters": getters, "loader": loader, "sensors": sensors, "propulsion": propulsion, "railgun": railgun,
-            "extension": extension, "combat": combat, "recon": recon, "navy": navy, "ai": ai, "doctrine": doctrine, "subs": subs, "defence": defence, "carrier": carrier,
-            "new_technologies": len(nodes),
+            "extension": extension, "combat": combat, "recon": recon, "navy": navy, "ai": ai, "doctrine": doctrine, "subs": subs, "defence": defence, "carrier": carrier, "air": air,
+            "nuclear_strike": strike, "new_technologies": len(nodes),
             "applies_to": "all nations; only their own completed research flags",
             "save_format_changed": "older saves load with gun manufacture moved to record 24",
             "new_weapon_types": False, "campaign_balance_verified": False}
@@ -283,15 +287,20 @@ def build(allocation, details):
     import modern_extension   # its own page after the propulsion page
     extension_blocks, extension_plans, ext = modern_extension.build(page+0x2000, details["extension"])
     sensor_blocks += extension_blocks; sensor_plans += extension_plans
+    import modern_air_defence   # drones, hypervelocity AA and nuclear SAMs: the page after the auto-build bridge
+    air_page = page+0x13000
+    air = {name: air_page+offset for name, offset in modern_air_defence.OFFSETS.items()}
     import modern_carrier   # ski jump and VTOL: the page after the missile-flight page
     carrier_blocks, carrier_plans, carrier_sync = modern_carrier.build(page+0x11000, details["carrier"],
-                                                                       uav_request=page+modern_sensors.UAV_REQUEST)
+                                                                       uav_request=page+modern_sensors.UAV_REQUEST,
+                                                                       aew=air["aew"])
     sensor_blocks += carrier_blocks; sensor_plans += carrier_plans
     import modern_railgun   # six pages after it
     import nuclear_subs
     import modern_defence
     railgun_blocks, railgun_plans = modern_railgun.build(page+0x3000, details["railgun"], ext, page+0xD400,
                                                          carrier_sync=carrier_sync,
+                                                         propulsion_sync=page+0x1000+modern_propulsion.RANGE_SYNC,
                                                          nuclear_missile=page+0xF000+nuclear_subs.MISSILE_ENTRY,
                                                          cell_cost_at=page+0xFB00,   # free room in the submarines' page
                                                          asbm=page+0x10000+modern_defence.ASBM)
@@ -303,11 +312,20 @@ def build(allocation, details):
     sensor_blocks += doctrine_blocks; sensor_plans += doctrine_plans
     import nuclear_subs   # one more page: SSN and SSBN
     subs_blocks, subs_plans = nuclear_subs.build(page+0xF000, details["subs"], doctrine, page+0x10300,
-                                                  page+0x12000)
+                                                  page+0x12000, nuclear_ssm=air["nuclear_ssm"])
     sensor_blocks += subs_blocks; sensor_plans += subs_plans
     import modern_defence   # in the nuclear submarines' page, after their data and texts
-    defence_blocks, defence_plans = modern_defence.build(page+0xFC00, details["defence"], doctrine, page+0x10000)
+    defence_blocks, defence_plans = modern_defence.build(page+0xFC00, details["defence"], doctrine, page+0x10000,
+                                                         drones=air["drone_ship"], nuclear_sam=air["nuclear_sam"])
     sensor_blocks += defence_blocks; sensor_plans += defence_plans
+    air_blocks, air_plans = modern_air_defence.build(air_page, details["air"], page+0x11000+modern_carrier.HAS_SPECIAL,
+                                                     doctrine)
+    sensor_blocks += air_blocks; sensor_plans += air_plans
+    import nuclear_strike   # the battle's nuclear strike console: code, data, console code and text pages after the air defence page
+    strike_blocks, strike_plans = nuclear_strike.build(page+0x14000, page+0x15000, details["nuclear_strike"], doctrine, ext,
+                                                       page+0xF000+nuclear_subs.STRIKE_ENTRY, page+0xF000, page+0x16000,
+                                                       page+0x17000)
+    sensor_blocks += strike_blocks; sensor_plans += strike_plans
     import modern_combat   # one page after the railgun pages
     combat_blocks, combat_plans = modern_combat.build(page+0x9000, details["combat"], page+0x3000+modern_railgun.IS_HYPER, ext,
                                                       doctrine)
@@ -316,7 +334,7 @@ def build(allocation, details):
     recon_blocks, recon_plans = modern_recon.build(page+0xA000, details["recon"])
     sensor_blocks += recon_blocks; sensor_plans += recon_plans
     import modern_navy   # one page after recon
-    navy_blocks, navy_plans = modern_navy.build(page+0xB000, details["navy"], ext, doctrine)
+    navy_blocks, navy_plans = modern_navy.build(page+0xB000, details["navy"], ext, doctrine, drones=air["drone_ship"])
     sensor_blocks += navy_blocks; sensor_plans += navy_plans
     import ai_modern   # one page after navy: AI designs use the options above
     ai_blocks, ai_plans = ai_modern.build(page+0xC000, details["ai"], ext, page+0x3000+modern_railgun.POWER)
@@ -353,8 +371,9 @@ def verify(handle, plans, key):
 
 
 def runtime_allocation_size(details):
-    # Existing fixed runtime pages plus the player SSN/SSBN auto-build bridge.
-    return 0x1000*(len(details["getters"])+19)
+    # Existing fixed runtime pages, the player SSN/SSBN auto-build bridge, the air defence page and the four
+    # nuclear strike console pages (code, data, the console's code, its texts).
+    return 0x1000*(len(details["getters"])+24)
 
 
 def validate_runtime_blocks(blocks, allocation, size):

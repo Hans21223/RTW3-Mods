@@ -54,6 +54,10 @@ SITES = (("open_image", 0x69C479, "8b83d4040000"), ("open_button", 0x698EBB, "8b
          ("nations", 0x748E68, "8d45fcb93c927400"), ("map", 0x7B7879, "8d45ecb90c7a7b00"))   # reference bytes
 FILES = dict(nations=("\\Data\\BNat{}.dat", "bnat_1935", 0xFC, "after_nations"),           # name, native file,
              map=("\\Data\\MapData{}.dat", "mapdata_1920", 0xEC, "after_map"))             # [ebp+n] of the result
+# Scripted rebellions in CheckForceOnForeignStations: Cuba and the Philippines rise while Spain owns them, tested
+# as owner == GetBNationWithName("Spain") (ESI). Without Spain (the 2000 superstates) that is nil, an unowned
+# region matched it, and DoRebellion read the missing owner (+2BEh). (CMP ESI,[EAX+61h]; JNE skip, the skip)
+REBELLIONS = ((0x7C68EF, 0x7C6928), (0x7C6954, 0x7C698D))
 # In place: the 1935 option set and SetTechForYear(main, 1935) also serve later years (JNE -> JL), the latter
 # with the year itself (mov edx,[eax] before mov eax,[edi], instead of mov edx,1935).
 IN_PLACE = (("year options", 0x69C8CD, "7536", "7c36"),
@@ -104,6 +108,12 @@ def discover(blob, base):
         if normal[address-BASE:address-BASE+size].hex() != reference:
             raise ValueError("Start years refuse changed native code at "+hex(address))
         info["sites"].append(dict(name=name, address=address+delta, original=blob[address-BASE:address-BASE+size].hex()))
+    info["rebellions"] = []
+    for address, skip in REBELLIONS:
+        code = normal[address-BASE:address-BASE+5]
+        if code[:4] != b"\x3b\x70\x61\x75" or address+5+code[4] != skip:
+            raise ValueError("Start years refuse changed native code at "+hex(address))
+        info["rebellions"].append(dict(address=address+delta, skip=skip+delta, original=code.hex()))
     return info
 
 
@@ -208,4 +218,15 @@ def build(page, info):
     delta = info["click"]-0x69C6C4
     for label, address, old, new in IN_PLACE:
         plans.append(patch("Start years: "+label, address+delta, bytes.fromhex(old), bytes.fromhex(new)))
+    # The scripted rebellions need Spain to exist as well (after the strings): TEST ESI,ESI before the owner test.
+    cursor = (cursor+15) & ~15
+    for index, site in enumerate(info["rebellions"]):
+        c = Code(cursor); c.emit(b"\x85\xf6"); c.branch(b"\x0f\x84", site["skip"]); c.emit(b"\x3b\x70\x61")
+        c.branch(b"\x0f\x85", site["skip"]); c.branch(b"\xe9", site["address"]+5)
+        body = c.finish()
+        blocks.append(dict(name=f"rebellion {index+1}", address=cursor, bytes=body.hex()))
+        plans.append(patch(f"Start years: rebellion needs Spain {index+1}", site["address"], bytes.fromhex(site["original"]),
+                           b"\xe9"+struct.pack("<i", cursor-site["address"]-5)))
+        cursor += (len(body)+15) & ~15
+    if cursor > page+0x1000: raise ValueError("Start-year rebellion guards exceed their page.")
     return blocks, plans

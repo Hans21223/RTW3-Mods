@@ -97,11 +97,13 @@ SITES = (("list", 0x6E2B88, 5, "call"), ("kind", 0x6E46D4, 5, "jump"), ("build",
          ("player_auto", 0x7A9159, 5, "call"))
 COST_SITES = dict(cost_month="ebx", cost_list="esi", cost_built="ebx", cost_building="ebx", cost_dialog=None, cost_dialog2=None)
 MISSILE_ENTRY = 0x2C0                        # in the page: modern_railgun's missile-hit hook asks it (EBX missile, ESI ship)
+STRIKE_ENTRY = 0x440                         # in the page: strike (nuclear_strike hits ships with it)
 NATIVE = dict(monthly_balance=0x72D2EC, asg=0x30BCCC, cost=0x796D84, random=0x307834, damage_radar=0x918098, launch=0x876374, fill=0x6E323C, start=0x796B6C, has_research=0x729FA4, pos=0x30C958, cat=0x30C63C, list_get=0x3B6D6C,
-              ship_distance=0x8ECD20, angle=0x8ECB84, handle_hit=0x8F7068)
+              ship_distance=0x8ECD20, handle_hit=0x8F7068)
 SHIPS_LOAD = 0x8761E3
 LIST_ITEMS = (0x440, 0x2D8)                  # the dialog's list box, its Items; TStrings.Add is slot 3Ch
 SUB_NAME, SHOT_NAME, SHOT_KIND, SHOT_NATION = 4, 0x2C, 0x28, 0x3E   # tactical submarine; missile or torpedo object
+HEAVY_SSM = 31                               # a heavy SSM's code (its HandleHit calibre); 30 other, 32-33 medium, light
 SHIP = doctrine_rules.SHIP
 TEXTS = dict(list_ssn="Nuclear attack submarine (SSN)", list_ssbn="Ballistic missile submarine (SSBN)",
              find_ssn="SSN", find_ssbn="SSBN", mark_ssn=" SSN", mark_ssbn=" SSBN")
@@ -131,15 +133,16 @@ def discover(blob, base, normalized):
     return info
 
 
-def build(page, info, doctrine, spare, player_auto_page=None):
+def build(page, info, doctrine, spare, player_auto_page=None, nuclear_ssm=None):
     """Submarine hooks and text on the nuclear-sub page; the player auto-build bridge gets its own page.
-    doctrine: shell_doctrine's entry points (use_torpedo, use_missile, used)."""
+    doctrine: shell_doctrine's entry points (use_torpedo, use_missile, used, armageddon). nuclear_ssm:
+    modern_air_defence's nuclear_ssm(EBX missile) -> AL."""
     from campaign_security import Code
     from hull_rules import patch
     if player_auto_page is None:
         player_auto_page = page+0x12000
     at = dict(is_kind=page, list=page+0x80, kind=page+0x100, build=page+0x1C0, salvo=page+0x240,
-              missile=page+0x2C0, torpedo=page+0x380, strike=page+0x440, blast=page+0x4C0,
+              missile=page+MISSILE_ENTRY, torpedo=page+0x380, strike=page+STRIKE_ENTRY, blast=page+0x4C0,
               chosen=page+0x600, last=page+0x604, slot=page+0x60C, record=page+0x640, texts=page+0x800,
               player_auto=player_auto_page, player_auto_texts=player_auto_page+0x100,
               cost_scale=page+0x580, **{name: page+0xA00+0x20*i for i, name in enumerate(COST_SITES)})
@@ -207,9 +210,11 @@ def build(page, info, doctrine, spare, player_auto_page=None):
     c.mark("go"); c.branch(b"\xe9", n["launch"])
     code["salvo"] = c.finish()
 
-    # strike: EAX ship, EDX nation, ECX the firer's name, stack: calibre. A hit through HandleHit.
+    # strike: EAX ship, EDX nation, ECX the firer's name, stack: calibre. A hit through HandleHit, from a random
+    # bearing (a blast has no firing ship; GetIncomingBearing needs one in EDX, and its error handler then names a
+    # nation index as a ship: the 2026-11-21 ResolveMissileHit crashes).
     c = Code(at["strike"]); c.emit(b"\x53\x56\x57\x8b\xd8\x8b\xf2\x8b\xf9\xff\x74\x24\x10\x68"); c.u32(0x1388)
-    c.emit(b"\x6a\x00\x56\x6a\x01\x8b\xc3"); c.branch(b"\xe8", n["angle"]); c.emit(b"\x50\x6a\x00\x68"); c.u32(at["record"])
+    c.emit(b"\x6a\x00\x56\x6a\x01\xb8"); c.u32(360); c.branch(b"\xe8", n["random"]); c.emit(b"\x50\x6a\x00\x68"); c.u32(at["record"])
     c.emit(b"\x33\xd2\x8b\xcf\x8b\xc3"); c.branch(b"\xe8", n["handle_hit"]); c.emit(b"\x5f\x5e\x5b\xc2\x04\x00")
     code["strike"] = c.finish()
 
@@ -228,14 +233,21 @@ def build(page, info, doctrine, spare, player_auto_page=None):
     code["blast"] = c.finish()
 
     # A missile hit (EBX missile, ESI ship), asked by modern_railgun's hook on the hit's HandleHit call: AL = 1
-    # when it is nuclear (one hit of an SSBN's salvo, when the doctrine allows); the blast is done here.
+    # when it is nuclear (one hit of an SSBN's salvo, when the doctrine allows); the blast is done here. Under
+    # Nuclear Armageddon (shell_doctrine's armageddon flag) every SSBN hit may be, and so may a heavy SSM's
+    # (nuclear_ssm: modern_air_defence), both as the doctrine's nuclear missiles.
+    armageddon = doctrine.get("armageddon")
     c = Code(at["missile"]); c.emit(b"\x60\xb8\x64\x00\x00\x00"); c.branch(b"\xe8", n["random"])   # mission kill: the radar
     c.emit(b"\x83\xf8"+bytes([MISSION_KILL])); c.branch(b"\x0f\x8d", "radar"); c.emit(b"\x8b\xc6"); c.branch(b"\xe8", n["damage_radar"])
     c.mark("radar"); c.emit(b"\x8b\x43"+bytes([SHOT_NAME])); c.branch(b"\xe8", at["is_kind"]); c.emit(b"\x83\xf8\x02")
-    c.branch(b"\x0f\x85", "plain")                                                  # a salvo's missiles share one name string
-    c.emit(b"\x8b\x43"+bytes([SHOT_NAME])+b"\x39\x05"); c.u32(at["last"]); c.branch(b"\x0f\x84", "plain")
-    c.emit(b"\x8b\x53"+bytes([SHOT_NATION])); c.branch(b"\xe8", doctrine["use_missile"]); c.emit(b"\x84\xc0"); c.branch(b"\x0f\x84", "plain")
-    c.emit(b"\x8b\x43"+bytes([SHOT_NAME])+b"\xa3"); c.u32(at["last"]); c.emit(b"\xc7\x05"); c.u32(doctrine["used"]); c.u32(1)
+    c.branch(b"\x0f\x85", "heavy" if nuclear_ssm else "plain")
+    if armageddon: c.emit(b"\x80\x3d"); c.u32(armageddon); c.emit(b"\x00"); c.branch(b"\x0f\x85", "pay")
+    c.emit(b"\x8b\x43"+bytes([SHOT_NAME])+b"\x39\x05"); c.u32(at["last"]); c.branch(b"\x0f\x84", "plain")   # a salvo's missiles share one name string
+    c.mark("pay"); c.emit(b"\x8b\x53"+bytes([SHOT_NATION])); c.branch(b"\xe8", doctrine["use_missile"]); c.emit(b"\x84\xc0"); c.branch(b"\x0f\x84", "plain")
+    c.emit(b"\x8b\x43"+bytes([SHOT_NAME])+b"\xa3"); c.u32(at["last"]); c.branch(b"\xe9", "nuclear")
+    if nuclear_ssm:
+        c.mark("heavy"); c.branch(b"\xe8", nuclear_ssm); c.emit(b"\x84\xc0"); c.branch(b"\x0f\x84", "plain")
+    c.mark("nuclear"); c.emit(b"\xc7\x05"); c.u32(doctrine["used"]); c.u32(1)
     c.emit(b"\x8b\x53"+bytes([SHOT_NATION])+b"\x8b\x4b"+bytes([SHOT_NAME])+b"\x8b\xc6"); c.branch(b"\xe8", at["blast"])
     c.emit(b"\x61\xb0\x01\xc3")
     c.mark("plain"); c.emit(b"\x61\x33\xc0\xc3")

@@ -251,12 +251,12 @@ def aircraft(page, info, code, at, aesa_page, spare=None):
     # with tree.UAVS. The player's other floatplane scouts stay floatplanes.
     request = page+UAV_REQUEST
     c = Code(at["uav_check"]); c.emit(b"\x80\x7d\xf3\x03"); c.branch(b"\x0f\x85", "ret")
+    c.emit(b"\x81\x7d\xec"); c.u32(tree.UAV_YEAR); c.branch(b"\x0f\x8c", "ret")   # no UAV data rows before (player too)
     c.emit(b"\x8b\xc6\x8b\xd7"); c.branch(b"\xe8", info["nation"]); c.emit(b"\x85\xc0"); c.branch(b"\x0f\x84", "ret")
     c.emit(b"\x3b\x86"); c.u32(0x3204); c.branch(b"\x0f\x85", "computer")          # the player's nation
     c.emit(b"\x80\x3d"); c.u32(request); c.emit(b"\x00"); c.branch(b"\x0f\x84", "ret")
     c.branch(b"\xe9", "uav")
-    c.mark("computer"); c.emit(b"\x81\x7d\xec"); c.u32(tree.UAV_YEAR); c.branch(b"\x0f\x8c", "ret")
-    c.emit(b"\xba"); c.u32(tree.UAVS); c.branch(b"\xe8", info["has_research"]); c.emit(b"\x84\xc0"); c.branch(b"\x0f\x84", "ret")
+    c.mark("computer"); c.emit(b"\xba"); c.u32(tree.UAVS); c.branch(b"\xe8", info["has_research"]); c.emit(b"\x84\xc0"); c.branch(b"\x0f\x84", "ret")
     c.mark("uav"); c.emit(b"\x66\xc7\x05"); c.u32(lookup_flag); c.emit(bytes([UAV_MARK]*2))
     c.mark("ret"); c.emit(b"\xc3")
     uav_check = c.finish(); assert len(uav_check) <= at["uav_name"]-at["uav_check"]

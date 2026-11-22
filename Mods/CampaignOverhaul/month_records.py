@@ -6,10 +6,13 @@ inside its own 0x2245C bytes: 1890 to 1990. The native campaign stopped in 1990.
 beyond the object, over the next heap blocks (the campaign window's labels), and the VCL later crashed reading one of
 them in TControl.GetAction ("Access violation ... Read of address 6C000100", in DoTurn2 or DoStrategicTurn).
 
-All 52 instructions that index the table address it as [main + row*1200 + index*4 + field]; adding one constant to
-their 32-bit field offsets moves the whole table into a zeroed allocation for 1890 to 2060. No code addresses the
-table as a whole; only the window's compiler-made cleanup still walks the old place, where the strings in the
-records (fields +0x10 and +0x18) stay nil.
+All 80 instructions that index the table address it as [main + row*1200 + index*4 + field]: 52 with row = year-1900,
+28 with row = the year itself and field less 1900*1200 (the battle result screen and the battle window's close, peace
+talks and peace, revolutions, resigning). Adding one constant to their 32-bit field offsets moves the whole table
+into a zeroed allocation for 1890 to 2060. No code addresses the table as a whole; only the window's compiler-made
+cleanup still walks the old place, where the strings in the records (fields +0x10 and +0x18) stay nil.
+Until 2026-11-22 the 28 were missed: past 1990 every battle's result screen wrote beyond the window ("Error in
+ShowResultScreen ... Read of address C95DA410"), and so did every peace and revolution.
 """
 import hashlib
 import struct
@@ -23,7 +26,8 @@ TABLE = 0x4A7B                       # main + this: row -10 (1890), month 0, the
 FIRST, LAST, ROW = 1890, 2060, 1200  # years the moved table holds; bytes per year (12 months + month 0)
 MARGIN = 0x1000
 ALLOCATION = (MARGIN+(LAST-FIRST+1)*ROW+MARGIN+0xFFF) & ~0xFFF
-FIELDS = (0x795B, 0x79C0)            # field offsets in a month record, as the instructions hold them
+FIELDS = (0x794F, 0x79C0)            # field offsets in a month record, as row = year-1900 instructions hold them
+YEAR = 1900*ROW                      # what the calendar-year instructions take off their field offsets
 # (instruction, size, offset of its 32-bit field displacement): every reference to the table.
 SITES = ((0x6F1C03, 7, 3), (0x6F1E24, 8, 3), (0x6F1E51, 7, 3), (0x6F1E8E, 8, 3), (0x6F1EAF, 7, 3), (0x6F1ECA, 7, 3),
          (0x6F1F02, 8, 3), (0x6F21B7, 8, 3), (0x6F21DC, 7, 3), (0x6F2283, 8, 3), (0x6F22DE, 7, 3), (0x6F2343, 7, 3),
@@ -33,8 +37,15 @@ SITES = ((0x6F1C03, 7, 3), (0x6F1E24, 8, 3), (0x6F1E51, 7, 3), (0x6F1E8E, 8, 3),
          (0x7DA8E2, 7, 3), (0x7DA909, 7, 3), (0x7DA935, 7, 3), (0x7DA972, 7, 3), (0x7DA9A8, 7, 3), (0x7DAB58, 7, 3),
          (0x7DAB7E, 7, 3), (0x7DABA4, 7, 3), (0x7DABCA, 7, 3), (0x7DABF0, 7, 3), (0x7DAC16, 7, 3), (0x7DAC31, 7, 3),
          (0x7DAC57, 7, 3), (0x7DAC86, 7, 3), (0x7DDF2C, 7, 3), (0x7DFBCB, 7, 3), (0x81DE07, 8, 3), (0x81DE28, 7, 3),
-         (0x81DE41, 7, 3), (0x81DE5A, 7, 3), (0x81DE84, 7, 3), (0x81DE9F, 8, 3))
-DIGEST = "5e62165620b50ae3ca64119aa662e27c8f804e093b286c8a23cbe28c3515806e"   # the 52 instructions, normalized
+         (0x81DE41, 7, 3), (0x81DE5A, 7, 3), (0x81DE84, 7, 3), (0x81DE9F, 8, 3),
+         # by calendar year: NegotiatePeace, DoPeace, CheckForRevolutionInEnemyNation, resign, DoRevolutionInPlayerNation,
+         # ShowResultScreen, the battle window's FormClose
+         (0x78B419, 11, 3), (0x78B7BF, 11, 3), (0x78B8E5, 11, 3), (0x78B995, 11, 3), (0x78BAAB, 11, 3), (0x78BBD6, 11, 3),
+         (0x78C747, 8, 3), (0x78C77D, 11, 3), (0x78CD95, 8, 3), (0x79617D, 7, 3), (0x796238, 7, 3), (0x7AEC05, 8, 3),
+         (0x7AEC12, 11, 3), (0x7CFB9C, 11, 3), (0x895D80, 7, 3), (0x895DD8, 7, 3), (0x895E25, 7, 3), (0x895E52, 11, 3),
+         (0x895E81, 7, 3), (0x895EDF, 7, 3), (0x895F0F, 7, 3), (0x895F41, 7, 3), (0x89D873, 7, 3), (0x89D8AE, 8, 3),
+         (0x89D8FC, 7, 3), (0x89D950, 7, 3), (0x89D982, 7, 3), (0x89D9AD, 7, 3))
+DIGEST = "b0e3dc6313f1ea0df50757513f7b15724c3f5e49126106416be3a46ac7db3f7b"   # the 80 instructions, normalized
 
 
 def instructions(normal):

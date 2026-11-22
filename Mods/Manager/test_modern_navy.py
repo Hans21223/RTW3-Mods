@@ -11,8 +11,10 @@ from test_modern_combat import World, BLOB, SHIP, NATION, DATA, STACK, FRAME
 from test_modern_recon import execute, call
 import modern_extension as extension
 import modern_navy as navy
+import modern_railgun as rail
 import modern_research as modern
 import modern_tree as tree
+import shell_doctrine as sd
 
 NAVY = modern.discover(BLOB, 0x301000)["navy"]
 LIST, ITEMS, MOUNTS, TEXT, YEAR = DATA+0xD000, DATA+0xD100, DATA+0xD200, DATA+0xE000, DATA+0xE800
@@ -112,10 +114,25 @@ class NuclearShellTests(unittest.TestCase):
                 self.assertEqual((world.get(STACK+0x8000-4), world.reg("ESP")), (expected, STACK+0x8000-4), (owned, battery, main))
             self.assertEqual(bool(world.get(SHIP+size) & navy.NUCLEAR_USED_BIT), pushed[0] == calibre)
 
+    def test_every_hit_is_nuclear_under_armageddon(self):
+        ident, minimum, calibre = tree.NUCLEAR_SHELLS
+        size = extension.CLASSES["fighting"][1]
+        world = World({ident}); world.vm.mem_write(SHIP, bytes(0xE20)); world.put(SHIP+0x14, 3)
+        world.put(SHIP, extension.NATIVE["fighting_vmt"]); world.put(SHIP+size+4, extension.MAGIC ^ (SHIP+size))
+        world.put(SHIP+0x6D, 16); world.put(world.doctrine+sd.SLOTS*8+8, 1)            # Nuclear Armageddon's flag
+        funds = world.get(NATION+sd.FUNDS)
+        for _ in range(3):
+            execute(world, site("nuclear"), NAVY["nuclear_back"], EAX=SHIP, EDX=1)
+            self.assertEqual(world.get(STACK+0x8000-4), calibre)
+        self.assertEqual(world.get(NATION+sd.FUNDS), funds-3*sd.NUCLEAR_COST)
+
 
 class NuclearAATests(unittest.TestCase):
-    def heavy(self, owned, main=16, flags=3, lasers=None):
+    def heavy(self, owned, main=16, flags=3, lasers=None, helicopters=0, rain=False, sea=0):
         world = World(owned); world.vm.mem_write(SHIP, bytes(0xE20)); world.put(SHIP+0x14, 3); world.put(SHIP+0x6D, main)
+        world.put(SHIP+0x9E5, helicopters, 1)
+        world.put(NAVY["precipitation"], DATA+0x7100); world.put(DATA+0x7100, 1 if rain else rail.CLEAR_WEATHER, 1)
+        world.put(NAVY["sea"], DATA+0x7104); world.put(DATA+0x7104, sea)
         if lasers is not None:
             size = extension.CLASSES["fighting"][1]; world.put(SHIP, extension.NATIVE["fighting_vmt"])
             world.put(SHIP+size+4, extension.MAGIC ^ (SHIP+size)); world.put(SHIP+size, 0x100 | lasers)
@@ -139,6 +156,18 @@ class NuclearAATests(unittest.TestCase):
     def test_laser_mounts_add_aa_value_against_aircraft(self):
         self.assertEqual((self.heavy(set(), lasers=0), self.heavy(set(), lasers=3)), (10, 10+3*navy.LASER_AA))
         self.assertEqual(self.heavy({tree.NUCLEAR_SHELLS[0]}, lasers=8), 10+navy.NUCLEAR_HAA+8*navy.LASER_AA)
+
+    def test_rain_mist_and_heavy_seas_each_halve_laser_aa(self):
+        full = 4*navy.LASER_AA
+        self.assertEqual([self.heavy(set(), lasers=4, rain=rain, sea=sea)-10 for rain, sea in
+                          ((False, rail.SEA_ROUGH-1), (True, 0), (False, rail.SEA_ROUGH), (True, rail.SEA_ROUGH+2))],
+                         [full, full//2, full//2, full//4])
+
+    def test_interceptor_drones_add_aa_value_against_aircraft(self):
+        drones, _, value = tree.DRONE_SWARMS
+        self.assertEqual(self.heavy({drones}, main=5, helicopters=1), 10+value)
+        self.assertEqual((self.heavy(set(), main=5, helicopters=1), self.heavy({drones}, main=5)), (10, 10))
+        self.assertEqual(self.heavy({drones}, main=5, lasers=2, helicopters=1), 10+2*navy.LASER_AA+value)
 
 
 class BBVTests(unittest.TestCase):

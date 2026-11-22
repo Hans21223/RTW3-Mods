@@ -1,0 +1,19 @@
+{
+  "schema": 1,
+  "id": "nuclear-armageddon",
+  "name": "Nuclear Armageddon (unlimited nuclear weapons)",
+  "version": "1.0.0",
+  "author": "RTW3 Mod Manager",
+  "description": "Unlimited nuclear weapons at the same prices. Every hit of a 16-inch or larger main battery can be a nuclear shell, not only its first of a battle, and every missile hit of an SSBN salvo, not only one. Heavy SSMs and heavy SAMs get nuclear warheads with the Nuclear gun projectiles research: a nuclear heavy SSM hits like a nuclear shell, with the blast; a nuclear heavy SAM shoots down the incoming missile it engages, and a hit on an air strike destroys or damages up to 10 aircraft. Light and medium SAMs and SSMs and smaller guns stay conventional. The doctrine's nuclear missiles tick box now reads Use nuclear SSBN, SSM, SAM (1500 each). The battle map's NUKE console strikes any number of times, not once a battle. Your tick boxes, the prices, no first use by computer nations, the tension and the ban treaty all stay. Needs Expanded Timeline; restart through Play with mods. Details: Mods/Manager/NUCLEAR_ARMAGEDDON.md.",
+  "kind": "runtime",
+  "experimental": true,
+  "requires": [
+    "timeline-2030"
+  ],
+  "conflicts": [],
+  "overrides": [],
+  "files": [],
+  "runtime": {
+    "adapter": "nuclear-armageddon"
+  }
+}

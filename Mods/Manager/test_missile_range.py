@@ -145,10 +145,70 @@ class MissileRangeRegressionTests(unittest.TestCase):
         self.assertTrue(w.corrected['native_sam_surface_fire_preserved'])
         self.assertEqual(bytes(w.vm.mem_read(0x87945A,5)),self.blob[0x87945A-BASE:0x87945A-BASE+5])
 
-    def test_native_selector_no_contacts_does_not_scan_global_hidden_ships(self):
+    def test_native_selector_without_missile_research_does_not_scan_the_ship_list(self):
         w=self.world();w.see(SHIP,[])
-        # The global world list remains an intentionally unreadable pointer.
+        # The global world list remains an unreadable pointer: the fallback needs the nation's research first.
         w.call(w.info['selector'])
+
+    def test_the_global_search_runs_again_but_never_picks_a_friendly_ship(self):
+        from unicorn import Uc,UC_ARCH_X86,UC_MODE_32,UC_HOOK_CODE
+        w=self.world()
+        self.assertEqual(bytes(w.vm.mem_read(0x87730A,10)),self.blob[0x87730A-BASE:0x87730A-BASE+10])   # not skipped
+        patched=bytearray(self.blob)
+        for p in w.corrected['patches']:
+            new=bytes.fromhex(p['replacement']);patched[p['address']-BASE:p['address']-BASE+len(new)]=new
+        def landing(code,side):   # from the candidate's side check: 0x8775B4 next ship, 0x8773D2 goes on as a target
+            vm=Uc(UC_ARCH_X86,UC_MODE_32);vm.mem_map(0x300000,0x800000);vm.mem_map(STACK,0x10000);vm.mem_map(DATA,0x40000)
+            vm.mem_write(0x301000,bytes(code))
+            shooter,candidate,frame=DATA+0x1000,DATA+0x2000,STACK+0x9000
+            vm.mem_write(shooter+0xA55,struct.pack('<I',0));vm.mem_write(candidate+0xA55,struct.pack('<I',side))
+            vm.mem_write(frame-8,struct.pack('<II',shooter,candidate))
+            vm.reg_write(UC_X86_REG_EBP,frame);vm.reg_write(UC_X86_REG_ESP,STACK+0x8000)
+            stops=[]
+            def hook(m,a,size,_):
+                if a==0x307834:   # Random(500) gives 1: the native one-in-500 friendly target
+                    sp=m.reg_read(UC_X86_REG_ESP);m.reg_write(UC_X86_REG_EAX,1)
+                    m.reg_write(UC_X86_REG_EIP,int.from_bytes(m.mem_read(sp,4),'little'));m.reg_write(UC_X86_REG_ESP,sp+4)
+                elif a in (0x8775B4,0x8773D2):stops.append(a);m.emu_stop()
+            vm.hook_add(UC_HOOK_CODE,hook);vm.emu_start(0x8773AD,0,count=20)
+            return stops[0]
+        self.assertEqual([landing(self.blob,side) for side in (0,1)],[0x8773D2,0x8773D2])
+        self.assertEqual([landing(patched,side) for side in (0,1)],[0x8775B4,0x8773D2])
+
+    def test_missile_blind_fire_answers_a_launch_for_ten_minutes(self):
+        from unicorn import Uc,UC_ARCH_X86,UC_MODE_32,UC_HOOK_CODE
+        w=self.world();built=w.corrected
+        vm=Uc(UC_ARCH_X86,UC_MODE_32)
+        for a,n in ((0x300000,0x800000),(CODE,0x20000),(DATA,0x40000),(STACK,0x10000)):vm.mem_map(a,n)
+        vm.mem_write(0x301000,self.blob)
+        for b in built['blocks']:vm.mem_write(b['address'],bytes.fromhex(b['bytes']))
+        for p in built['patches']:vm.mem_write(p['address'],bytes.fromhex(p['replacement']))
+        clock,launcher,other,frame=DATA+0x800,DATA+0x10000,DATA+0x20000,STACK+0x9000
+        vm.mem_write(w.info['minute_slot'],struct.pack('<I',clock))
+        def put(a,v):vm.mem_write(a,struct.pack('<I',v))
+        def run(start,stops,**regs):
+            for r,v in regs.items():vm.reg_write(globals()['UC_X86_REG_'+r],v)
+            vm.reg_write(UC_X86_REG_ESP,STACK+0x8000);hit=[]
+            def hook(m,a,size,_):
+                if a in stops:hit.append(a);m.emu_stop()
+            h=vm.hook_add(UC_HOOK_CODE,hook);vm.emu_start(start,0,count=1000);vm.hook_del(h)
+            return hit[0]
+        put(clock,100)
+        self.assertEqual(run(0x876374,(0x87637A,),ECX=launcher+0xA1C),0x87637A)   # FireSSM: recorded, native body next
+        sighted,helper=0x8773ED,0x8773DE                                               # the search's two ways on
+        for now,seen,landing in ((100,0,sighted),(110,0,sighted),(111,0,helper),(99,0,helper),(130,2,sighted)):
+            put(clock,now);put(launcher+0xD55,seen);put(frame-4,launcher)
+            self.assertEqual(run(0x8773D2,(helper,sighted),EBP=frame),landing,(now,seen))
+        put(clock,100);put(other+0xD55,0);put(frame-4,other)
+        self.assertEqual(run(0x8773D2,(helper,sighted),EBP=frame),helper)              # never launched: native check
+        # A new battle (its clock starts again) forgets the last one's launches: its ships may reuse their addresses.
+        run(0x876374,(0x87637A,),ECX=launcher+0xA1C)
+        self.assertEqual(vm.reg_read(UC_X86_REG_ECX),launcher+0xA1C)                  # FireSSM keeps its ECX
+        put(clock,0);self.assertEqual(run(0x8773D2,(helper,sighted),EBP=frame),helper)
+        put(clock,104);put(launcher+0xD55,0);put(frame-4,launcher)
+        self.assertEqual(run(0x8773D2,(helper,sighted),EBP=frame),helper)              # minute 100 was the last battle's
+        run(0x876374,(0x87637A,),ECX=launcher+0xA1C);put(clock,106)
+        self.assertEqual(run(0x8773D2,(helper,sighted),EBP=frame),sighted)             # this battle's launch counts
 
     def test_real_native_missile_launch_and_ammo_consumption(self):
         for mode in (4,5):
@@ -217,7 +277,7 @@ class MissileRangeRegressionTests(unittest.TestCase):
             value=struct.unpack_from('<I',blob,offset)[0]
             struct.pack_into('<I',blob,offset,(value+delta)&0xFFFFFFFF)
         info=missile_range.discover(bytes(blob),BASE+delta)
-        self.assertEqual(info['world_site'],0x87730A+delta)
+        self.assertEqual(info['friendly_site'],0x8773C1+delta)
         for address,_,_ in missile_range.WINDOWS:
             changed=bytearray(self.blob);changed[address-BASE]^=1
             with self.assertRaises(ValueError):missile_range.discover(bytes(changed),BASE)

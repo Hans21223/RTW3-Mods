@@ -64,6 +64,7 @@ WINDOWS = (
     (0x62B92D, 0x0F, "86c3b77cc17d212df9a6b5556f6926ded5e3c81cab22b20ab1dbbc2821ddb87d"),   # role in the types dialog, prototype choice
     (0x7EB9F5, 0x0F, "513db1c2f4cb75ca78453187c2a66dc4ead5665cb7a115a158e9e6bde8ed6fbf"),   # request completion: prototypes ready
     (0x7EBBE4, 0x0F, "e658e99346b96aabf0a3e8ab951cb4f98e1e2458cce748079938ada6b8cc7ed5"),   # request completion: no prototype
+    (0x7EB8E2, 0xEA, "4535b8263a4a6de2ecc0aa4b6bbe2c460d754d8a179c2a8e8e106046fb1d0d45"),   # request: the prototype loop
     (0x97D068, 0x20, "8b9c0bf8e427687f28a49ba514bed3d9c98b8ab21a02d8fa58e371baa27c942b"),   # SAMs against aircraft: the end
     (0x977788, 0x7F, "694d93e42719ceea820794b7531198dc6985c9ee2cd572b8b1ef060a12eae9b6"),   # nearest enemy air formation
 )
@@ -78,7 +79,8 @@ NATIVE = dict(has_research=0x729FA4, nation=0x750040, message=0x4D7124, recomput
               ai_back=0x9579DB, dec_min=0x587744, av_ok=0x97D4DD, av_refuse=0x97D4B7, add_role=0x628CAC,
               list_back=0x628D7D, can_develop=0x734BC8, role_from_name=0x9708B8, store_back=0x62891F,
               role_default=0x970388, role_jump=0x970263, complete=0x7EB810, air_units=0x9F7834, list_get=0x3B6D6C,
-              special_min=0x97C9F8, has_special=0x91ABB8, battle_log=0xA80114, sam_air_back=0x97D07E)
+              special_min=0x97C9F8, has_special=0x91ABB8, battle_log=0xA80114, sam_air_back=0x97D07E,
+              prototype_skip=0x7EB9C3, name_taken=0x7EB788, prototype_back=0x7EB917)
 UAV_ROLE, SCOUT = 16, 3            # the request byte's UAV value; the floatplane scout role
 REQUEST = 0x4AA8                   # main campaign object: the player's requested aircraft role (byte)
 AI_JETS = 0x718                     # the native research the AI designer asks before making a deck jet capable
@@ -94,12 +96,16 @@ SITES = (("space", 0x82AA75, 9), ("unit", 0x63106B, 9), ("type", 0x633F64, 9),
          ("av_rule", 0x97D4B2, 5), ("request_list", 0x628D74, 9), ("request_role", 0x6288E0, 5),
          ("request_store", 0x628919, 6), ("role_name", 0x97025A, 9), ("request_done", 0x7EBF87, 5),
          ("types_role", 0x61988C, 7), ("item_role", 0x62B92D, 7), ("ready_role", 0x7EB9F5, 7), ("none_role", 0x7EBBE4, 7),
-         ("sam_air", 0x97D077, 7))
+         ("sam_air", 0x97D077, 7), ("prototype_nil", 0x7EB90E, 9))
 CALLS = ("request_role", "request_done", "types_role", "item_role", "ready_role", "none_role")   # call sites
 # The battle's HasSpecialSquadron(EAX carrier) calls, by the squadron they need (the rescue call stays native).
 AEW, EW = 1, 2
-SPECIAL = ((0x91973A, AEW), (0x962EAE, AEW), (0x962EE8, AEW), (0x962F2B, AEW),   # radar; CAP vectoring x3
-           (0x962FA9, EW), (0x97CF30, EW))                                       # enemy ECM against CAP; against SAMs
+HAS_SPECIAL = 0xC40   # page offset of has_special(EAX carrier, ECX kind) -> AL (modern_air_defence's AEW check calls it)
+SPECIAL = ((0x91973A, AEW), (0x962EAE, AEW), (0x962EE8, AEW),   # radar; CAP vectoring x2
+           (0x962FA9, EW), (0x97CF30, EW))                       # enemy ECM against CAP; against SAMs
+# CAPIntercept's third AEW check only logs "AEW improves CAP vectoring", once per CAP intercept: with AEW on every
+# carrier that was most of a battle's log (27,980 of 32,075 lines), so it now answers no and logs nothing.
+AEW_LOG = 0x962F2B
 SPECIAL_ROLE = 7   # a battle air unit's mission (+40h) when it is the carrier's special squadron
 # NearestEnemyAir(EAX side, EDX fewest aircraft, ECX point): after "cmp edi,eax / jle" a closer formation (EBX) only
 # recomputed the distance; it now keeps it (mov edi,eax) and becomes the result (mov [esp+4],ebx).
@@ -142,7 +148,7 @@ def discover(blob, base, normalized):
         raise ValueError("Ski jump refuses changed native code: the nearest enemy air formation.")
     info["nearest_air"] = NEAREST_AIR[0]+delta
     info["special"] = []
-    for site, kind in SPECIAL:
+    for site, kind in SPECIAL+((AEW_LOG, None),):
         code = blob[site-BASE:site-BASE+5]
         if code[:1] != b"\xe8" or site+5+struct.unpack_from("<i", code, 1)[0] != NATIVE["has_special"]:
             raise ValueError("Ski jump refuses changed native code: a special squadron check.")
@@ -152,16 +158,17 @@ def discover(blob, base, normalized):
     return info
 
 
-def build(page, info, uav_request=None):
+def build(page, info, uav_request=None, aew=None):
     """One page: designer routines, VTOL checks and texts. Returns (blocks, plans, sync): sync(EAX form) is called
-    from the railgun designer sync (modern_railgun's refresh chain)."""
+    from the railgun designer sync (modern_railgun's refresh chain). aew: modern_air_defence's AEW check, which
+    the battle's AEW squadron calls reach instead (it asks has_special, at page+HAS_SPECIAL, first)."""
     from campaign_security import Code
     n, F, V = info, FORM, VCL
     at = dict(sync=page, find=page+0x100, create=page+0x140, click=page+0x200, vtol=page+0x300, space=page+0x380,
               unit=page+0x3C0, type=page+0x400, stobar=page+0x440, ai=page+0x480, av_rule=page+0x540,
               request_list=page+0x580, request_role=page+0x600, request_store=page+0x640, role_name=page+0x6A0,
               request_done=page+0x6E0, types_role=page+0x720, item_role=page+0x728, role_of=page+0x730,
-              ready_role=page+0x760, none_role=page+0x760, texts=page+0x800, has_special=page+0xC40,
+              ready_role=page+0x760, none_role=page+0x760, prototype_nil=page+0x780, texts=page+0x800, has_special=page+HAS_SPECIAL,
               has_aew=page+0xCE0, has_ew=page+0xCF0, sam_air=page+0xD00)
     texts, blocks, offset = {}, [], at["texts"]
     for key, text in TEXT.items():
@@ -379,7 +386,10 @@ def build(page, info, uav_request=None):
     c.mark("out"); c.emit(b"\x5d\x5f\x5e\x5b\xc3")
     code["has_special"] = c.finish()
     for name, kind in (("has_aew", AEW), ("has_ew", EW)):
-        c = Code(at[name]); c.emit(b"\xb9"); c.u32(kind); c.branch(b"\xe9", at["has_special"]); code[name] = c.finish()
+        c = Code(at[name])
+        if name == "has_aew" and aew: c.branch(b"\xe9", aew)
+        else: c.emit(b"\xb9"); c.u32(kind); c.branch(b"\xe9", at["has_special"])
+        code[name] = c.finish()
     # SAMs against an air formation, at the end of their effectiveness (EBX, ESI the ship, [EBP-8] the formation):
     # SEAD research of the formation's nation cuts it, each research its percent; the log notes ARMs and pods.
     c = Code(at["sam_air"]); c.emit(b"\x57")
@@ -401,6 +411,12 @@ def build(page, info, uav_request=None):
     c.branch(b"\x0f\x84", "ret"); c.emit(b"\xb8"); c.u32(UAV_ROLE)
     c.mark("ret"); c.emit(b"\xc3")
     code["ready_role"] = c.finish()
+    # ResolveAircraftRequest after each CreateAircraftPrototype (EBX, in place of PUSH EBP / MOV EAX,[EBX+4] / CALL
+    # the name check): a prototype whose aircraft data did not load is nil; it is skipped as the game skips the
+    # prototypes it discards, instead of crashing the turn ("Read of address 00000004").
+    c = Code(at["prototype_nil"]); c.emit(b"\x85\xdb"); c.branch(b"\x0f\x84", n["prototype_skip"])
+    c.emit(b"\x55\x8b\x43\x04"); c.branch(b"\xe8", n["name_taken"]); c.branch(b"\xe9", n["prototype_back"])
+    code["prototype_nil"] = c.finish()
     for name, body in code.items():
         end = min([a for a in at.values() if a > at[name]], default=page+0x1000)
         if at[name]+len(body) > end: raise ValueError("Ski jump code overlaps: "+name)
@@ -412,6 +428,10 @@ def build(page, info, uav_request=None):
     plans.append(patch("Ski jump: nearest enemy air formation returned", n["nearest_air"], bytes.fromhex(NEAREST_AIR[1]),
                        bytes.fromhex(NEAREST_AIR[2])))
     for site in n["special"]:
+        if site["kind"] is None:   # AEW_LOG: XOR EAX,EAX in place of the call, so the log is skipped
+            plans.append(patch("Ski jump: no AEW vectoring log", site["address"], bytes.fromhex(site["original"]),
+                               b"\x33\xc0"+b"\x90"*3))
+            continue
         target = at["has_aew" if site["kind"] == AEW else "has_ew"]
         plans.append(patch("Ski jump: special squadron "+("AEW" if site["kind"] == AEW else "EW"), site["address"],
                            bytes.fromhex(site["original"]), b"\xe8"+struct.pack("<i", target-site["address"]-5)))

@@ -155,7 +155,7 @@ class SubTests(unittest.TestCase):
         blocks, _, _ = modern.build(base, DETAILS)
         size = modern.runtime_allocation_size(DETAILS)
         modern.validate_runtime_blocks(blocks, base, size)
-        self.assertEqual(size, 0x1D000)
+        self.assertEqual(size, 0x22000)   # with the nuclear strike console's own code and text pages
 
     def test_the_list_gains_the_researched_kinds(self):
         w = self.world
@@ -247,14 +247,15 @@ class SubTests(unittest.TestCase):
         for ship in ships: w.vm.mem_write(ship, bytes(0xE20))
         w.stubs[n["list_get"]] = lambda: ships[w.reg("EDX")]
         w.stubs[n["ship_distance"]] = lambda: {NEAR: 1200, FAR: 1600}[w.reg("EDX")]
-        w.stubs[n["angle"]] = lambda: 0x40
+        # GetIncomingBearing needs the firing ship in EDX, which a blast has not: the bearing is Random(360).
+        w.stubs[0x8ECB84] = lambda: self.fail("strike asked GetIncomingBearing without a firing ship")
         def hit():
             sp = w.reg("ESP")
             hits.append((w.reg("EAX"), self.text(w.reg("ECX")), w.reg("EDX"), struct.unpack("<8I", w.vm.mem_read(sp+4, 32))))
             w.put(sp+32, w.get(sp)); w.vm.reg_write(UC_X86_REG_ESP, sp+32); return 0
         w.stubs[n["handle_hit"]] = hit
         self.roll, self.radar = 99, []
-        w.stubs[n["random"]] = lambda: self.roll
+        w.stubs[n["random"]] = lambda: 0x40 if w.reg("EAX") == 360 else self.roll
         w.stubs[n["damage_radar"]] = lambda: self.radar.append(w.reg("EAX")) or 0
         return hits
 
@@ -285,6 +286,32 @@ class SubTests(unittest.TestCase):
         self.assertEqual(self.call(entry, EBX=SHOT+0x1000, ESI=TARGET) & 0xFF, 0)                    # an ordinary boat
         w.put(w.doctrine+4, sd.TORPEDO); w.put(SHOT+0x2000+subs.SHOT_NAME, TEXT+12); w.put(SHOT+0x2000+subs.SHOT_NATION, 3)
         self.assertEqual(self.call(entry, EBX=SHOT+0x2000, ESI=TARGET) & 0xFF, 0)                    # not allowed
+
+    def test_under_armageddon_every_ssbn_hit_and_heavy_ssm_hits_are_nuclear(self):
+        w = self.world
+        hits = self.battle()
+        entry, armageddon = self.at["missile"], self.used+4
+        w.owned = {tree.SSN, tree.SSBN, tree.NUCLEAR_SHELLS[0]}
+        heavy = SHOT+0x2000
+        w.put(heavy+subs.SHOT_NAME, self.string(TEXT+0x100, "CGN Kirov")); w.put(heavy+subs.SHOT_NATION, 3)
+        w.put(heavy+subs.SHOT_KIND, subs.HEAVY_SSM)
+        self.assertEqual(self.call(entry, EBX=heavy, ESI=TARGET) & 0xFF, 0)                          # without the sub-mod
+        w.put(armageddon, 1)
+        funds = w.get(NATION+sd.FUNDS)
+        name = self.string(TEXT, "SSG S-9 SSBN")
+        for shot in (SHOT, SHOT+0x1000):                                                            # two hits of one salvo
+            w.put(shot+subs.SHOT_NAME, name); w.put(shot+subs.SHOT_NATION, 3)
+            self.assertEqual(self.call(entry, EBX=shot, ESI=TARGET) & 0xFF, 1)
+        for kind, expected in ((subs.HEAVY_SSM, 1), (32, 0), (30, 0)):
+            w.put(heavy+subs.SHOT_KIND, kind)
+            self.assertEqual(self.call(entry, EBX=heavy, ESI=TARGET) & 0xFF, expected, kind)
+            self.assertEqual((w.reg("EBX"), w.reg("ESI"), w.reg("ESP")), (heavy, TARGET, STACK+0x8000))
+        self.assertEqual((w.get(NATION+sd.FUNDS), w.get(self.used)), (funds-3*sd.MISSILE_COST, 1))
+        self.assertEqual([h[0] for h in hits], [NEAR]*3)                                            # each one blasts
+        w.put(heavy+subs.SHOT_KIND, subs.HEAVY_SSM); w.owned = {tree.SSN, tree.SSBN}
+        self.assertEqual(self.call(entry, EBX=heavy, ESI=TARGET) & 0xFF, 0)                          # no warhead research
+        w.owned = {tree.NUCLEAR_SHELLS[0]}; w.put(w.doctrine+4, sd.TORPEDO)
+        self.assertEqual(self.call(entry, EBX=heavy, ESI=TARGET) & 0xFF, 0)                          # not chosen
 
     def test_an_ssn_torpedo_hit_is_nuclear_once(self):
         w = self.world

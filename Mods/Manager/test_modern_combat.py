@@ -17,13 +17,13 @@ import modern_tree as tree
 BLOB = (HERE/"native-designer-inspection.text.bin").read_bytes()
 CODE, DATA, STACK = 0x2000000, 0x1300000, 0x1500000
 SHIP, TARGET, NATION, MAIN, OBJECT = DATA+0x1000, DATA+0x2000, DATA+0x8000, DATA+0x9000, DATA+0xB000
-FRAME, PRELUDE, CHANCE = STACK+0x9000, CODE+0x1F000, CODE+0x1F100
+FRAME, PRELUDE, CHANCE = STACK+0x9000, CODE+0x2F000, CODE+0x2F100   # past the modern research allocation
 
 
 class World:
     def __init__(self, owned=()):
         self.vm = vm = Uc(UC_ARCH_X86, UC_MODE_32)
-        for address, size in ((0, 0x1000), (0x300000, 0x800000), (DATA, 0x20000), (STACK, 0x10000), (CODE, 0x20000)):
+        for address, size in ((0, 0x1000), (0x300000, 0x800000), (DATA, 0x20000), (STACK, 0x10000), (CODE, 0x30000)):
             vm.mem_map(address, size)
         vm.mem_write(0x301000, BLOB)
         details = modern.discover(BLOB, 0x301000)

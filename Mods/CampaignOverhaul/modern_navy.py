@@ -88,6 +88,8 @@ def discover(blob, base, normalized):
     info["main"] = struct.unpack_from("<I", blob, combat.MAIN_LOAD-BASE+1)[0]
     info["year"] = struct.unpack_from("<I", blob, YEAR_LOAD-BASE+1)[0]
     info["aa_values"] = AA_VALUES+delta
+    import modern_railgun as rail   # the battle's weather, which its laser missile layer reads too
+    info["precipitation"], info["sea"] = rail.NATIVE["precipitation"]+delta, rail.NATIVE["sea"]+delta
     if any(blob[at-BASE] != 0xE8 or at+5+struct.unpack_from("<i", blob, at-BASE+1)[0] != 0x950090 for at in BBV_TACTICAL):
         raise ValueError("Modern fleet: unexpected carrier check in battle tactics.")
     info["bbv_tactical"] = [at+5+delta for at in BBV_TACTICAL]   # return addresses
@@ -99,7 +101,8 @@ def discover(blob, base, normalized):
 def literal(text): return struct.pack("<HHiI", 1200, 2, -1, len(text))+text.encode("utf-16-le")+b"\0\0"
 
 
-def build(page, info, ext, doctrine=None):
+def build(page, info, ext, doctrine=None, drones=None):
+    """drones: modern_air_defence's drone_ship(EAX ship) -> AL."""
     from campaign_security import Code   # imported late: campaign_security imports modern_research
     at = dict(asw=page, composite=page+0x100, weight=page+0x180, cost=page+0x1C0, fire=page+0x200,
               usv_name=page+0x240, usv_design=page+0x2C0, quiet=page+0x340, nuclear=page+0x600, type_name=page+0x3C0,
@@ -180,7 +183,10 @@ def build(page, info, ext, doctrine=None):
     c = Code(at["nuclear"]); c.emit(b"\x60\x8b\xd8\x83\xfa\x01"); c.branch(b"\x0f\x85", "no")
     c.emit(b"\x83\x7b\x6d"+bytes([minimum])); c.branch(b"\x0f\x8c", "no")
     c.emit(b"\x8b\xc3"); c.branch(b"\xe8", ext); c.emit(b"\x85\xc0"); c.branch(b"\x0f\x84", "no"); c.emit(b"\x8b\xf0")
+    if doctrine and "armageddon" in doctrine:   # Nuclear Armageddon: every hit, not one a battle
+        c.emit(b"\x80\x3d"); c.u32(doctrine["armageddon"]); c.emit(b"\x00"); c.branch(b"\x0f\x85", "unlimited")
     c.emit(b"\xf7\x06"); c.u32(NUCLEAR_USED_BIT); c.branch(b"\x0f\x85", "no")
+    c.mark("unlimited")
     combat.researched(c, n, b"\x8b\x53\x14", ident, "asked"); c.emit(b"\x84\xc0"); c.branch(b"\x0f\x84", "no")
     if doctrine:   # shell_doctrine.py: the nation may fire it and pays; the hit also strikes ships near the target
         c.emit(b"\x8b\x53\x14"); c.branch(b"\xe8", doctrine["use_nuclear"]); c.emit(b"\x84\xc0"); c.branch(b"\x0f\x84", "no")
@@ -201,11 +207,21 @@ def build(page, info, ext, doctrine=None):
     if doctrine:
         c.emit(b"\x8b\x53\x14"); c.branch(b"\xe8", doctrine["may_nuclear"]); c.emit(b"\x84\xc0"); c.branch(b"\x0f\x84", "lasers")
     c.emit(b"\xa1"); c.u32(slots+8); c.emit(b"\x83\x00"+bytes([NUCLEAR_HAA]))
-    # shortcut: lasers add a flat value in any weather and with a wrecked superstructure (the missile layer in
-    # modern_railgun halves and loses them); copy those tests here if laser AA proves too strong.
+    # Lasers: LASER_AA a mount, halved in rain or mist and again in heavy seas, as modern_railgun's missile layer.
+    # shortcut: laser AA ignores superstructure damage (the missile layer loses the lasers with it); add that test
+    # here if wrecked ships' lasers prove too strong.
+    import modern_railgun as rail
     c.mark("lasers"); c.emit(b"\x8b\xc3"); c.branch(b"\xe8", ext); c.emit(b"\x85\xc0"); c.branch(b"\x0f\x84", "done")
-    c.emit(b"\x0f\xb6\x00\x6b\xc0"+bytes([LASER_AA])+b"\x8b\x15"); c.u32(slots+8); c.emit(b"\x01\x02")
-    c.mark("done"); c.emit(b"\x61\xff\x25"); c.u32(slots)
+    c.emit(b"\x0f\xb6\x00\x6b\xc0"+bytes([LASER_AA]))
+    c.emit(b"\x8b\x0d"); c.u32(n["precipitation"]); c.emit(b"\x80\x39"+bytes([rail.CLEAR_WEATHER])+b"\x74\x02\xd1\xe8")
+    c.emit(b"\x8b\x0d"); c.u32(n["sea"]); c.emit(b"\x83\x39"+bytes([rail.SEA_ROUGH])+b"\x7c\x02\xd1\xe8")
+    c.emit(b"\x8b\x15"); c.u32(slots+8); c.emit(b"\x01\x02")
+    c.mark("done")
+    if drones:   # interceptor drones (modern_air_defence) add their AA value
+        c.emit(b"\x8b\xc3"); c.branch(b"\xe8", drones); c.emit(b"\x84\xc0"); c.branch(b"\x0f\x84", "no_drones")
+        c.emit(b"\x8b\x15"); c.u32(slots+8); c.emit(b"\x83\x02"+bytes([tree.DRONE_SWARMS[2]]))
+        c.mark("no_drones")
+    c.emit(b"\x61\xff\x25"); c.u32(slots)
     code["haa"] = c.finish()
 
     # Type abbreviation for KE: FF from the frigate year; the reader takes FF as KE.

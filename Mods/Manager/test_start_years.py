@@ -36,7 +36,8 @@ class World:
         self.vmt = STUBS+0x1000                              # a TLabel class: create at +0x3C, slots after
         info = {k: self.at[k] for k in NAMES if k not in ("create", "set_parent", "set_auto_size")}
         info.update(label_vmt=self.vmt, year=YEAR, date=DATE, game_dir=DIR, click=0x69C6C4, set_auto_size=0x94,
-                    sites=[dict(name=n, address=a, original=o) for n, a, o in sy.SITES], **NATIVE_FILES)
+                    sites=[dict(name=n, address=a, original=o) for n, a, o in sy.SITES], **NATIVE_FILES,
+                    rebellions=[dict(address=a, skip=s, original="3b70617534") for a, s in sy.REBELLIONS])
         self.blocks, self.plans = sy.build(PAGE, info)
         vm = self.vm = Uc(UC_ARCH_X86, UC_MODE_32)
         for address in (PAGE, STUBS, DATA, HEAP, STACK): vm.mem_map(address, 0x10000)
@@ -293,11 +294,30 @@ class DiscoveryTests(unittest.TestCase):
     def test_plans_are_same_size_and_avoid_legacy_fleet(self):
         import legacy_fleet
         plans = sy.build(PAGE, sy.discover(BLOB, BASE))[1]
-        self.assertEqual(len(plans), 8)
+        self.assertEqual(len(plans), 10)
         self.assertTrue(all(len(p["original"]) == len(p["replacement"]) for p in plans))
         legacy = legacy_fleet.discover(BLOB, BASE, PAGE)[0]
         spans = sorted((p["address"], p["address"]+len(p["original"])//2) for p in plans+legacy)
         self.assertTrue(all(a[1] <= b[0] for a, b in zip(spans, spans[1:])))
+
+    def test_scripted_rebellions_need_spain_to_exist(self):
+        """Cuba and the Philippines rebel only against an existing Spain: without Spain an unowned region used to
+        match the missing nation and DoRebellion read its owner."""
+        blocks, plans = sy.build(PAGE, sy.discover(BLOB, BASE))
+        guards = {b["address"]: bytes.fromhex(b["bytes"]) for b in blocks if b["name"].startswith("rebellion")}
+        patches = [p for p in plans if "rebellion" in p["label"]]
+        self.assertEqual([p["address"] for p in patches], [site for site, _ in sy.REBELLIONS])
+        spain, other, region = DATA+0x10, DATA+0x20, DATA+0x100
+        for (site, skip), patch in zip(sy.REBELLIONS, patches):
+            guard = site+5+struct.unpack("<i", bytes.fromhex(patch["replacement"])[1:5])[0]
+            for nation, owner, expected in ((0, 0, skip), (spain, spain, site+5), (spain, other, skip), (spain, 0, skip)):
+                vm = Uc(UC_ARCH_X86, UC_MODE_32)
+                vm.mem_map(PAGE, 0x1000); vm.mem_write(guard, guards[guard])
+                vm.mem_map(site & ~0xFFF, 0x1000); vm.mem_map(DATA, 0x1000)
+                vm.mem_write(region+0x61, struct.pack("<I", owner))
+                vm.reg_write(UC_X86_REG_ESI, nation); vm.reg_write(UC_X86_REG_EAX, region)
+                vm.emu_start(guard, expected, count=10)
+                self.assertEqual(vm.reg_read(UC_X86_REG_EIP), expected, (hex(site), nation, owner))
 
     def test_aslr_and_changed_code(self):
         delta, moved = 0x400000, bytearray(BLOB)

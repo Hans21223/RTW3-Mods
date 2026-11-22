@@ -14,8 +14,20 @@ reassessment delay are no longer installed. Automatic surface missile attacks
 again use the native contact selection and launch routines, including researched
 SAM surface attacks. Native firing arcs, minimum/maximum ranges, readiness,
 ammunition, friendly-line checks and launch timing remain. The native fallback
-that searches the global ship list is skipped; automatic targets still come
-from the shooter's current contacts. Manual missile targeting is unchanged.
+that searches the global ship list runs again (it was skipped from 0.5.1 until
+2026-11-22, and ships under Fire at will then held their missiles at enemies
+their own sensors did not track): it picks enemies your side has spotted,
+behind the nation's missile research and the native identification check. Its
+one-in-500 pick of a friendly ship is removed. Manual missile targeting is
+unchanged.
+
+**Missile blind fire** (2026-11-22). A ship that launches missiles gives its
+position away for 10 battle minutes: the global search may then pick it although
+nobody has sighted it. Ships under Fire at will (and the computer's ships) answer
+launches from beyond their own sensors, if the launcher is within their missile
+range. Arcs, ranges, research and the rest of the native search still apply, and
+both sides get the same rule. A new battle (its clock below the last minute
+seen) forgets the last battle's launches, whose ships' addresses may be reused.
 
 Missile range discipline now runs inside **SetNewCourse**, after its input checks
 and before its original terrain checks. It covers AI surface combatants in

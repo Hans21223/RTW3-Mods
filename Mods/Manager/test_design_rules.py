@@ -48,7 +48,8 @@ KEPT = ("Error: Building nation has not developed flight deck catapults!", "Erro
         ") has not invented wing turrets for main battery guns > 7 inches in double turrets!",
         ". Building nation has not developed dual purpose mountings for that calibre or gun combination.",
         "Ship cannot have additional deck armour if it has no deck armour",
-        "Cannot combine A or B with 1 or 2 turret positions.")
+        "Cannot combine A or B with 1 or 2 turret positions.",
+        "Error: CA cannot be larger than 26000 tons!")   # raised to LIMITS["CA"], not freed
 
 
 def literal(address):

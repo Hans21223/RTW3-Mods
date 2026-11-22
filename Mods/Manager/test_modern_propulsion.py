@@ -32,7 +32,7 @@ class BattleFuelTests(unittest.TestCase):
 class World:
     def __init__(self, owned=(), patched=True):
         self.vm = vm = Uc(UC_ARCH_X86, UC_MODE_32)
-        for address, size in ((0, 0x1000), (0x300000, 0x800000), (DATA, 0x20000), (STACK, 0x10000), (CODE, 0x20000)):
+        for address, size in ((0, 0x1000), (0x300000, 0x800000), (DATA, 0x20000), (STACK, 0x10000), (CODE, 0x30000)):
             vm.mem_map(address, size)
         vm.mem_write(0x301000, BLOB)
         details = modern.discover(BLOB, 0x301000)
@@ -113,6 +113,27 @@ class DesignerTests(unittest.TestCase):
             world = World(owned); world.index = index
             world.call(0x5EBEE4, FORM)   # native cbFuelTypeChange
             self.assertEqual((world.get(SHIP+0x9D4, 1), world.log), (stored, log), (owned, index))
+
+
+    def test_range_is_greyed_for_a_nuclear_design_and_otherwise_follows_the_lock(self):
+        details = modern.discover(BLOB, 0x301000)
+        sync = CODE+len(details["getters"])*0x1000+0x1000+nuclear.RANGE_SYNC
+        blocks = modern.build(CODE, details)[0]
+        railgun = next(b for b in blocks if b["name"] == "Railgun: sync")
+        code = bytes.fromhex(railgun["bytes"])
+        targets = {railgun["address"]+i+5+int.from_bytes(code[i+1:i+5], "little", signed=True)
+                   for i in range(len(code)-4) if code[i] == 0xE8}
+        self.assertIn(sync, targets)                                          # every designer refresh asks it
+        box, box_vmt = DATA+0x6000, DATA+0x6100
+        for locked, fuel, design, enabled in ((1, 5, True, 0), (1, OIL, True, 0), (0, OIL, True, 1), (0, 5, True, 0),
+                                              (0, 5, False, 1)):
+            world = World(); world.design(fuel)
+            world.put(FORM+nuclear.DESIGNER["range"], box); world.put(box, box_vmt); world.put(box_vmt+nuclear.SET_ENABLED, STUBS+0x40)
+            world.put(FORM+nuclear.DESIGNER["locked"], locked, 1)
+            if not design: world.put(FORM+nuclear.DESIGNER["design"], 0)
+            world.stubs[STUBS+0x40] = lambda: world.note("enabled", world.reg("EAX"), world.reg("EDX") & 0xFF)
+            world.call(sync, FORM)
+            self.assertEqual((world.log, world.reg("EBX")), ([("enabled", box, enabled)], 0x2345), (locked, fuel, design))
 
 
 class ShipTests(unittest.TestCase):

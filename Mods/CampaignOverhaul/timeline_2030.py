@@ -98,6 +98,20 @@ YEAR_TABLES = (
     (0x97B713, "0594f8ffff83e82e721183e80a721283e809721383e8237214", 20, 1965),   # RandomizeTargetPoint
 )
 YEAR_MARGIN = 10   # research-speed-adjusted years run a little ahead of the calendar
+# BattleOK offers a map mission (Data/MapData.dat WM<n>FirstYear/LastYear, read on every load) from its first year
+# through its last. 759 of the 795 possession missions end in 1999, the native "no end" (the native campaign stops
+# in 1990), so past 1999 no possession battle was set up: wars went on with invasions and home-waters battles only.
+# A last year of 1999 now never ends. The year reload before the last-year check (EAX already holds the year) makes
+# room: CMP EAX,[EBP-4] / JLE ok / CMP BYTE [EBP-4],CFh (1999's low byte) / JE ok / NOP, then the native XOR EBX,EBX.
+MISSION_YEARS = 0x7BD404   # BattleOK: first-year check, last-year check, XOR EBX,EBX (not ok)
+
+
+def mission_year_plans(blob, base, year_slot):
+    at, year = MISSION_YEARS+base-REFERENCE, b"\xa1"+struct.pack("<I", year_slot)+b"\x8b\x00"
+    old = year+b"\x3b\x45\xf8\x7c\x0c"+year+b"\x3b\x45\xfc\x7e\x02\x33\xdb"
+    if blob[at-base:at-base+len(old)] != old: raise ValueError("Unsupported native mission year check.")
+    return [patch("Map missions ending in 1999 stay open", at+12, old[12:24],
+                  b"\x3b\x45\xfc\x7e\x09\x80\x7d\xfc\xcf\x74\x03\x90")]
 
 
 def discover(blob, base, end_year=END_YEAR, cutoff_year=None):
@@ -211,7 +225,8 @@ def attach(wait=30, end_year=END_YEAR, cutoff_year=None):
             memory.configure(); memory.write(handle,cave,code); rt.K.FlushInstructionCache(handle,cave,len(code))
         starts,start_page,start_years=start_year_plans(handle,blob,base)
         records,records_table=month_record_plans(handle,blob,base) if stop-1>1990 else ([],None)
-        plans=plans+tables+starts+records
+        missions=mission_year_plans(blob,base,year_slot) if stop-1>1999 else []
+        plans=plans+tables+starts+records+missions
         verify_patches(handle,plans,"original")
         applied=[]
         try:

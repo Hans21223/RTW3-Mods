@@ -12,7 +12,8 @@ from campaign_security import Code
 from hull_rules import patch
 
 REPORT = Path(__file__).with_name("campaign_qol_report.json")
-DEFAULTS = dict(max_active_ships=400, max_building_ships=24, min_procurement_days=28, invade_possessions=1)
+DEFAULTS = dict(max_active_ships=400, max_building_ships=24, min_procurement_days=28, invade_possessions=1,
+                build_programme_min_percent=60)
 # Player invasions (both invasion buttons): any possession may be invaded except a nation's main home region, and
 # home areas no longer need the invading nation to be blockaded. Natively possessions worth 10 or more (every home
 # region and the big colonies) were closed. Main home regions, by possession name in the native map files:
@@ -54,6 +55,21 @@ WHEEL_FIELDS = dict(on_mouse_wheel=0x150, increment=0x310, owner=4, combo_change
                     up_click=0x2d8, down_click=0x2e0, get_index=0x16c, set_index=0x170, count_slot=0x14,
                     ship_type=0x550, nation=0x55c)   # TfrmDesignMain2 cbType, cbNation
 PICTURE = dict(globe=0x7cc, rotate_button=0x350, middle=2)   # TMouseZoomButton: mzbLeft, mzbRight, mzbMiddle, mzbNone
+# Government building programme (the player's nation: requested count +2AEh, months left +2B2h, type or group
+# +2B6h). Its review (CheckBuildConstraint), the warning a month before and the main screen's " Must have N ...
+# building" line count the ships of that type under construction (CountShipsBuilding), natively of any size, so a
+# token hull satisfied it. Those three counts now take only ships of at least build_programme_min_percent of the
+# average displacement of that type's ships in service in the world (all nations), rounded down to 100 t and at
+# most DOCK_SHARE% of the player's largest dock; the line shows the minimum. Submarines keep the native count.
+PROGRAMME = dict(count=0x72AE4C, filter=0x72AF6B, filter_back=0x72AF74, reviews=(0x781E53, 0x781EAF), shown=0x78250E,
+                 line=0x7824DD, main_load=0x72AF17, list_get=0x3B6D6C, get_ship=0x71F6DC, in_group=0x7FB070,
+                 is_building=0x82E554)
+PROGRAMME_FIELDS = dict(nations=0xAE4, ships=0x109, type=0x14, tons=0x2B, cancelled=0x58, docks=0x11D, player=0x3204,
+                        requested=0x2B6)
+PROGRAMME_CODE = dict(counted=0x000, minimum=0x040, filter=0x140, line=0x180, putn=0x260, puts=0x2A0, slot=0x2C0,
+                      prefix=0x2D0, suffix=0x2E0, buffer=0x340, end=0x400)
+PROGRAMME_TEXT = (" (", " t or more) building")
+DOCK_SHARE, SUBMARINE = 90, 14
 
 
 def published(blob, name):
@@ -72,7 +88,8 @@ def form_field(blob, name):
 def discover(blob, base, settings=None):
     import live_cheats as live
     values = dict(DEFAULTS, **(settings or {}))
-    limits = dict(max_active_ships=(50,10000), max_building_ships=(1,1000), min_procurement_days=(1,90), invade_possessions=(0,1))
+    limits = dict(max_active_ships=(50,10000), max_building_ships=(1,1000), min_procurement_days=(1,90), invade_possessions=(0,1),
+                  build_programme_min_percent=(0,100))
     if values.keys() != DEFAULTS.keys() or any(type(v) is not int or not limits[k][0] <= v <= limits[k][1] for k,v in values.items()):
         raise ValueError("Unsupported AI procurement limits.")
     normal = audit.normalize(blob, base)
@@ -90,7 +107,13 @@ def discover(blob, base, settings=None):
                (0x7c95a3,605,"1b92b54fa001e9eefa51a29a455a1f34e34aedb88d3f7f819ce4c7cc21af1770"),  # turn-time invasion
                (0x7c87c4,94,"78b4a279bd6abf3cc750c1eb6e0e9bb702b67a5bca86def15a00d5ea4e22d122"),   # invasion weather
                (0x8203b8,101,"98d2d969340b1150ab8eb3b5b83a96402c4707aca4d87b6c9d63cbac3ac83eec"),  # blockade rule
-               (0x7326cc,61,"239dec07547803219970b3bcc273a38edae9fd04d574e3f7ae0cb7735661ae6e"))   # fleet strength
+               (0x7326cc,61,"239dec07547803219970b3bcc273a38edae9fd04d574e3f7ae0cb7735661ae6e"),   # fleet strength
+               (0x72af0f,16,"87c876eeb839717b7ffe615a742df03898a0f53ea6c14203f4a5c4e95f94bed3"),   # building count: type group
+               (0x72af60,24,"331b8a49f3ee8166b8da678368e9a6cf40255ac50f5f9b504fd1d99f66335f29"),   # building count: a ship counts
+               (0x781e48,16,"bd6c194c52831c9de142bda87a0b93def8643749bbdb49a075f94e2d2f24c139"),   # programme warning count
+               (0x781ea4,16,"90c633ceed10eabe734d45ef5571af65fafe6f4aadff0409b19ef8ed526dbb59"),   # programme review count
+               (0x7824d2,24,"cc61e4a9f54d6dd7c2e278db5b5428d4ddd9b8faf6cedce4e7975b54b0c59367"),   # programme line text
+               (0x782503,16,"8e86009ac5d550e7b982269d7c69ea6bd2596f93bfd45ebd0167e83c00232db7"))   # programme line count
     for reference,size,digest in windows:
         at = reference-0x301000
         if hashlib.sha256(normal[at:at+size]).hexdigest() != digest:
@@ -138,6 +161,12 @@ def discover(blob, base, settings=None):
         raise ValueError("Unsupported designer number boxes for the mouse wheel.")
     # Ship picture: the designer's TGlobe4 (its native wheel zoom reads it at [form+7CCh], Projection +2E0h)
     # rotates its spherical view, which pans the drawing, with MouseRotateButton; the DFM leaves it mzbNone.
+    count = PROGRAMME["count"]+delta
+    if (any(blob[at-base] != 0xE8 or at+5+struct.unpack_from("<i", blob, at-base+1)[0] != count
+            for at in (x+delta for x in PROGRAMME["reviews"]+(PROGRAMME["shown"],)))
+            or blob[PROGRAMME["filter"]+delta-base:PROGRAMME["filter"]+delta-base+9].hex() != "807858007503ff45f4"
+            or blob[PROGRAMME["line"]+delta-base] != 0x68 or blob[PROGRAMME["main_load"]+delta-base] != 0xA1):
+        raise ValueError("Unsupported government building programme count.")
     zoom = 0x5E84CC+delta
     if (blob[zoom-base:zoom-base+6] != b"\x8b\x83"+struct.pack("<I", PICTURE["globe"])
             or PICTURE["rotate_button"] not in published(blob, "MouseRotateButton") or 0x2E0 not in published(blob, "Projection")):
@@ -156,6 +185,11 @@ def discover(blob, base, settings=None):
                 colony=dict({k: v+delta for k, v in COLONY.items()},
                             minimum=struct.unpack_from("<I", blob, 0x7C96C9+delta-base)[0]),   # its MOV EAX,[minimum force]
                 string_equal=0x30c7cc+delta,
+                programme=dict({k: (tuple(x+delta for x in v) if isinstance(v, tuple) else v+delta) for k, v in PROGRAMME.items()},
+                               main_var=struct.unpack_from("<I", blob, PROGRAMME["main_load"]+delta-base+1)[0],
+                               building_text=struct.unpack_from("<I", blob, PROGRAMME["line"]+delta-base+1)[0],
+                               filter_original=blob[PROGRAMME["filter"]+delta-base:PROGRAMME["filter"]+delta-base+9].hex(),
+                               line_original=blob[PROGRAMME["line"]+delta-base:PROGRAMME["line"]+delta-base+5].hex()),
                 player_orders_limited=False, existing_ships_deleted=False)
 
 
@@ -358,6 +392,90 @@ def build_thunk(address, state, info):
     return c.finish()
 
 
+def programme_code(page, info):
+    """The building programme's rule on its page: (image bytes, [(name, site, original, replacement)]).
+    counted(EAX nation, DL type, ECX flag) stands in for CountShipsBuilding at the programme's three counts: it
+    sets the minimum, which the count's own per-ship test (filter) then applies, and clears it after."""
+    n, F, at = info["programme"], PROGRAMME_FIELDS, {k: page+v for k, v in PROGRAMME_CODE.items()}
+    percent = info["settings"]["build_programme_min_percent"]
+    code = {}
+    c = Code(at["counted"]); c.emit(b"\x50\x51\x52"); c.branch(b"\xe8", at["minimum"]); c.emit(b"\xa3"); c.u32(at["slot"])
+    c.emit(b"\x5a\x59\x58"); c.branch(b"\xe8", n["count"]); c.emit(b"\xc7\x05"); c.u32(at["slot"]); c.u32(0); c.emit(b"\xc3")
+    code["counted"] = c.finish()
+    # minimum(EAX nation, DL type) -> EAX tons (0: no minimum). Keeps EBX, ESI, EDI, EBP. [esp] type, +4 sum, +8 count.
+    c = Code(at["minimum"]); c.emit(b"\x53\x56\x57\x55\x83\xec\x0c\x8b\xe8\x0f\xb6\xd2\x89\x14\x24")
+    c.emit(b"\x33\xc0\x89\x44\x24\x04\x89\x44\x24\x08\x83\xfa"+bytes([SUBMARINE])); c.branch(b"\x0f\x84", "zero")
+    c.emit(b"\x33\xf6")
+    c.mark("nation"); c.emit(b"\xa1"); c.u32(n["main_var"]); c.emit(b"\x8b\x80"); c.u32(F["nations"])
+    c.emit(b"\x3b\x70\x08"); c.branch(b"\x0f\x8d", "average")
+    c.emit(b"\x8b\xd6"); c.branch(b"\xe8", n["list_get"]); c.emit(b"\x8b\xd8\x33\xff")
+    c.mark("ship"); c.emit(b"\x8b\x83"); c.u32(F["ships"]); c.emit(b"\x3b\x78\x08"); c.branch(b"\x0f\x8d", "next_nation")
+    c.emit(b"\x8b\xd7\x8b\xc3"); c.branch(b"\xe8", n["get_ship"])
+    c.emit(b"\x0f\xb6\x50"+bytes([F["type"]])+b"\x0f\xb6\x0c\x24\x3b\xd1"); c.branch(b"\x0f\x84", "typed")
+    c.emit(b"\x50\xa1"); c.u32(n["main_var"]); c.branch(b"\xe8", n["in_group"]); c.emit(b"\x84\xc0\x58")
+    c.branch(b"\x0f\x84", "next_ship")
+    c.mark("typed"); c.emit(b"\x50"); c.branch(b"\xe8", n["is_building"]); c.emit(b"\x84\xc0\x58"); c.branch(b"\x0f\x85", "next_ship")
+    c.emit(b"\x8b\x48"+bytes([F["tons"]])+b"\x01\x4c\x24\x04\xff\x44\x24\x08")      # in service: add its tons
+    c.mark("next_ship"); c.emit(b"\x47"); c.branch(b"\xe9", "ship")
+    c.mark("next_nation"); c.emit(b"\x46"); c.branch(b"\xe9", "nation")
+    c.mark("average"); c.emit(b"\x8b\x4c\x24\x08\x85\xc9"); c.branch(b"\x0f\x84", "zero")
+    c.emit(b"\x8b\x44\x24\x04\x33\xd2\xf7\xf1\x69\xc0"); c.u32(percent)               # average x percent
+    c.emit(b"\x33\xd2\xb9"); c.u32(10000); c.emit(b"\xf7\xf1\x6b\xc0\x64\x50")         # / 100, down to 100 t
+    c.emit(b"\x8b\x85"); c.u32(F["docks"]); c.emit(b"\x6b\xc0"+bytes([DOCK_SHARE])+b"\x33\xd2\xb9"); c.u32(10000)
+    c.emit(b"\xf7\xf1\x6b\xc0\x64\x59\x3b\xc8"); c.branch(b"\x0f\x8e", "kept"); c.emit(b"\x8b\xc8")   # the dock cap
+    c.mark("kept"); c.emit(b"\x8b\xc1"); c.branch(b"\xe9", "out")
+    c.mark("zero"); c.emit(b"\x33\xc0")
+    c.mark("out"); c.emit(b"\x83\xc4\x0c\x5d\x5f\x5e\x5b\xc3")
+    code["minimum"] = c.finish()
+    # CountShipsBuilding's per-ship test (EAX ship; ECX free): native, then the minimum while one is set.
+    c = Code(at["filter"]); c.emit(b"\x80\x78"+bytes([F["cancelled"]])+b"\x00"); c.branch(b"\x0f\x85", "skip")
+    c.emit(b"\x8b\x0d"); c.u32(at["slot"]); c.emit(b"\x85\xc9"); c.branch(b"\x0f\x84", "count")
+    c.emit(b"\x39\x48"+bytes([F["tons"]])); c.branch(b"\x0f\x8c", "skip")
+    c.mark("count"); c.emit(b"\xff\x45\xf4")
+    c.mark("skip"); c.branch(b"\xe9", n["filter_back"])
+    code["filter"] = c.finish()
+    # The main screen line's last piece, called in place of PUSH " building" (EDI the main form): " (N t or more)
+    # building" with the minimum, or the native piece without one.
+    c = Code(at["line"]); c.emit(b"\x60\x8b\x87"); c.u32(F["player"]); c.emit(b"\x0f\xb6\x90"); c.u32(F["requested"])
+    c.branch(b"\xe8", at["minimum"]); c.emit(b"\xbe"); c.u32(n["building_text"]); c.emit(b"\x85\xc0"); c.branch(b"\x0f\x84", "done")
+    c.emit(b"\xbf"); c.u32(at["buffer"]+12); c.emit(b"\x50\xbe"); c.u32(at["prefix"]); c.branch(b"\xe8", at["puts"]); c.emit(b"\x58")
+    c.emit(b"\x3d"); c.u32(1000); c.branch(b"\x0f\x82", "small")
+    c.emit(b"\x33\xd2\xb9"); c.u32(1000); c.emit(b"\xf7\xf1\x52\xb9\x01\x00\x00\x00"); c.branch(b"\xe8", at["putn"])
+    c.emit(b"\x66\xc7\x07\x2c\x00\x83\xc7\x02\x58\xb9\x03\x00\x00\x00"); c.branch(b"\xe8", at["putn"]); c.branch(b"\xe9", "suffix")
+    c.mark("small"); c.emit(b"\xb9\x01\x00\x00\x00"); c.branch(b"\xe8", at["putn"])
+    c.mark("suffix"); c.emit(b"\xbe"); c.u32(at["suffix"]); c.branch(b"\xe8", at["puts"]); c.emit(b"\x66\xc7\x07\x00\x00")
+    c.emit(b"\x81\xef"); c.u32(at["buffer"]+12); c.emit(b"\xd1\xef\x89\x3d"); c.u32(at["buffer"]+8)
+    c.emit(b"\xbe"); c.u32(at["buffer"]+12)
+    c.mark("done"); c.emit(b"\x89\x74\x24\x1c\x61\x87\x04\x24\xff\xe0")      # the piece as EAX; push it, return
+    code["line"] = c.finish()
+    # putn(EAX value, ECX least digits, EDI text) and puts(ESI zero-ended text, EDI): write and advance EDI.
+    c = Code(at["putn"]); c.emit(b"\x53\x56\x8b\xf1\xbb\x0a\x00\x00\x00\x33\xc9")
+    c.mark("digit"); c.emit(b"\x33\xd2\xf7\xf3\x52\x41\x85\xc0"); c.branch(b"\x0f\x85", "digit")
+    c.mark("pad"); c.emit(b"\x3b\xce"); c.branch(b"\x0f\x8d", "write"); c.emit(b"\x6a\x00\x41"); c.branch(b"\xe9", "pad")
+    c.mark("write"); c.emit(b"\x58\x83\xc0\x30\x66\x89\x07\x83\xc7\x02\x49"); c.branch(b"\x0f\x85", "write"); c.emit(b"\x5e\x5b\xc3")
+    code["putn"] = c.finish()
+    c = Code(at["puts"]); c.mark("next"); c.emit(b"\x66\xad\x66\x85\xc0"); c.branch(b"\x0f\x84", "end"); c.emit(b"\x66\xab")
+    c.branch(b"\xe9", "next"); c.mark("end"); c.emit(b"\xc3")
+    code["puts"] = c.finish()
+    image = bytearray(PROGRAMME_CODE["end"])
+    order = sorted(PROGRAMME_CODE, key=PROGRAMME_CODE.get)
+    for name, body in code.items():
+        room = PROGRAMME_CODE[order[order.index(name)+1]]-PROGRAMME_CODE[name]
+        if len(body) > room: raise ValueError("Building programme code exceeds its reservation: "+name)
+        image[PROGRAMME_CODE[name]:PROGRAMME_CODE[name]+len(body)] = body
+    for key, text in zip(("prefix", "suffix"), PROGRAMME_TEXT):
+        data = text.encode("utf-16-le")+b"\0\0"; image[PROGRAMME_CODE[key]:PROGRAMME_CODE[key]+len(data)] = data
+    image[PROGRAMME_CODE["buffer"]:PROGRAMME_CODE["buffer"]+12] = struct.pack("<HHiI", 1200, 2, -1, 0)
+    sites = [("Building programme: only ships of the minimum size count", n["filter"], bytes.fromhex(n["filter_original"]),
+              b"\xe9"+struct.pack("<i", at["filter"]-n["filter"]-5)+b"\x90"*4),
+             ("Building programme: the minimum size on the main screen", n["line"], bytes.fromhex(n["line_original"]),
+              b"\xe8"+struct.pack("<i", at["line"]-n["line"]-5))]
+    for site in n["reviews"]+(n["shown"],):
+        sites.append(("Building programme: count ships of the minimum size", site,
+                      b"\xe8"+struct.pack("<i", n["count"]-site-5), b"\xe8"+struct.pack("<i", at["counted"]-site-5)))
+    return bytes(image), sites
+
+
 def attach(wait=30, settings=None):
     import ai_runtime
     import live_cheats as live
@@ -378,7 +496,7 @@ def attach(wait=30, settings=None):
                 ai_runtime.verify(handle,previous["patches"],"replacement"); return previous
         base,blob=rt.text_section(handle,module); info=discover(blob,base,settings)
         ai_runtime.require_title_screen(handle,info)
-        allocation=rt.K.VirtualAllocEx(handle,None,0x3000,0x3000,0x40)
+        allocation=rt.K.VirtualAllocEx(handle,None,0x4000,0x3000,0x40)
         if not allocation: raise rt.win_error("Cannot allocate campaign QoL rules")
         state=allocation+0x1000; plans=list(info["static_patches"]); applied=[]
         try:
@@ -430,6 +548,10 @@ def attach(wait=30, settings=None):
                                        b"\xe9"+struct.pack("<i",target-item["site"]-5)+b"\x90"))
                     plans.append(patch("Home areas without a blockade",item["blockade"],blob[item["blockade"]-base:item["blockade"]-base+2],
                                        b"\xeb"+blob[item["blockade"]-base+1:item["blockade"]-base+2]))
+            if info["settings"]["build_programme_min_percent"]:
+                image,sites=programme_code(allocation+0x3000,info)
+                memory.write(handle,allocation+0x3000,image); rt.K.FlushInstructionCache(handle,allocation+0x3000,len(image))
+                plans+=[patch(name,site,old,new) for name,site,old,new in sites]
             old=bytes.fromhex(info["form_show_original"])
             plans.append(patch("Designer mouse wheel on the box under the pointer",info["form_show"],old,
                                b"\xe9"+struct.pack("<i",hook-info["form_show"]-5)+b"\x90"*(len(old)-5)))

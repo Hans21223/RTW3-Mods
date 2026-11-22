@@ -32,7 +32,14 @@ WINDOWS = (
     (0x93BE1D, 0x12, "686f48f769dd170a03dc9e128e09985b7c55191169f2c7b1aafe33b38982e390"),
     # A division's battle fuel turn: each ship burns fuel by speed, then "at minimum fuel level", 5 knots.
     (0x923EF1, 0xCB, "875434e7b87058ee2b7aeaff0818757b6cd01beb64690c5608eb3ae43c4223ac"),
+    # SetControlsLocked: cbRange.Enabled := not locked; SetControlsForFreeOrBC passes the form's lock byte.
+    (0x5E60CC, 0x13, "cfb256a518e84f86ce28acd85e7c54e52b782c6d46de18fe95b0314cd9cf5799"),
+    (0x5E997C, 0x0E, "7deee41615685216cf22bfdc88e2eced2d98382fef6481e1bab8b07333aa731f"),
 )
+# The designer form (TfrmDesignMain2): its Range box, its lock byte (refits, BC and free designs), its design;
+# a design's propulsion type. Range only sizes the bunker fuel, which a nuclear design has none of.
+DESIGNER = dict(range=0x50C, locked=0xC11, design=0xE6C)
+PROPULSION, SET_ENABLED, RANGE_SYNC = 0x9D4, 0x9C, 0x700   # design field; TControl virtual; offset in the page
 ADDRESSES = dict(form_show=0x5CCFA8, fuel_change=0x5EBF05, machinery=0x93907C, range_factor=0x939D6A,
                  shortage=0x7472D5, fuel_percent=0x914606, range_skip=0x939E32, shortage_back=0x7472DC,
                  has_research=0x729FA4, message=0x4D7124, burn=0x923EFA, burn_skip=0x923FBC)
@@ -117,7 +124,18 @@ def build(page, info):
     c.emit(b"\x8b\x83"); c.u32(0xA50); c.emit(b"\x89\x83"); c.u32(0xA4C); c.branch(b"\xe9", info["burn_skip"])
     c.mark("native"); c.emit(original["burn"]); c.branch(b"\xe9", info["burn"]+6)
     code["burn"] = c.finish()
+    # range_sync(EAX designer form), from modern_railgun's designer sync after every refresh: the Range box is
+    # enabled when the controls are not locked and the design is not nuclear. Keeps EBX, ESI, EDI, EBP.
+    c = Code(page+RANGE_SYNC); c.emit(b"\x53\x8b\xd8\x33\xd2\x80\xbb"); c.u32(DESIGNER["locked"]); c.emit(b"\x00")
+    c.branch(b"\x0f\x85", "set"); c.emit(b"\xb2\x01\x8b\x83"); c.u32(DESIGNER["design"]); c.emit(b"\x85\xc0")
+    c.branch(b"\x0f\x84", "set"); c.emit(b"\x80\xb8"); c.u32(PROPULSION); c.emit(bytes([NUCLEAR])); c.branch(b"\x0f\x85", "set")
+    c.emit(b"\x33\xd2")
+    c.mark("set"); c.emit(b"\x8b\x83"); c.u32(DESIGNER["range"]); c.emit(b"\x85\xc0"); c.branch(b"\x0f\x84", "out")
+    c.emit(b"\x8b\x08\xff\x91"); c.u32(SET_ENABLED)
+    c.mark("out"); c.emit(b"\x5b\xc3")
+    range_sync = c.finish()
     blocks = [dict(name="Nuclear list entry", address=at["name"], bytes=literal("Nuclear").hex()),
+              dict(name="Nuclear propulsion: range_sync", address=page+RANGE_SYNC, bytes=range_sync.hex()),
               dict(name="Nuclear research text", address=at["text"], bytes=literal(TEXT).hex())]
     plans = []
     for site in info["sites"]:

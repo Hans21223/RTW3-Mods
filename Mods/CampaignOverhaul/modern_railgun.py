@@ -244,7 +244,8 @@ def discover(blob, base, normalized):
     return info
 
 
-def build(page, info, ext, names_sync=None, nuclear_missile=None, cell_cost_at=None, asbm=None, carrier_sync=None):
+def build(page, info, ext, names_sync=None, nuclear_missile=None, cell_cost_at=None, asbm=None, carrier_sync=None,
+          propulsion_sync=None):
     """Six pages: code in page, page+0x2000, page+0x3000, page+0x4000 and page+0x5000, strings in page+0x1000 and
     the gaps after them; ext is modern_extension's lookup. Returns blocks, patches."""
     from campaign_security import Code   # imported late: campaign_security imports modern_research
@@ -337,6 +338,8 @@ def build(page, info, ext, names_sync=None, nuclear_missile=None, cell_cost_at=N
         c.emit(b"\x8b\xc3"); c.branch(b"\xe8", names_sync)
     if carrier_sync:   # modern_carrier: the Ski jump box in Flight installations
         c.emit(b"\x8b\xc3"); c.branch(b"\xe8", carrier_sync)
+    if propulsion_sync:   # modern_propulsion: the Range box, greyed for a nuclear design
+        c.emit(b"\x8b\xc3"); c.branch(b"\xe8", propulsion_sync)
     c.emit(b"\x8d\x45\xf4\xba\x03\x00\x00\x00"); c.branch(b"\xe8", n["clear_n"])
     c.emit(bytes.fromhex("5f5e5b8be55dc3"))
     code["sync"] = c.finish()

@@ -20,7 +20,7 @@ RADARS = (1501, 1502, 1506, 1511, 1512)
 class World:
     def __init__(self, owned=(), patched=True):
         self.vm = vm = Uc(UC_ARCH_X86, UC_MODE_32)
-        for address, size in ((0, 0x1000), (0x300000, 0x800000), (DATA, 0x20000), (STACK, 0x10000), (CODE, 0x20000)):
+        for address, size in ((0, 0x1000), (0x300000, 0x800000), (DATA, 0x20000), (STACK, 0x10000), (CODE, 0x30000)):
             vm.mem_map(address, size)
         vm.mem_write(0x301000, BLOB)
         details = modern.discover(BLOB, 0x301000)
@@ -211,13 +211,22 @@ class AircraftStealthTests(unittest.TestCase):
         build = modern.build(CODE, modern.discover(BLOB, 0x301000))[0]
         flag = next(b["address"] for b in build if b["name"] == "UAV prototype")-0xF10+sensors.UAV_REQUEST
         lookup = next(b["address"] for b in build if b["name"] == "UAV prototype")-0xF10+0xF00
-        for requested, year, owned, uav in ((1, 2010, {2326}, True), (0, 2010, {2326}, False), (1, 1960, set(), True)):
+        # Before UAV_YEAR the data file has no UAV rows: a UAV prototype would not load and the request crashed.
+        for requested, year, owned, uav in ((1, 2010, {2326}, True), (0, 2010, {2326}, False), (1, 1960, set(), False),
+                                            (1, tree.UAV_YEAR, set(), True)):
             world = World(owned); world.put(MAIN+0x3204, NATION)                     # nation 3 is the player's
             world.put(flag, requested, 1)
             world.put(frame-0x14, year); world.put(frame-0xD, 3, 1)
             for _ in range(3):   # every prototype of the request: modern_carrier clears the flag after completion
                 self.run_at(world, 0x7ED65F, 0x7ED665, {UC_X86_REG_ESI: MAIN, UC_X86_REG_EDI: 3, UC_X86_REG_EBX: self.MODEL})
                 self.assertEqual((world.get(lookup) & 0xFFFF, world.get(flag) & 0xFF), (0x0303 if uav else 0, requested))
+
+    def test_every_custom_aircraft_section_has_rows_from_the_year_it_is_used(self):
+        # The native loader finds only a row of the year or the year before: earlier, a prototype fails to load.
+        import modern_aircraft as aircraft
+        for first_used, rows in ((tree.UAV_YEAR, aircraft.UAV_YEARS), (tree.UCAV_YEAR, aircraft.UCAV_YEARS),
+                                 (tree.AIRCRAFT_STEALTH[1], aircraft.STEALTH_YEARS)):
+            self.assertLessEqual(rows[0], first_used)
 
     def formation(self, world, mark):
         world.put(self.FORMATION+0x10, self.MODEL); world.put(self.MODEL+sensors.MARK, mark)

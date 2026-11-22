@@ -75,9 +75,9 @@ def class_patches(blob, base, allocation, limits=LIMITS):
         strings.extend(value.encode("utf-16-le") + b"\0\0")
         return address
 
-    def rule(label, message, instruction, new_value, new_message):
+    def rule(label, message, instruction, new_value, new_message, window=0x50):
         ref = message_ref(blob, base, message)
-        start = max(0, ref-0x50)
+        start = max(0, ref-window)
         offset = start + unique(blob[start:ref], instruction, label)
         replacement = instruction[:-4] + int(new_value).to_bytes(4, "little")
         patches.append(patch(label, base+offset, instruction, replacement))
@@ -101,6 +101,9 @@ def class_patches(blob, base, allocation, limits=LIMITS):
         rule(f"CL {old} ceiling", f"A CL must be larger than 2000 tons, no larger than {old} tons and have a speed of at least 17 knots.",
              b"\x3d"+struct.pack("<I", old), limits["CL"],
              f"A CL must be larger than 2000 tons, no larger than {limits['CL']} tons and have at least 17 knots.")
+    # The design report's CA ceiling (AMC's identical check sits just before it and stays freed).
+    rule("CA class ceiling", "Error: CA cannot be larger than 26000 tons!", b"\x81\x7b\x2c"+struct.pack("<I", 26000),
+         limits["CA"], f"Error: CA cannot be larger than {limits['CA']} tons!", window=0x10)
     ke = rule("KE class ceiling", "A KE must be no larger than 2500 tons and have no torpedoes.",
               b"\x81\xff"+struct.pack("<I", 2500), limits["KE"],
               f"A KE must be between 200 and {limits['KE']} tons, and before {MODERN_TORPEDO_YEAR} have no torpedoes.")
@@ -204,7 +207,7 @@ FREED_ERRORS = (
     ("Error: Ships with this armour scheme cannot have upper belt!", 1),
     ("Error: If a ship has cross deck fire, it cannot have more than 4 secondary guns above 3 in calibre not in casemates!", 1),
     ("Error: Long range ships cannot have low freeboard!", 1), ("Error: Long range ships cannot have cramped accomodation!", 1),
-    ("Error: AMC cannot be larger than 26000 tons!", 1), ("Error: CA cannot be larger than 26000 tons!", 1),
+    ("Error: AMC cannot be larger than 26000 tons!", 1),   # the CA one is raised to LIMITS["CA"] instead
     ("Error: Ship type cannot be equipped with catapults!", 1),
     ("Error: Ships must have at least 10 000 tons displacement to operate heavy SAM systems!", 1),
     ("Error: Ships must have at least 3 600 tons displacement to operate medium SAM systems!", 1),

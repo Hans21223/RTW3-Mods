@@ -17,7 +17,8 @@ not above 0) and when a ban treaty is signed).
 Blast: a nuclear shell's hit also hits every other ship within BLAST_YARDS of the target (the firer excepted; nuclear_subs.py does the same for nuclear torpedoes and missiles)
 with a BLAST_CALIBRE-inch hit through the native HandleHit, from inside FireGuns' own frame. Against aircraft
 a ship that may fire nuclear shells has a large heavy AA bonus instead (modern_navy.NUCLEAR_HAA, may_nuclear).
-Aftermath: firing a nuclear weapon sets a flag. At the next turn (RandomTensionChanges) every nation's tension
+Aftermath: firing a nuclear weapon sets a flag. At the next turn (CheckTurnEvents' entry, every turn: until
+2026-11-22 it was RandomTensionChanges, which the turn events only call on some turns) every nation's tension
 rises by NUCLEAR_TENSION with a news item, and one time in TREATY_ODDS the powers propose a treaty banning nuclear
 weapons for TREATY_YEARS years, which the player signs or refuses. While it runs nobody fires nuclear weapons
 (use_nuclear and may_nuclear answer no). Its last year rides with the player's choice: table value bits 8-15,
@@ -35,6 +36,7 @@ GUIDED_COST, NUCLEAR_COST, TORPEDO_COST, MISSILE_COST = 1, 500, 800, 1500
 BLAST_YARDS, BLAST_CALIBRE = 1500, 12
 NUCLEAR_TENSION, TREATY_ODDS, TREATY_YEARS = 3, 3, 15
 SLOTS = 16
+ARMAGEDDON_BLOCK, MISSILE_TEXT_BLOCK = "Shell doctrine: armageddon", "Shell doctrine: missile"   # nuclear_armageddon finds them
 WINDOWS = (
     (0x6084E0, 0x18, None),   # doctrine form: load the group's index
     (0x609752, 0x18, None),   # doctrine form, Close: store it
@@ -46,7 +48,7 @@ WINDOWS = (
     (0x751100, 0xF8, None),   # RandomTensionChanges: entry, the speech's tension change and news
     (0x6097B2, 0x30, None),   # a Yes/No MessageDlg (doctrine form)
 )
-MONTH = (0x751100, "558becb917000000")                           # RandomTensionChanges: push ebp / mov ebp,esp / mov ecx,17h
+MONTH = (0x7B30F0, "558bec33c9515151")   # CheckTurnEvents (EAX the campaign): push ebp / mov ebp,esp / xor ecx,ecx / push ecx x3
 SITES = (("show", 0x6084E6, "8b9095000000"), ("close", 0x60975E, "898695000000"),
          ("read", 0x71FF95, "898395000000"), ("write", 0x723C9C, "8b8395000000"))
 NATIVE = dict(set_left=0x450EF0, set_top=0x450F24, set_width=0x450F5C, set_height=0x450F90, set_text=0x451CA0,
@@ -131,12 +133,15 @@ def build(page, info):
     import modern_tree as tree
     at = dict(lookup=page, store=page+0x40, use=page+0xC00, blast=page+0x100, show=page+0x200, close=page+0x500,
               read=page+0xE00, write=page+0xE40, find=page+0xE80, table=page+0x680, cursor=page+0x680+SLOTS*8,
-              used=page+0x684+SLOTS*8, texts=page+0x800, month=page+0xD00)
+              used=page+0x684+SLOTS*8, armageddon=page+0x688+SLOTS*8, texts=page+0x800, month=page+0xD00)
     at.update(close=page+0xF00)                                  # four tick boxes: Close reads them at the page's end
     research = dict(guided=tree.GUIDED_SHELLS[0], nuclear=tree.NUCLEAR_SHELLS[0], torpedo=tree.SSN, missile=tree.SSBN)
     at["conserve"] = page+0xEC0
     n, code, texts, cursor = info, {}, {}, at["texts"]
-    blocks = [dict(name="Shell doctrine: table", address=at["table"], bytes="00"*(SLOTS*8+8))]
+    blocks = [dict(name="Shell doctrine: table", address=at["table"], bytes="00"*(SLOTS*8+8)),
+              # Nuclear Armageddon (nuclear_armageddon.py) sets it: nuclear weapons without the one-a-battle limits,
+              # and nuclear heavy SAMs and SSMs (modern_navy, nuclear_subs, modern_air_defence).
+              dict(name=ARMAGEDDON_BLOCK, address=at["armageddon"], bytes="00"*4)]
     for key, text in {**TEXTS, **NEWS}.items():
         body = literal(text); texts[key] = cursor+12
         blocks.append(dict(name="Shell doctrine: "+key, address=cursor, bytes=body.hex())); cursor += (len(body)+3) & ~3
@@ -201,7 +206,8 @@ def build(page, info):
     code["use"] = c.finish()
     entries = dict(conserve=at["conserve"], used=at["used"], use_torpedo=at["use"]+c.labels["torpedo"], use_missile=at["use"]+c.labels["missile"],
                    use_guided=at["use"], use_nuclear=at["use"]+c.labels["nuclear"], may_nuclear=at["use"]+c.labels["may"],
-                   blast=at["blast"])
+                   blast=at["blast"], armageddon=at["armageddon"],
+                   lookup=at["lookup"], first=at["first"], year=n["year"])   # nuclear_strike pays by itself
 
     # blast: in FireGuns ([ebp-24h] firer, [ebp-28h] target, [ebp+18h] battery), before the nuclear hit lands.
     c = Code(at["blast"]); c.emit(b"\x60\x6a\x00")

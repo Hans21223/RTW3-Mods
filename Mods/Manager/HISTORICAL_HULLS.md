@@ -114,7 +114,7 @@ remains separate; no campaign is loaded, advanced or saved by these checks.
 | --- | ---: |
 | DD | 16,000 tons (Zumwalt is about 15,900 tons full load), still requiring the native highest DD hull technology for the largest sizes |
 | CL, including protected cruisers | 25,000 tons (the CG(X) cruiser studies); old 8,000/10,000/12,000-ton class ceilings lifted |
-| CA | 35,000 tons (Alaska: 29,800 tons standard, 34,300 full load); native designer ceiling 26,000 tons. A ship you select as CA stays a CA with main guns up to 12 inches and a belt up to 10 inches (Alaska: 12-inch guns, 9-inch belt); natively, 11-inch guns, an 8-inch belt or 20,000+ tons turned it into a BC or BB |
+| CA | 35,000 tons (Alaska: 29,800 tons standard, 34,300 full load); the design report's CA ceiling is raised from the native 26,000 tons to this, not removed. A ship you select as CA stays a CA with main guns up to 12 inches and a belt up to 10 inches (Alaska: 12-inch guns, 9-inch belt); natively, 11-inch guns, an 8-inch belt or 20,000+ tons turned it into a BC or BB |
 | KE | 8,000 tons (Type 26 frigate class); no torpedoes before 1950, then torpedoes allowed (ASW tubes on modern corvettes and frigates) |
 | AV | No designer ceiling (native 14,000 tons) |
 | CVL | 45,000 tons (America-class LHA) and up to 80 aircraft |
@@ -145,7 +145,7 @@ notes already price those choices. The design report no longer lists them:
   armour scheme, and the AV 14,000-ton ceiling (heavy SAMs on carriers are freed
   by VLS Cells, which owns that code);
 - type limits: unit machinery and TPS on AMC and KE, KE above 24 knots, armoured
-  destroyers, AMC speed, size and dual purpose main guns, CA above 26,000 tons,
+  destroyers, AMC speed, size and dual purpose main guns,
   catapults on DD and KE, dual purpose main guns of any calibre on DD and KE,
   secondary directors below CA, triple secondary turrets outside BB and BC (the
   triple-turret research still applies to every type), and the armour deck that

@@ -212,6 +212,19 @@ bounded procurement rule, not a full economic rebalance or a measured guarantee
 of campaign balance/performance. Other weekly economy/research timers remain
 per-turn unless another mod explicitly changes them.
 
+**Government building programme.** The government sets a programme: a number
+of ships of one type (or group: B, BB or BC; CL or CA) to have under
+construction when it is reviewed, with praise if you do and a reprimand and
+prestige loss if not. The game counted any ship of the type, so a token hull
+of a few thousand tons satisfied it. Since 0.12.0 a ship counts only if it
+displaces at least `build_programme_min_percent` (60) percent of the average
+displacement of that type's ships in service in the whole world, rounded down
+to 100 t, and never more than 90% of your largest dock. The review, the
+warning a month before and the main screen line use the same rule; the line
+shows the minimum, for example " Must have 2 B, BB or BC (24,000 t or more)
+building". Submarines count as before. Cancelled and refitting ships count as
+natively. Computer nations have no programme.
+
 Defaults are configurable in `Mods/Library/campaign-qol/mod.json` under `runtime`:
 
 | Setting | Default | Allowed range |
@@ -219,6 +232,8 @@ Defaults are configurable in `Mods/Library/campaign-qol/mod.json` under `runtime
 | `max_active_ships` | 400 | 50-10000 |
 | `max_building_ships` | 24 | 1-1000 |
 | `min_procurement_days` | 28 | 1-90 |
+| `invade_possessions` | 1 | 0-1 |
+| `build_programme_min_percent` | 60 | 0-100 (0: native rule) |
 
 Settings take effect on the next launch. Disable the package and restart to
 restore native purchasing. Hooks are session-only and refuse unknown code.

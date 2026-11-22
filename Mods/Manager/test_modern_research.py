@@ -46,7 +46,7 @@ class TreeTests(unittest.TestCase):
         implemented = (set(tree.VLS_CELLS.values())|{i for i, _ in tree.VLS_LIGHT+tree.VLS_DENSE}|{i for i, _, _ in tree.STEALTH}
                        |{tree.RAILGUN, tree.LASERS, tree.HYPERSONIC, tree.INTEGRATED_POWER[0], *tree.RAILGUN_EFFICIENCY}
                        |{tree.AESA[0], tree.GUIDED_TORPEDOES[0], tree.GUIDED_SHELLS[0], tree.EMALS[0],
-                         tree.HEAVY_GUIDED_SHELLS[0], tree.SATELLITES[0], tree.UAVS, tree.RAILGUN_SECONDARIES, tree.RAILGUN_POINT_DEFENCE[0], tree.ASW_TORPEDOES, tree.VL_ASW, tree.COMPOSITE[0], tree.USV, tree.NUCLEAR_SHELLS[0], tree.SKI_JUMP[0], tree.VTOL, tree.SSN, tree.SSBN, tree.STEALTH_SSM[0], tree.HYPERSONIC_SAM[0], *(i for i, *_ in tree.SEAD), tree.HYBRID[0], *(i for i, *_ in tree.MISSILE_RANGES)})
+                         tree.HEAVY_GUIDED_SHELLS[0], tree.SATELLITES[0], tree.UAVS, tree.RAILGUN_SECONDARIES, tree.RAILGUN_POINT_DEFENCE[0], tree.ASW_TORPEDOES, tree.VL_ASW, tree.COMPOSITE[0], tree.USV, tree.NUCLEAR_SHELLS[0], tree.SKI_JUMP[0], tree.VTOL, tree.SSN, tree.SSBN, tree.STEALTH_SSM[0], tree.HYPERSONIC_SAM[0], *(i for i, *_ in tree.SEAD), tree.HYBRID[0], *(i for i, *_ in tree.MISSILE_RANGES), tree.DRONE_SWARMS[0], tree.HVP_AA[0], tree.AERIAL_REFUELLING[0], tree.CARRIER_TANKERS[0]})
         for node in self.nodes:
             self.assertTrue(node["effects"] or node["area"] in tree.NATIVE or node["id"] in implemented)
             self.assertTrue(set(node["effects"]) <= tree.LABELS.keys())
@@ -327,7 +327,7 @@ class OlderSaveTests(unittest.TestCase):
     def load(self, values, regular=24, attached=True):
         vm = slots.machine(self.blob, regular)
         if attached:
-            vm.mem_map(self.code, 0x20000)
+            vm.mem_map(self.code, 0x30000)
             blocks, plans, _ = modern.build(self.code, modern.discover(self.blob, slots.BASE))
             for item in blocks+[dict(address=p["address"], bytes=p["replacement"]) for p in plans]:
                 vm.mem_write(item["address"], bytes.fromhex(item["bytes"]))

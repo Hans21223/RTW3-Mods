@@ -144,6 +144,9 @@ NEW_AREAS = (
         # Naval combat systems is full (36 levels); the missile boats sit with the launch systems.
         (2336, 1952, 1012, 60, 40, "Nuclear attack submarines",
          "Build nuclear attack submarines (SSN): long range boats whose torpedoes can carry nuclear warheads"),
+        # 1953: inserted 2026-11-21, so campaigns past 1953 have this branch's later progress shifted by one row.
+        (2347, 1953, 1728, 70, 12, "Aerial refuelling",
+         "Land-based aircraft have 50% more range: tankers refuel them on the way out (KC-97, probe and drogue). Not carrier aircraft"),
         (2337, 1957, 1028, 60, 40, "Ballistic missile submarines",
          "Build ballistic missile submarines (SSBN): missile boats launching 4 missiles where a missile submarine launches one, one of them nuclear if allowed"),
         (2338, 1969, 1823, 70, 14, "Vertical take-off jet fighters",
@@ -171,6 +174,11 @@ NEW_AREAS = (
          "Stealthy SSMs (LRASM, NSM, JSM): enemy SAMs, CIWS and radar-guided AA stop a third fewer of them"),
         (2340, 2025, 2208, 70, 30, "Hypersonic interceptors",
          "SAMs keep 60% of their kills against hypersonic missiles instead of 30% (SM-6 Sea-Based Terminal, S-500)"),
+        # Prerequisites come from the original tree or an earlier row of the same new branch (native load order).
+        (2346, 2026, 2340, 70, 30, "Hypervelocity anti-air projectiles",
+         "Railgun main batteries of any calibre fire hypervelocity air-burst rounds at aircraft: 20 heavy AA a gun (a 5-inch DP gun gives 9 to 12), they engage air strikes from three times as far, and their hits strike two aircraft"),
+        (2348, 2027, 2347, 70, 30, "Unmanned carrier tankers",
+         "A carrier's special squadron also flies tanker drones (MQ-25 Stingray): that carrier's aircraft have 30% more range"),
         (2210, 2030, 2209, 70, 28, "Next-generation VLS modules [projected]", "VLS cells weigh another 10% less"))),
     # SAM, SSM and anti-missile quality already reach their reviewed +10 maximum
     # through the appended branches, so this branch improves guns and ship systems.
@@ -215,6 +223,8 @@ NEW_AREAS = (
          "Carriers laid down from 2009 with catapults: each catapult adds 4 aircraft per strike instead of 1, and heavy jets need 24,000 tons instead of 30,000"),
         (2312, 2020, 2313, 70, 30, "Electromagnetic railgun",
          "Enables railgun main batteries: twice the range, penetration as a gun 4 inches larger at half the range, inert rounds, needs Nuclear or Gas turbine power"),
+        (2345, 2021, 2326, 70, 30, "Interceptor drone swarms",
+         "Ships with a helicopter deck, catapult or flight deck launch AI interceptor drones (Coyote, Roadrunner): 15% more chance to stop each incoming missile, +4 heavy AA against air attacks, and carriers count as having an AEW squadron for radar and CAP"),
         (2316, 2022, 2313, 70, 30, "Shipboard high-energy lasers",
          "Enables laser mounts (HELIOS, DragonFire): a first layer against incoming missiles, 1 MW each, needs Nuclear or Gas turbine power"),
         (2317, 2023, 1917, 70, 30, "Hypersonic anti-ship missiles",
@@ -282,6 +292,15 @@ QUAD_PACK = 2208                       # light SAM VLS cells hold four missiles 
 SSN, SSBN = 2336, 2337                 # Build submarine list entries, nuclear torpedoes and missiles (nuclear_subs)
 RAILGUN_SECONDARIES = 2329             # Railgun secondaries / tertiaries options (modern_railgun)
 RAILGUN_POINT_DEFENCE = (2330, 20, 50)   # research, % per DP railgun battery against incoming missiles, cap %
+# Interceptor drones (modern_air_defence): research; % more chance a drone ship stops an incoming missile (the decoy
+# roll), heavy AA value it adds against air attacks. Carriers of the nation also count as having an AEW squadron.
+DRONE_SWARMS = (2345, 15, 4)
+# Hypervelocity AA rounds (modern_air_defence): research; heavy AA a railgun main gun counts, AA range factor, aircraft
+# a hit strikes.
+HVP_AA = (2346, 20, 3, 2)
+# Tankers (modern_air_defence): research, range % of land-based aircraft (an airfield's formations); research, range %
+# of a carrier's aircraft while the carrier has its special squadron (the tanker drones fly with it).
+AERIAL_REFUELLING, CARRIER_TANKERS = (2347, 150), (2348, 130)
 EMALS = (2321, 2009, 24000, 4)         # research = laid-down year gate, heavy-jet carrier tons, spot per catapult
 RAILGUN_EFFICIENCY = (2314, 2315)      # each: railguns need 25% less power
 LIGHTER_MOUNTS = ((2315, 110), (2314, 125))   # railgun mount weight %, newest first (base 150)

@@ -214,9 +214,9 @@ class DoctrineTests(unittest.TestCase):
         w.put(entries["used"], used); w.put(n["war"], war & 0xFFFFFFFF)
         for name, value in dict(EAX=MAIN, EBX=0x2345, ECX=0x1234, ESI=0x4567, EDI=0x5678, EBP=FRAME, ESP=STACK+0x8000).items():
             w.vm.reg_write(globals()["UC_X86_REG_"+name], value)
-        w.vm.emu_start(n["month"], n["month"]+8, count=20000)
+        w.vm.emu_start(n["month"], n["month"]+8, count=20000)   # CheckTurnEvents' replayed prologue: ECX 0, 3 pushed
         self.assertEqual([w.reg(r) for r in ("EAX", "EBX", "ECX", "ESI", "EDI", "EBP", "ESP")],
-                         [MAIN, 0x2345, 0x17, 0x4567, 0x5678, STACK+0x8000-4, STACK+0x8000-4])
+                         [MAIN, 0x2345, 0, 0x4567, 0x5678, STACK+0x8000-4, STACK+0x8000-16])
         self.assertEqual(w.get(entries["used"]), 0)
         w.stubs[n["nation"]] = battle
         return changes, news, asked

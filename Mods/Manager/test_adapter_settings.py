@@ -79,7 +79,8 @@ class RetainedBuildSettingsTests(unittest.TestCase):
         plans, strings = hull_rules.class_patches(self.blob, self.base, 0x10000000, limits)
         patched = {p["label"]: bytes.fromhex(p["replacement"]) for p in plans}
         for label, value in (("DD class ceiling", 15000), ("DD research hard maximum", 15000), ("Special CL ceiling", 25000),
-                             ("CL 12000 ceiling", 25000), ("KE class ceiling", 8000), ("CVL class ceiling", 45000)):
+                             ("CL 12000 ceiling", 25000), ("KE class ceiling", 8000), ("CVL class ceiling", 45000),
+                             ("CA class ceiling", hull_rules.LIMITS["CA"])):
             self.assertTrue(patched[label].endswith(struct.pack("<I", value)), label)
         self.assertEqual(patched["CVL class aircraft"][-1], 127)
         self.assertEqual(patched["Designer CV limit 2"], b"\xb8"+struct.pack("<I", 250000))

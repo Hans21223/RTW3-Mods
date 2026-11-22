@@ -138,6 +138,27 @@ class YearTableTests(unittest.TestCase):
             for year in (end,2000,2030,2050,2060):
                 self.assertEqual(self.landing(blob,code,chain,register,year),last,(hex(address),year))
 
+    def test_map_missions_ending_in_1999_stay_open_and_others_still_end(self):
+        slot=0x9F7328   # the campaign year, as CheckEndOfGame loads it
+        (p,)=timeline.mission_year_plans(self.BLOB,self.BASE,slot)
+        blob=bytearray(self.BLOB); at=p["address"]-self.BASE
+        blob[at:at+12]=bytes.fromhex(p["replacement"])
+        def offered(code,year,first,last):   # BattleOK from its first-year check: BL stays 1 when offered
+            vm=Uc(UC_ARCH_X86,UC_MODE_32); vm.mem_map(0x300000,0x800000); vm.mem_map(0x1000000,0x10000)
+            vm.mem_write(0x301000,bytes(code)); vm.mem_write(slot,struct.pack("<I",0x1000100))
+            vm.mem_write(0x1000100,struct.pack("<I",year))
+            vm.mem_write(0x1008000-8,struct.pack("<ii",first,last))
+            vm.reg_write(UC_X86_REG_EBX,1); vm.reg_write(UC_X86_REG_ESP,0x1007000)
+            from unicorn.x86_const import UC_X86_REG_EBP
+            vm.reg_write(UC_X86_REG_EBP,0x1008000)
+            vm.emu_start(timeline.MISSION_YEARS,timeline.MISSION_YEARS+0x1A)
+            return vm.reg_read(UC_X86_REG_EBX)&0xFF
+        for year,first,last,native,now in ((1930,1890,1940,1,1),(1941,1890,1940,0,0),(2011,1890,1940,0,0),
+                                           (1995,1890,1999,1,1),(2011,1890,1999,0,1),(2050,1890,1999,0,1),
+                                           (2011,1890,2099,1,1),(1885,1890,1999,0,0),(2011,2015,2099,0,0)):
+            self.assertEqual((offered(self.BLOB,year,first,last),offered(blob,year,first,last)),(native,now),
+                             (year,first,last))
+
     def test_aircraft_windows_still_match_with_the_tables_in_place(self):
         import aircraft_improvements as aircraft
         _,_,blob=self.patched()

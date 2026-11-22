@@ -486,7 +486,7 @@ def attach(wait=30, settings=None):
         if REPORT.exists():
             old=json.loads(REPORT.read_text())
             if old.get("attached") and old.get("pid")==pid and old.get("base")==module and rt.report_is_current(REPORT,pid):
-                if old.get("adapter_version",1)!=7:
+                if old.get("adapter_version",1)!=9:
                     raise ValueError("Restart through Play with mods to install the updated battle AI. No live battle hooks were changed.")
                 ai.verify(handle,old["patches"],"replacement");return old
         base,blob=rt.text_section(handle,module);info=discover(blob,base,settings)
@@ -545,7 +545,7 @@ def attach(wait=30, settings=None):
             for p in plans:
                 rt.write_code(handle,p["address"],bytes.fromhex(p["original"]),bytes.fromhex(p["replacement"]));applied.append(p)
             ai.verify(handle,plans,"replacement")
-            saved=dict(attached=True,adapter_version=7,pid=pid,base=module,allocation=allocation,state=state,patches=plans,code_blocks=blocks,
+            saved=dict(attached=True,adapter_version=9,pid=pid,base=module,allocation=allocation,state=state,patches=plans,code_blocks=blocks,
                        details=info,missiles={k:v for k,v in missiles.items() if k not in ("blocks","patches")},
                        personal_saves_modified=False,battle_gameplay_verified=False)
             REPORT.write_text(json.dumps(saved,indent=2)+"\n");return saved

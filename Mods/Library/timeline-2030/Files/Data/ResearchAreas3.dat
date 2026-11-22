@@ -700,6 +700,7 @@ Adaptive terminal defence coordination [projected];2030;N;70;40;2145;Anti-missil
 [Vertical launch systems 22]
 PicName=MissileBattery.jpg
 Nuclear attack submarines;1952;N;60;40;2336;Build nuclear attack submarines (SSN): long range boats whose torpedoes can carry nuclear warheads;1012
+Aerial refuelling;1953;N;70;12;2347;Land-based aircraft have 50% more range: tankers refuel them on the way out (KC-97, probe and drogue). Not carrier aircraft;1728
 Ballistic missile submarines;1957;N;60;40;2337;Build ballistic missile submarines (SSBN): missile boats launching 4 missiles where a missile submarine launches one, one of them nuclear if allowed;1028
 Anti-radiation missiles;1965;N;70;14;2341;Jet strike aircraft carry anti-radiation missiles (Shrike): enemy SAMs are a quarter less effective against them;1907
 Self-protection jamming pods;1967;N;70;14;2342;Strike aircraft carry jamming pods (ALQ-71, ALQ-119): enemy SAMs are a fifth less effective against them;1523
@@ -718,6 +719,8 @@ Vertical-launch ASW rockets;1993;N;70;20;2211;Ships with a VLS bank gain ASW val
 Peripheral VLS integration;2005;N;70;24;2209;Hulls can carry 25% more VLS cells again;2208
 Low-observable anti-ship missiles;2017;N;70;28;2339;Stealthy SSMs (LRASM, NSM, JSM): enemy SAMs, CIWS and radar-guided AA stop a third fewer of them;1917
 Hypersonic interceptors;2025;N;70;30;2340;SAMs keep 60% of their kills against hypersonic missiles instead of 30% (SM-6 Sea-Based Terminal, S-500);2208
+Hypervelocity anti-air projectiles;2026;N;70;30;2346;Railgun main batteries of any calibre fire hypervelocity air-burst rounds at aircraft: 20 heavy AA a gun (a 5-inch DP gun gives 9 to 12), they engage air strikes from three times as far, and their hits strike two aircraft;2340
+Unmanned carrier tankers;2027;N;70;30;2348;A carrier's special squadron also flies tanker drones (MQ-25 Stingray): that carrier's aircraft have 30% more range;2347
 Next-generation VLS modules [projected];2030;N;70;28;2210;VLS cells weigh another 10% less;2209
 [Naval combat systems 23]
 PicName=Radar.jpg
@@ -747,6 +750,7 @@ Guided gun projectiles;2012;N;70;28;2320;Guns of 6 inches and less fire guided s
 Long-range anti-ship missiles;2013;N;70;28;2327;SSM range another +50% (NSM, LRASM);2324
 Active-seeker long-range SAMs;2014;N;70;28;2328;Medium and heavy SAM range another +50% (SM-6);2325
 Electromagnetic railgun;2020;N;70;30;2312;Enables railgun main batteries: twice the range, penetration as a gun 4 inches larger at half the range, inert rounds, needs Nuclear or Gas turbine power;2313
+Interceptor drone swarms;2021;N;70;30;2345;Ships with a helicopter deck, catapult or flight deck launch AI interceptor drones (Coyote, Roadrunner): 15% more chance to stop each incoming missile, +4 heavy AA against air attacks, and carriers count as having an AEW squadron for radar and CAP;2326
 Shipboard high-energy lasers;2022;N;70;30;2316;Enables laser mounts (HELIOS, DragonFire): a first layer against incoming missiles, 1 MW each, needs Nuclear or Gas turbine power;2313
 Hypersonic anti-ship missiles;2023;N;70;30;2317;Hypersonic SSMs option (Zircon, Conventional Prompt Strike): SAMs, CIWS, radar AA and lasers stop only 30% as many, heavier VLS cells, and aircraft developed from 2023 launch hypersonic ASMs (Kinzhal, YJ-21);1917
 Explosive unmanned surface vessels;2024;N;70;30;2333;MTB squadrons become fast USV squadrons (Black Sea drone boats);2326

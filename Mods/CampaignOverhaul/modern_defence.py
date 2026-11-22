@@ -84,9 +84,10 @@ def discover(blob, base, normalized):
     return info
 
 
-def build(page, info, doctrine, flight):
+def build(page, info, doctrine, flight, drones=None, nuclear_sam=None):
     """Code and data at page (0x400 bytes) and the missile flight routine at flight (its own page).
-    doctrine: shell_doctrine's entry points (conserve)."""
+    doctrine: shell_doctrine's entry points (conserve). modern_air_defence: drones, drone_ship(EAX ship) -> AL;
+    nuclear_sam(EAX ship, EDX kind) -> AL."""
     from campaign_security import Code
     from hull_rules import patch
     import modern_combat as combat
@@ -112,6 +113,10 @@ def build(page, info, doctrine, flight):
     code["handled"] = c.finish()
     # After FireSAM (EAX missiles fired, EBX kind, ESI ship): quad-packed light SAMs go back three times in four.
     c = Code(at["fired"]); c.branch(b"\xe8", "refund"); c.emit(b"\x48\x85\xc0"); c.branch(b"\x0f\x8c", n["no_shot"])
+    if nuclear_sam:   # a nuclear heavy SAM (Nuclear Armageddon) shoots the missile down: [ebp-5] the answer
+        c.emit(b"\x50\x8b\xc6\x8b\xd3"); c.branch(b"\xe8", nuclear_sam); c.emit(b"\x84\xc0\x58"); c.branch(b"\x0f\x84", "native")
+        c.emit(b"\xc6\x45\xfb\x01"); c.branch(b"\xe9", n["no_shot"])
+        c.mark("native")
     c.branch(b"\xe9", n["shot"])
     # The anti-aircraft FireSAM(EAX ship, EDX kind, CL) calls come here, so their light SAMs come back too.
     c.mark("wrapper"); c.emit(b"\x53\x56\x8b\xf0\x8b\xda"); c.branch(b"\xe8", n["fire_sam"]); c.branch(b"\xe8", "refund")
@@ -172,6 +177,10 @@ def build(page, info, doctrine, flight):
         c.emit(b"\x81\xbd"); c.u32(DESIGN_YEAR); c.u32(year); c.branch(b"\x0f\x8c", f"no{ident}")
         combat.researched(c, n, b"\x8b\x55"+bytes([SHIP["nation"]]), ident, f"asked{ident}"); c.emit(b"\x84\xc0"); c.branch(b"\x0f\x84", f"no{ident}")
         c.emit(b"\x83\x44\x24\x04"+bytes([percent])); c.mark(f"no{ident}")
+    if drones:   # interceptor drones (modern_air_defence)
+        c.emit(b"\x8b\xc5"); c.branch(b"\xe8", drones); c.emit(b"\x84\xc0"); c.branch(b"\x0f\x84", "no_drones")
+        c.emit(b"\x83\x44\x24\x04"+bytes([tree.DRONE_SWARMS[1]]))
+        c.mark("no_drones")
     combat.researched(c, n, b"\x8b\x14\x24", tree.EW_SEEKER[0], "seeker"); c.emit(b"\x84\xc0"); c.branch(b"\x0f\x84", "out")
     c.emit(b"\x83\x6c\x24\x04"+bytes([tree.EW_SEEKER[1]]))
     c.mark("out"); c.emit(b"\x61\x8b\xc5"); c.branch(b"\xe8", n["operational"]); c.branch(b"\xe9", n["sites"]["decoy"]+7)

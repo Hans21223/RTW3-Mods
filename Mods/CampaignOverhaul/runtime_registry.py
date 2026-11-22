@@ -41,7 +41,7 @@ _ADAPTERS = (
     Adapter("campaign-security", "campaign_security", requires=("live-cheats",)),
     Adapter("campaign-qol", "campaign_qol", "settings", {
         "max_active_ships": (50, 10000), "max_building_ships": (1, 1000), "min_procurement_days": (1, 90),
-        "invade_possessions": (0, 1)},
+        "invade_possessions": (0, 1), "build_programme_min_percent": (0, 100)},
         after=("campaign-security",)),
     Adapter("historical-decolonization", "decolonization", after=("campaign-qol",)),
     Adapter("battle-ai", "battle_ai", "settings", {
@@ -58,6 +58,8 @@ _ADAPTERS = (
     Adapter("aircraft-improvements", "aircraft_improvements", after=("research-traits",)),
     # Traits hashes a window over the Research<N> key calls this adapter retargets.
     Adapter("modern-research", "modern_research", requires=("timeline-2030",), after=("research-traits", "aircraft-improvements")),
+    # A switch in modern-research's runtime: it writes into that adapter's pages, so it attaches after it.
+    Adapter("nuclear-armageddon", "nuclear_armageddon", requires=("modern-research",), after=("modern-research",)),
     # Requires means present, not necessarily installed first: security and QoL
     # extend the idle dispatcher which live-cheats discovers later.
     Adapter("live-cheats", "live_cheats", after=("campaign-security", "campaign-qol", "battle-ai", "research-traits", "aircraft-improvements")),
