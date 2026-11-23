@@ -84,11 +84,3 @@ Read the current runtime patch addresses or remove an attachment:
 python .\Mods\CampaignOverhaul\weekly_runtime.py clock
 python .\Mods\CampaignOverhaul\weekly_runtime.py detach
 ```
-
-## Validation
-
-The update manifest verifies every copied game file. Event validation checks
-the four-line record format, original event count, every unchanged mechanical
-field, and exact generated output. Runtime inspection checks both named turn
-methods and their shared calendar address instead of reusing old build offsets.
-See `validation.json` for the actual test results and remaining limitations.
