@@ -279,6 +279,10 @@ ASBM = 2327                        # coastal missile batteries fire anti-ship ba
 MISSILE_FLIGHT = (2324, 2327)   # sea-skimming (Harpoon, Exocet), terminal manoeuvres (NSM, LRASM): modern_defence
 MISSILE_RANGES = ((2324, 4, 6, 150), (2327, 4, 6, 150), (2325, 1, 2, 200), (2328, 1, 2, 150))
 SATELLITES = (2323, 5)                 # research, per-mille chance per radar ship's pass over a far enemy surface ship
+# ESM (modern_recon): research; % of an emitting ship's own radar band (15,000 yd + 4,000 per search radar class) at
+# which a researching nation's ships hear it. EMCON (nuclear_strike's battle button): added to the player's ships'
+# radar damage (Tship +A0Fh) while their radars are off, so every native radar check sees them as down.
+ESM, EMCON = (2304, 300), 1000
 UCAV_YEAR = 2020                       # stealth jet attack prototypes from this year are unmanned, with UAVS
 UAVS = 2326                            # floatplane scouts launch and recover like catapult UAVs
 UAV_YEAR = 2005                        # floatplane scout prototypes from this year are UAV models, with UAVS (modern_sensors)
@@ -308,6 +312,8 @@ NOTES = {PHASED_ARRAY: "Search radar 6: Aegis-type phased array (needs all five 
          NUCLEAR_PROPULSION: "Enables Nuclear propulsion: any range for less fuel weight than Short, never short of fuel or oil, machinery 60% heavier and 3x the cost",
          **{ident: f"Nuclear ships spare {percent}% of their horsepower as railgun power" for ident, percent in REACTOR_GENERATIONS}}
 NOTES[THORIUM[0]] = f"Nuclear machinery only {THORIUM[1]-100}% heavier (not 60%), " + NOTES[THORIUM[0]].lower()
+NOTES[ESM[0]] = (f"ESM: enemy ships with their search radar on are heard at {ESM[1]/100:g}x its range and become radar contacts "
+                 "missiles can engage (EMCON in battle turns your radars off)")
 VLS_LIGHT = ((2205, 20), (2208, 10), (2210, 10))        # research -> % lighter cells
 VLS_DENSE = ((2206, 64), (2209, 51))                    # research -> tons per cell
 
@@ -377,6 +383,7 @@ def render(raw=None):
             for slot, (ident, year, previous, chance, cost, name, effect) in enumerate(sorted(techs, key=lambda t: t[1])):
                 effects = effect.split("/") if effect.startswith("Get") else []
                 description = ", ".join(LABELS[e] for e in effects) if effects else effect
+                if ident in NOTES: description = NOTES[ident]+", "+description
                 output.append(f"{name};{year};N;{chance};{cost};{ident};{description};{previous}\r\n")
                 nodes.append(dict(area=index, branch=branch, slot=slot, id=ident, name=name, year=year,
                                   prerequisite=previous, effects=effects, description=description, cost_units=cost))

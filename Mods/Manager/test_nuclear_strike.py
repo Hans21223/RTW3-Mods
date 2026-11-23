@@ -379,11 +379,12 @@ class StrikeTests(unittest.TestCase):
         w.put(d["key_frame"], 0x07070707)
         self.run_site(INFO["form_show"], INFO["form_show"]+6, EBX=FORM, ESI=0x4567, EDI=0x5678)
         self.assertEqual([w.reg(r) for r in ("EAX", "EBX", "ESI", "EDI")], [0x4A84A8, FORM, 0x4567, 0x5678])
-        kinds = ("nuke", "console")+CONSOLE
+        kinds = ("nuke", "console")+CONSOLE+("emcon",)
         made = dict(zip(kinds, self.made))
         self.assertEqual([w.get(m) for m in self.made], [INFO[ns.KINDS[k]] for k in kinds])
         self.assertEqual([w.get(made[k]+ns.CONTROL["tag"]) for k in kinds], [ns.TAGS[k] for k in kinds])
-        self.assertEqual(self.called("parent"), [(made["nuke"], TOOLBAR), (made["console"], FORM)]+[(made[k], made["console"]) for k in CONSOLE])
+        self.assertEqual(self.called("parent"), [(made["nuke"], TOOLBAR), (made["console"], FORM)]+[(made[k], made["console"]) for k in CONSOLE]
+                         +[(made["emcon"], TOOLBAR)])
         def first(name):   # each control's value from its first call of that setter: its place when made
             seen = {}
             for control, value in self.called(name): seen.setdefault(control, value)
@@ -392,6 +393,7 @@ class StrikeTests(unittest.TestCase):
         bounds = {k: [setter[made[k]] for setter in places] for k in kinds}
         nuke_left = 1218+28+ns.NUKE_GAP
         self.assertEqual(bounds["nuke"], [nuke_left, 5, 56, 28])
+        self.assertEqual(bounds["emcon"], [nuke_left+56+ns.NUKE_GAP, 5, 84, 28])                    # right of NUKE
         self.assertEqual(bounds["console"], [nuke_left+28-ns.CONSOLE[0]//2, 39+ns.GAP, *ns.CONSOLE])   # centred under NUKE
         self.assertEqual({k: bounds[k] for k in ns.LAYOUT}, {k: list(v) for k, v in ns.LAYOUT.items()})
         x, y, _, h = ns.LAYOUT["gauge_arm"]                                                        # refresh: SAFE, no fill
@@ -410,7 +412,8 @@ class StrikeTests(unittest.TestCase):
         self.assertEqual([a for a, _ in self.called("label_transparent")], [made[k] for k in styled])
         self.assertEqual([e for _, e in self.called("font_size")], [ns.LABEL_PT]*4+[ns.INFO_PT])
         self.assertEqual({self.text(e) for _, e in self.called("font_name")}, {ns.FONT})
-        clicks = dict(nuke="nuke", key1="key1", key2="key2", launch="glass", tgt="nuke", cancel="cancel", warhead_hit="warhead")
+        clicks = dict(nuke="nuke", key1="key1", key2="key2", launch="glass", tgt="nuke", cancel="cancel", warhead_hit="warhead",
+                      emcon="emcon")
         self.assertEqual({k: (w.get(made[k]+ns.CONTROL["on_click"]), w.get(made[k]+ns.CONTROL["on_click"]+4)) for k in clicks},
                          {k: (at[h], FORM) for k, h in clicks.items()})
         self.assertEqual(self.called("set_cursor", 0xFFFF),
@@ -418,11 +421,12 @@ class StrikeTests(unittest.TestCase):
         self.assertEqual((self.called("pen_style", 0xFF)[-3:], self.called("brush_style", 0xFF)[-3:]),   # the clear click areas
                          ([(0, 5)]*3, [(0, 1)]*3))
         self.assertEqual([(a, self.text(t)) for a, t in self.called("set_text")],
-                         [(made["nuke"], "NUKE"), (made["info"], ns.TEXT["picking"]),
+                         [(made["nuke"], "NUKE"), (made["info"], ns.TEXT["picking"]), (made["emcon"], "RADAR ON"),
                           (made["ssbns"], "1"), (made["target"], "NONE"), (made["status"], "SAFE"),
                           (made["warhead"], ns.TEXT["name0"])])
         self.assertEqual((self.called("enabled", 0xFF), [v for v in self.called("set_visible", 0xFF) if v[0] == made["console"]]),
                          ([(made["nuke"], 1)], [(made["console"], 0)]))
+        self.assertEqual([v for v in self.called("set_visible", 0xFF) if v[0] == made["emcon"]], [(made["emcon"], 0)])  # no radar
         self.assertEqual([w.get(d[k]) & 0xFF for k in ("pick", "has_target", "active", "armed", "glass_frame", "glass_target",
                                                         "kind")], [0]*7)
         self.assertEqual((w.get(d["kill"]), w.get(d["ring"])), ns.WARHEADS[0][2:4])                 # each battle: A-BOMB
@@ -450,6 +454,29 @@ class StrikeTests(unittest.TestCase):
         with mock.patch.object(ns, "picture_folder", return_value=folder):
             texts = next(b for b in modern.build(CODE, DETAILS)[0] if b["name"] == "Nuclear strike: texts")
         self.assertIn(ns.literal(folder), bytes.fromhex(texts["bytes"]))
+
+    def test_emcon_switches_the_players_radars_off_and_back_on(self):
+        w, d = self.world, self.d
+        # the player's: a radar ship, one with a damaged radar (resumed from a save made under EMCON), one without
+        # radar; an enemy radar ship
+        ships, _ = self.battle([(PLAYER_SIDE, 1000, 0, 0), (PLAYER_SIDE, 2000, 0, 0), (PLAYER_SIDE, 3000, 0, 0),
+                                (ENEMY_SIDE, 4000, 0, 0)])
+        for ship, radar, down in zip(ships, (4, 4, 0, 4), (0, 30+tree.EMCON, 0, 0)):
+            w.put(ship+ns.SEARCH_RADAR, radar); w.put(ship+ns.RADAR_DOWN, down)
+        w.put(d["emcon"], 1, 1)
+        self.run_site(INFO["form_show"], INFO["form_show"]+6, EBX=FORM, ESI=0x4567, EDI=0x5678)
+        button = self.made[-1]
+        def down(): return [w.get(s+ns.RADAR_DOWN) for s in ships]
+        self.assertEqual((w.get(button+ns.CONTROL["tag"]), down(), w.get(d["emcon"]) & 0xFF,
+                          [v for v in self.called("set_visible", 0xFF) if v[0] == button]),
+                         (ns.TAGS["emcon"], [0, 30, 0, 0], 0, [(button, 1)]))                      # each battle: radars on
+        del self.calls[:]
+        self.call(self.at["emcon"], EAX=FORM, EDX=button)
+        self.assertEqual((down(), self.texts(button), w.get(d["emcon"]) & 0xFF, len(self.called("redraw"))),
+                         ([tree.EMCON, 30+tree.EMCON, tree.EMCON, 0], ["EMCON"], 1, 1))           # damage kept under it
+        w.put(ships[0]+ns.RADAR_DOWN, tree.EMCON+12)                                              # hit while off
+        self.call(self.at["emcon"], EAX=FORM, EDX=button)
+        self.assertEqual((down(), self.texts(button)[-1], w.get(d["emcon"]) & 0xFF), ([12, 30, 0, 0], "RADAR ON", 0))
 
     def pictures(self):
         for i in range(len(ns.PICTURES)): self.world.put(self.d["pictures"]+4*i, 0xB000+i)        # backdrop, keys, LAUNCH

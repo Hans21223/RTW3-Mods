@@ -69,8 +69,8 @@ class MissileRangeTests(unittest.TestCase):
 class StartDistanceTests(unittest.TestCase):
     def test_missile_era_battles_start_further_apart(self):
         import modern_recon as recon
-        for year, native, grown in ((1959, 30000, 30000), (1960, 30000, 45000), (1974, 50000, 75000),
-                                    (1975, 30000, 60000), (2030, 50000, 100000), (2030, 90000, recon.START_CAP)):
+        for year, native, grown in ((1959, 30000, 30000), (1960, 30000, 45000), (1971, 50000, 75000),
+                                    (1972, 30000, 90000), (2030, 40000, 120000), (2030, 90000, recon.START_CAP)):
             world = World(); world.put(0x9F7328, STACK+0x100); world.put(STACK+0x100, year)
             world.put(FRAME-0x74, native)
             execute(world, site("start_distance"), 0x6B160E, ECX=0x1234)
@@ -140,6 +140,58 @@ class SatelliteTests(unittest.TestCase):
         self.assertEqual(self.fix({SAT}, kind=12), (0, []))                          # land targets
         self.assertEqual(self.fix({SAT}, side=0), (0, []))                           # friendly ships
         self.assertEqual(self.fix({SAT}, in_band=True), (0, []))                     # in radar band: native
+
+
+def text(world, pointer): return bytes(world.vm.mem_read(pointer, 2*world.get(pointer-4))).decode("utf-16-le")
+
+
+class ESMTests(unittest.TestCase):
+    LOG, LOG_VMT, LOGGED, SIDE = DATA+0x11800, DATA+0x11900, DATA+0x11A00, DATA+0x11B00
+    ESM = tree.ESM[0]
+
+    def hear(self, owned, distance=100000, radar=5, down=0, kind=1, side=1, spotted=0, sunk=0, listed=False,
+             silent=False, player=0):
+        """The observer (nation 3, side 0) and a target beyond visual range: (its radar level, its in-range flag, calls)."""
+        world = World(owned); calls = []
+        for ship, nation, team in ((SHIP, 3, 0), (TARGET, 4, side)):
+            world.vm.mem_write(ship, bytes(0xE00)); world.put(ship+0x14, nation); world.put(ship+0xA55, team)
+        world.put(TARGET+0x9D3, kind, 1); world.put(TARGET+0xA9F, sunk, 1); world.put(TARGET+0xA0B, radar)
+        world.put(TARGET+0xA0F, down); world.put(TARGET+0xD59, spotted); world.put(SHIP+0xAD9, LIST)
+        world.put(SHIP+0xA0F, tree.EMCON if silent else 0)
+        world.put(FRAME-0x1C, SHIP); world.put(FRAME-4, TARGET)
+        world.put(RECON["player_side"], self.SIDE); world.put(self.SIDE, player)
+        world.put(RECON["battle_log"], self.LOG); world.put(self.LOG, self.LOG_VMT); world.put(self.LOG_VMT+0x40, self.LOGGED)
+        world.stubs.update({0x8ECD20: lambda: distance,          # GetRangeToShip, which IsInSightingRange measures with
+                            RECON["index_of"]: lambda: 0 if listed else -1,
+                            RECON["add"]: lambda: calls.append(("add", world.reg("EAX"), world.reg("EDX"))) or 0,
+                            self.LOGGED: lambda: calls.append(("log", world.reg("ECX"), text(world, world.reg("EDX")))) or 0})
+        execute(world, site("esm"), 0x89AF15 if silent else 0x89AB1F)   # radar off: no radar sighting; else native
+        self.assertEqual((world.reg("ESP"), world.reg("EBP")), (STACK+0x8000, FRAME))
+        return world.get(TARGET+0xD59), world.get(TARGET+0xD61) & 0xFF, calls
+
+    def test_esm_hears_enemy_radars_at_three_times_their_range(self):
+        log, add = ("log", TARGET, "2ESM: enemy radar emissions detected"), ("add", LIST, TARGET)
+        self.assertEqual(self.hear({self.ESM}), (1, 1, [log, add]))                 # class 5: 35,000 yd, heard to 105,000
+        self.assertEqual(self.hear({self.ESM}, distance=104999), (1, 1, [log, add]))
+        self.assertEqual(self.hear({self.ESM}, distance=105000), (0, 0, []))
+        self.assertEqual(self.hear({self.ESM}, radar=7, distance=128999), (1, 1, [log, add]))   # AESA: 129,000
+        self.assertEqual(self.hear(set()), (0, 0, []))                              # no ESM research
+        for quiet in (dict(radar=0), dict(down=5), dict(down=tree.EMCON), dict(side=0), dict(kind=14), dict(kind=12),
+                      dict(sunk=1)):
+            self.assertEqual(self.hear({self.ESM}, **quiet), (0, 0, []), quiet)       # no radar, damaged, off, own, sub, land
+        self.assertEqual(self.hear({self.ESM}, spotted=2), (2, 1, [add]))            # already seen: kept, not logged
+        self.assertEqual(self.hear({self.ESM}, listed=True), (1, 1, [log]))          # already a contact
+        self.assertEqual(self.hear({self.ESM}, player=1), (1, 1, [add]))             # the computer's ESM: no log line
+        self.assertEqual(self.hear({self.ESM}, silent=True), (1, 1, [log, add]))     # EMCON ships still listen
+
+    def test_a_radar_switched_off_shows_emcon_in_the_ship_panel(self):
+        for down, stop in ((tree.EMCON, 0x94FA30), (tree.EMCON+40, 0x94FA30), (100, 0x94FA0D), (0, 0x94FA0D)):
+            world = World(); added = []
+            world.vm.mem_write(SHIP, bytes(0xE00)); world.put(SHIP+0xA0F, down)
+            world.stubs[RECON["cat"]] = lambda: added.append((world.reg("EAX"), text(world, world.reg("EDX")))) or 0
+            execute(world, site("radar_tag"), stop, EBX=SHIP, ESI=DATA+0x300)
+            if stop == 0x94FA30: self.assertEqual(added, [(DATA+0x300, " (EMCON)")])
+            else: self.assertEqual((added, world.reg("EAX")), ([], down))            # native (X) and (D)
 
 
 class UAVTests(unittest.TestCase):

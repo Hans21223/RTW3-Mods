@@ -131,7 +131,7 @@ personal-save edits in this package.
 | 2331 | 1966 | Lightweight ASW torpedo tubes (needs 1119 Improved ASW torpedoes) | Torpedo mounts +2 ASW value (see Anti-submarine weapons) |
 | 2302 | 1967 | Automated threat evaluation | Light AA +1 |
 | 2303 | 1969 | Integrated combat direction system | Medium AA +1 |
-| 2304 | 1972 | Electronic support measures suite | Light AA +1 |
+| 2304 | 1972 | Electronic support measures suite | ESM hears enemy radars at 3x their range (see Range and over-the-horizon targeting), Light AA +1 |
 | 2305 | 1975 | Phased-array fire control radar | Heavy AA +1 |
 | 2323 | 1976 | Ocean surveillance satellites | Satellite fixes beyond radar range (see Range and over-the-horizon targeting) |
 | 2319 | 1977 | Wake-homing and wire-guided torpedoes (needs 822 Modern torpedo control systems) | Guided torpedoes (see below) |
@@ -404,11 +404,13 @@ native figures.)
 Battles also start further apart. The battle set-up moves each force back
 until it is a minimum distance from the scenario's reference point (natively
 30,000 yards for a close start, 50,000 medium and 90,000 long, less before
-1938). From 1960 that minimum is one and a half times as far, from 1975 twice,
-up to 120,000 yards, so missile-era forces start beyond each other's radar and
-whoever finds the enemy first can fire first. Land and enemy bases still stop
-the move, and the game's "forces are far apart" question still comes only after
-half the scenario time, beyond 280,000 yards.
+1938). From 1960 that minimum is one and a half times as far, from 1972 three
+times, up to 130,000 yards, so missile-era forces start beyond each other's
+radar and beyond what ESM hears (forces on opposite sides start up to 260,000
+yards apart; an AESA radar is heard to 129,000), and whoever finds the enemy
+first can fire first. Land and enemy bases still stop the move, and the game's
+"forces are far apart" question still comes only after half the scenario time,
+beyond 280,000 yards.
 
 Strikes aim at a location, not a ship, so a target that moves can be missed.
 The game asks whether to adjust a strike's final target location (Campaign QoL
@@ -426,6 +428,30 @@ radar-equipped ship's spotting pass finds an enemy surface ship beyond its radar
 band, its nation gets a fix with a 0.5% chance per pass. The target then counts
 as spotted and joins that ship's contacts, so missiles in range can engage it.
 Submarines and land targets are never fixed.
+
+**ESM and EMCON** (like Sea Power's EM emission tracks). With the **Electronic
+support measures suite** (ID 2304, 1972), a ship hears enemy surface ships whose
+search radar is on out to three times that radar's own range: 15,000 + 4,000
+yards per radar class, times 3 (a class 5 set is heard at 105,000 yards, an
+AESA at 129,000). A heard ship becomes a radar contact (unknown until it is
+identified the usual way) and joins the listener's contacts, so missiles in
+range can engage it; the battle log says "ESM: enemy radar emissions detected"
+when one of your ships gains a new one. Ships whose radar is damaged, destroyed
+or switched off are silent; submarines and land targets are not heard. The
+computer's ships listen by the same rule.
+
+The battle toolbar has a **RADAR ON / EMCON** button right of NUKE (shown when
+any of your ships has a search radar). EMCON switches the radars of all your
+ships off: enemy ESM cannot hear them, but they also make no radar sightings
+and lose everything the game ties to a working radar (radar gunnery and blind
+fire, radar-directed AA, SAMs against aircraft, part of their missile defence,
+the radar range circles on the map) and the satellite fixes of radar ships; they
+still see visually, still listen with ESM, and still get contacts from aircraft
+and datalink. Underneath, EMCON adds 1,000 to
+each ship's radar damage, so every native radar check sees the set as down;
+hits taken while it is off still add damage, radar repairs wait until it is
+back on, and the ship panel shows "(EMCON)" instead of "(X)". Click again for
+RADAR ON. Each battle starts with radars on; computer ships never go silent.
 
 **Shipborne UAVs** (ID 2326, 2005: ScanEagle, Fire Scout). With the research,
 the aircraft request dialog (Aircraft types > Request) lists **UAV** under the

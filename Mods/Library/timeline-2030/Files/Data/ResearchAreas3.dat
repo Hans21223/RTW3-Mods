@@ -729,7 +729,7 @@ Naval tactical data processing;1965;N;70;10;2301;Heavy AA quality +1;1524
 Lightweight ASW torpedo tubes;1966;N;70;10;2331;Destroyers, escorts and cruisers with any torpedo mount gain ASW value (Mk 32 tubes, Mk 46 torpedo);1119
 Automated threat evaluation;1967;N;70;10;2302;Light AA quality +1;2301
 Integrated combat direction system;1969;N;70;12;2303;Medium AA quality +1;2302
-Electronic support measures suite;1972;N;70;12;2304;Light AA quality +1;2303
+Electronic support measures suite;1972;N;70;12;2304;ESM: enemy ships with their search radar on are heard at 3x its range and become radar contacts missiles can engage (EMCON in battle turns your radars off), Light AA quality +1;2303
 Ski-jump flight decks;1974;N;70;16;2335;Ski jump option for flight decks: a jet deck that readies 2 more aircraft per strike without catapults, and flies heavy jets from an angled deck without catapults (Invincible, Kuznetsov);1823
 Phased-array fire control radar;1975;N;70;14;2305;Heavy AA quality +1;2304
 Ocean surveillance satellites;1976;N;70;14;2323;Radar ships get occasional satellite fixes on enemy surface ships beyond radar range (US-A Legenda, White Cloud): they count as spotted and missiles can engage them;2304

@@ -405,4 +405,78 @@ class BuildingProgrammeTests(unittest.TestCase):
         self.assertEqual(self.line(m,self.SS),(self.info["programme"]["building_text"]," building"))
 
 
+class InvasionGuardTests(unittest.TestCase):
+    """Invasions fit the possession's owner: the guards, run in the emulator on the patched native sites."""
+    PAGE,VAR,CAMPAIGN,PLAYER,ENEMY,THIRD,POSSESSION,FRAME,STACK=(0x1200000,0x1300F00,0x1301000,0x1310000,0x1320000,
+                                                                0x1330000,0x1340000,0x1509000,0x1508000)
+
+    @classmethod
+    def setUpClass(cls):
+        cls.blob=(HERE/"native-designer-inspection.text.bin").read_bytes()
+        cls.info=qol.discover(cls.blob,0x301000)
+        cls.g=cls.info["guards"]
+
+    def world(self,owner):
+        m=Uc(UC_ARCH_X86,UC_MODE_32)
+        for address,size in ((0x300000,0x800000),(0x1200000,0x20000),(0x1300000,0x100000),(0x1500000,0x10000)):
+            m.mem_map(address,size)
+        m.mem_write(0x301000,self.blob)
+        image,sites=qol.guards_code(self.PAGE,self.info); m.mem_write(self.PAGE,image)
+        for _,site,old,new in sites:
+            self.assertEqual(bytes(m.mem_read(site,len(old))),old); m.mem_write(site,new)
+        self.put=lambda address,value,size=4:m.mem_write(address,(value&(1<<8*size)-1).to_bytes(size,"little"))
+        self.put(self.VAR,self.CAMPAIGN); self.put(self.CAMPAIGN+0x3204,self.PLAYER); self.put(self.POSSESSION+0x61,owner)
+        self.put(self.ENEMY+0x256,50); self.put(self.THIRD+0x256,10)                        # at war; at peace
+        return m
+
+    def run_to(self,m,start,ends,**registers):
+        for name,value in dict(dict(ESP=self.STACK,EBP=self.FRAME),**registers).items():
+            m.reg_write(globals()["UC_X86_REG_"+name],value)
+        hook=m.hook_add(UC_HOOK_CODE,lambda vm,address,size,_:vm.emu_stop() if address in ends else None)
+        try:m.emu_start(start,0,count=1000)
+        finally:m.hook_del(hook)
+        return m.reg_read(UC_X86_REG_EIP)
+
+    def get(self,m,address): return int.from_bytes(m.mem_read(address,4),"little",signed=True)
+
+    def test_unopposed_enemy_troops_land_only_on_our_possessions(self):
+        g=self.g   # Weihaiwei: the PRC's own possession, the PRC the invader, the player the East Asian Federation
+        for owner,invader,lands in ((self.PLAYER,2,True),(self.ENEMY,2,False),(self.THIRD,2,False),(0,2,False),
+                                    (self.PLAYER,-1,False)):
+            m=self.world(owner); self.put(self.CAMPAIGN+0x4A98,invader); self.put(self.CAMPAIGN+0x4A94,self.POSSESSION)
+            end=self.run_to(m,g["unopposed"],(g["unopposed_go"],g["unopposed_skip"]),EAX=self.CAMPAIGN)
+            self.assertEqual(end,g["unopposed_go"] if lands else g["unopposed_skip"],(owner,invader))
+            if invader>0 and not lands:                                                   # the plan is dropped
+                self.assertEqual((self.get(m,self.CAMPAIGN+0x4A98),self.get(m,self.CAMPAIGN+0x4A94)),(-1,0))
+
+    def test_surprise_landings_are_offered_only_at_possessions_of_nations_at_war_with_us(self):
+        g=self.g
+        for owner,flag,offered in ((self.ENEMY,1,True),(self.ENEMY,0,False),(self.PLAYER,1,False),(self.THIRD,1,False),
+                                   (0,1,False)):
+            m=self.world(owner); self.put(self.CAMPAIGN+0x33B2,self.POSSESSION); self.put(self.FRAME-0x1DB,flag,1)
+            end=self.run_to(m,g["surprise"],(g["surprise_ask"],g["surprise_no"]),EAX=self.FRAME,EBX=self.VAR)
+            self.assertEqual(end,g["surprise_ask"] if offered else g["surprise_no"],(owner,flag))
+
+    def test_after_a_battle_enemy_troops_land_only_on_our_possessions(self):
+        g=self.g
+        for owner,lands in ((self.PLAYER,True),(self.ENEMY,False),(0,False)):
+            m=self.world(owner); self.put(self.CAMPAIGN+0x4A98,2); self.put(self.CAMPAIGN+0x4A94,self.POSSESSION)
+            self.put(self.POSSESSION+0x75,-1)
+            end=self.run_to(m,g["landed"],(g["landed_back"],g["landed_end"]),EAX=self.POSSESSION,EBX=self.CAMPAIGN)
+            self.assertEqual((end,self.get(m,self.POSSESSION+0x75)),(g["landed_back"],2) if lands else (g["landed_end"],-1),owner)
+            if not lands: self.assertEqual((self.get(m,self.CAMPAIGN+0x4A98),self.get(m,self.CAMPAIGN+0x4A94)),(-1,0))
+
+    def test_an_enemy_land_combat_at_a_possession_not_ours_stops(self):
+        g=self.g; slot=self.CAMPAIGN+0x10
+        for owner,attacker,end,after in ((self.PLAYER,2,g["combat_enemy"],2),    # an enemy attacking ours: native
+                                         (self.ENEMY,2,g["combat_rest"],-1),      # China fighting China (existing saves)
+                                         (0,2,g["combat_rest"],-1),               # an enemy attacking a neutral possession
+                                         (self.ENEMY,0,g["combat_rest"],0),       # our troops attacking theirs: native
+                                         (self.PLAYER,-1,g["combat_rest"],-1)):   # no combat
+            m=self.world(owner); self.put(slot,self.POSSESSION); self.put(self.POSSESSION+0x75,attacker)
+            stop=self.run_to(m,g["combat"],(g["combat_enemy"],g["combat_rest"]),ESI=slot,EBX=self.CAMPAIGN)
+            self.assertEqual((stop,self.get(m,self.POSSESSION+0x75)),(end,after),(owner,attacker))
+            if stop==g["combat_enemy"]: self.assertEqual(m.reg_read(UC_X86_REG_EDI),attacker)
+
+
 if __name__=="__main__":unittest.main(verbosity=2)

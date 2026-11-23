@@ -101,6 +101,18 @@ game's own word for unowned land.
 
 Set `invade_possessions` to 0 in the package manifest for the native rules.
 
+**Invasions fit the owner** (always on, 0.12.1). The game turned a battle with
+no ships on one side into an invasion of the battle's possession whoever owned
+it, and the turn's land fighting treated every possession an enemy attacked as
+yours. An East Asian Federation player was told "With our fleet unable to
+interfere, enemy troops invade Weihaiwei!" for a Chinese possession; China then
+fought itself there ("Chinese troops are resisting attacks by Chinese forces"),
+and a Chinese win would have cost the player the defeat's unrest. Now the enemy
+lands (unopposed or after winning a battle) only on your possessions, you are
+offered a surprise landing only at a possession of a nation at war with you,
+and an enemy's land fight at a possession you do not own ends at the next turn,
+which also clears such fights in existing saves.
+
 **New possessions.** The South American West Coast sea area had no
 possessions. The package's `Data/MapData.dat` adds two neutral ones there:
 Chile (bases Valparaiso and Talcahuano, value 6) and Peru (base Callao, value 5,

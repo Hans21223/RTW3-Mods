@@ -14,6 +14,10 @@ the blast:
 - every air formation within RING_YARDS loses its aircraft;
 - a line in the battle log, and on the map a fireball and a shock ring for a few seconds (a TTimer redraws).
 Computer nations never use the console. The battle's mark is STRIKE_BIT in the player's ships' extension data.
+Right of NUKE, RADAR ON / EMCON switches the radars of all the player's ships off or back on: tree.EMCON is added to
+their radar damage (Tship +A0Fh), so every native radar check (sighting, gunnery, AA, SAMs at aircraft, the map's
+radar circles) sees them down, repairs wait, and enemy ESM (modern_recon) hears nothing; hits still add damage.
+Each battle starts with radars on (a resumed battle saved under EMCON gets them back); computer ships never go silent.
 Part of the modern-research adapter; imported lazily.
 """
 import hashlib
@@ -67,6 +71,7 @@ CONTROL = dict(tag=0xC, left=0x50, top=0x54, width=0x58, height=0x5C, hint=0x90,
                shape_pen=0x1E0, shape_brush=0x1E4, on_timer=0x48,
                set_autosize=0x94)              # TControl.SetAutoSize, a virtual slot (the RTTI setter FE000094h)
 SHIP = dict(nation=0x14, kind=0x9D3, out=0xA9F, side=0xA55, position=0xA1C)
+RADAR_DOWN, SEARCH_RADAR = 0xA0F, 0xA0B   # Tship: radar damage (EMCON adds tree.EMCON while off), search radar class
 AIR = dict(count=0x18, destroyed=0x8D, position=0x2C)
 # TSubmarine, as its SaveMe (0x82EC0C) writes it: RemainingBuildTime +15h, Sunk +1Ah. Until 2026-11-22 "gone" read
 # +20h, InPlay, which is 1 for every boat in the campaign: no SSBN ever counted and NUKE stayed greyed out.
@@ -75,7 +80,7 @@ NATION = dict(subs=0x111, funds=doctrine_rules.FUNDS)
 LAND, CIRCLE, CROSS, YARDS, DESTROYED, AA_LOSS = 12, 5, 0xFFFD, 12, 12, 1
 KINDS = dict(nuke="speed", console="panel", backdrop="image", gauge_target="shape", gauge_arm="shape", ssbns="label",
              target="label", status="label", info="label", key1="image", key2="image", launch="image", tgt="shape",
-             cancel="shape", timer="timer", key_timer="timer", warhead="label", warhead_hit="shape")
+             cancel="shape", timer="timer", key_timer="timer", warhead="label", warhead_hit="shape", emcon="speed")
 TAGS = {name: 0x4E554B31+i for i, name in enumerate(KINDS)}
 # At 96 DPI: the console's size and its gap under the toolbar (it opens centred under NUKE, kept inside the window),
 # the NUKE button's gap after sbAutoRunBattle, and the console's controls (left, top, width, height) over its
@@ -108,6 +113,8 @@ TEXT = dict(nuke="NUKE", none="NONE", marked="MARKED", safe="SAFE", armed="ARMED
             funds="Not enough money for this warhead.",
             strike="Nuclear strike",
             empty="2Nuclear strike: the warheads hit empty sea, nothing within reach",
+            radar_on="RADAR ON", emcon="EMCON",
+            emcon_hint="Your ships' radars on or off. EMCON: enemy ESM can't hear them; no radar sighting, gunnery or AA.",
             **{f"name{i}": f"{name} {price:,}" if count == 1 else f"{name} x{count} {price:,}"
                for i, (name, price, kill, ring, count, year) in enumerate(WARHEADS)},
             **{f"about{i}": (f"{name}: sinks every ship within {kill:,} yards, the nuclear hit to {ring:,}. {price:,}."
@@ -133,8 +140,8 @@ DIGESTS = (
 ORIGINALS = dict(form_show="8b83a8040000", render="a12c779f00", pick="80bbcc070000000f84a4000000")
 # Code page offsets (each ends at the next), the console page's (CONSOLE_CODE), and the data page: the state, the
 # fireball points, the console's state and pictures (TBitmaps, loaded once a session). The texts have a page of their own.
-CODE = dict(timer=0x000, available=0x100, blast=0x180, setkind=0x400, nuke=0x500, pick=0x5C0, launch=0x690, tick=0x940, render=0x970,
-            used=0xC10, mark=0xC90, units=0xDF0, distance=0xE10, ring=0xE30,
+CODE = dict(timer=0x000, available=0x100, blast=0x180, emcon_show=0x2A0, setkind=0x400, nuke=0x500, pick=0x5C0, launch=0x690,
+            tick=0x940, render=0x970, used=0xC10, mark=0xC90, emcon=0xD10, units=0xDF0, distance=0xE10, ring=0xE30,
             disc=0xE50, find=0xEB0, scale=0xEF0, redraw=0xF10, info=0xF30, end=0xF60)
 CONSOLE_CODE = dict(show=0x000, load=0x980, refresh=0xA00, key1=0xC00, key2=0xC20, glass=0xC40, key_tick=0xC80,
                     cancel=0xD80, look=0xDE0, warhead=0xE10, aim=0xE80, end=0x1000)
@@ -142,7 +149,7 @@ CONSOLE_CODE = dict(show=0x000, load=0x980, refresh=0xA00, key1=0xC00, key2=0xC2
 DATA = dict(pick=0x000, has_target=0x001, active=0x002, caught=0x003, step=0x004, target=0x008, centre=0x014, player=0x020,
             pen=0x024, brush=0x030, points=0x040, armed=0x200, loaded=0x201, glass_frame=0x202, glass_target=0x203,
             key_frame=0x204, key_target=0x206, count=0x208, number=0x20C, path=0x210, pictures=0x214,
-            names=0x258, kind=0x29C, blasts=0x29D, here=0x2A0, kill=0x2A4, ring=0x2A8, centres=0x2AC,
+            names=0x258, kind=0x29C, blasts=0x29D, emcon=0x29E, here=0x2A0, kill=0x2A4, ring=0x2A8, centres=0x2AC,
             warheads=0x2DC)
 # warheads: per warhead 8 dwords: price, kill, ring, count, year, its name, about and log texts.
 WARHEAD_SIZE = 32
@@ -433,7 +440,7 @@ def build(page, data, info, doctrine, ext, strike, is_kind, console_page, text_p
     c.emit(b"\x33\xc0"); call(c, at["setkind"])                                             # each battle starts on A-BOMB
     c.emit(b"\xc7\x05"); c.u32(d["key_frame"]); c.u32(0)                                    # both keys' frames and targets
     find(c, "key_timer"); c.emit(b"\x85\xc0\x74\x07\x33\xd2"); call(c, n["timer_enabled"])   # jz past: a new battle's key
-    call(c, at["refresh"])
+    call(c, at["emcon_show"]); call(c, at["refresh"])
     c.emit(b"\x61"+bytes.fromhex(ORIGINALS["form_show"])); c.branch(b"\xe9", n["form_show"]+6)
     code["show"] = c.finish()
 
@@ -621,6 +628,44 @@ def build(page, data, info, doctrine, ext, strike, is_kind, console_page, text_p
     c.branch(b"\xe9", "ship")
     c.mark("out"); c.emit(b"\x5e\x5b\xc3")
     code["mark"] = c.finish()
+
+    # emcon_show(EBX form), from FormShow: the EMCON button right of NUKE, made once; each battle starts with radars
+    # on (a resumed battle saved under EMCON gets them back), and the button shows when the player has a search radar.
+    def radars(c, label):   # ESI a ship of the player's side: off when +A0Fh holds tree.EMCON, else on to label
+        c.emit(b"\x81\xbe"); c.u32(RADAR_DOWN); c.u32(tree.EMCON); c.branch(b"\x0f\x8c", label)
+    c = Code(at["emcon_show"]); c.emit(b"\x60")
+    find(c, "emcon"); c.emit(b"\x85\xc0"); c.branch(b"\x0f\x85", "have")
+    find(c, "nuke"); c.emit(b"\x85\xc0"); c.branch(b"\x0f\x84", "done")
+    c.emit(b"\x8b\x50"+bytes([CONTROL["height"]])+b"\x52\x8d\x14\x52\x52")                          # height, width 3x
+    c.emit(b"\x8b\x50"+bytes([CONTROL["top"]])+b"\x52")
+    c.emit(b"\x8b\x50"+bytes([CONTROL["left"]])+b"\x03\x50"+bytes([CONTROL["width"]])+b"\x83\xc2"+bytes([NUKE_GAP])+b"\x52")
+    create(c, "emcon", FORM["toolbar"]); on_click(c, at["emcon"])
+    c.emit(b"\x8b\x46"+bytes([CONTROL["font"]])+b"\xb2\x01"); call(c, n["font_style"])                 # fsBold
+    c.emit(b"\x8d\x86"); c.u32(CONTROL["hint"]); c.emit(b"\xba"); c.u32(T["emcon_hint"]); call(c, n["assign"])
+    c.emit(b"\xb2\x01\x8b\xc6"); call(c, n["set_show_hint"]); c.emit(b"\x8b\xc6")
+    c.mark("have"); c.emit(b"\x8b\xf8"); flag(c, "emcon", 0)
+    c.emit(b"\xba"); c.u32(T["radar_on"]); c.emit(b"\x8b\xc7"); call(c, n["set_text"])
+    c.emit(b"\x33\xed\x33\xdb")                                                      # EBP: a search radar seen
+    player_ships(c); radars(c, "on")
+    c.emit(b"\x81\xae"); c.u32(RADAR_DOWN); c.u32(tree.EMCON)
+    c.mark("on"); c.emit(b"\x83\xbe"); c.u32(SEARCH_RADAR); c.emit(b"\x00"); c.branch(b"\x0f\x8e", "ship")
+    c.emit(b"\x45"); c.branch(b"\xe9", "ship")
+    c.mark("out"); c.emit(b"\x85\xed\x0f\x95\xc2\x8b\xc7"); call(c, n["set_visible"])
+    c.mark("done"); c.emit(b"\x61\xc3")
+    code["emcon_show"] = c.finish()
+    # EMCON (EAX form, EDX the button): every ship of the player's side switches its radars off (tree.EMCON added to
+    # its radar damage: the native radar checks then see them down) or back on; the caption shows the state.
+    c = Code(at["emcon"]); c.emit(b"\x60\x8b\xd8\x8b\xfa\x80\x35"); c.u32(d["emcon"]); c.emit(b"\x01\x0f\xb6\x2d"); c.u32(d["emcon"])
+    c.emit(b"\x53\x33\xdb")                                                          # EBP 1: radars off
+    player_ships(c); c.emit(b"\x85\xed"); c.branch(b"\x0f\x85", "off")
+    radars(c, "ship"); c.emit(b"\xb8"); c.u32((-tree.EMCON) & 0xFFFFFFFF); c.branch(b"\xe9", "add")      # off: back on
+    c.mark("off"); c.emit(b"\x81\xbe"); c.u32(RADAR_DOWN); c.u32(tree.EMCON); c.branch(b"\x0f\x8d", "ship")
+    c.emit(b"\xb8"); c.u32(tree.EMCON)
+    c.mark("add"); c.emit(b"\x01\x86"); c.u32(RADAR_DOWN); c.branch(b"\xe9", "ship")
+    c.mark("out"); c.emit(b"\x5b\xba"); c.u32(T["radar_on"]); c.emit(b"\x85\xed"); c.branch(b"\x0f\x84", "caption")
+    c.emit(b"\xba"); c.u32(T["emcon"])
+    c.mark("caption"); c.emit(b"\x8b\xc7"); call(c, n["set_text"]); call(c, at["redraw"]); c.emit(b"\x61\xc3")
+    code["emcon"] = c.finish()
 
     # blast(ECX a warhead's centre, a TPointLL): every ship within [ring] of it takes the nuclear hit, and within
     # [kill] it sinks (no buoyancy and a sinking timer of one, as the game's debug Sink: CheckSunk takes it down at

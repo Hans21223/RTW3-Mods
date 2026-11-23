@@ -70,6 +70,20 @@ PROGRAMME_CODE = dict(counted=0x000, minimum=0x040, filter=0x140, line=0x180, pu
                       prefix=0x2D0, suffix=0x2E0, buffer=0x340, end=0x400)
 PROGRAMME_TEXT = (" (", " t or more) building")
 DOCK_SHARE, SUBMARINE = 90, 14
+# Invasions that fit the possession's owner (2026-11-23: an East Asian Federation player was told "With our fleet
+# unable to interfere, enemy troops invade Weihaiwei!" for a Chinese possession, then China fought itself there and the
+# player took the defeat's unrest). Natively, a battle with no ships on one side becomes an invasion of the battle's
+# possession whoever owns it (the map mission may sit at either side's possession), and the turn's land combat takes
+# every possession an enemy attacks for the player's. Now the enemy lands only on the player's possessions, the player
+# is offered a surprise landing only on a possession of a nation at war with it, and an enemy's land combat at a
+# possession the player does not own stops: that also ends such fights in existing saves. Always installed.
+GUARDS = dict(unopposed=0x6B7037, unopposed_go=0x6B7044, unopposed_skip=0x6B7221,     # no friendly ships: enemy invades
+              surprise=0x6B714D, surprise_ask=0x6B7156, surprise_no=0x6B71AA,         # no enemy ships: our landing offer
+              landed=0x7F92C9, landed_back=0x7F92D2, landed_end=0x7F9317,             # HandleInvasionResults: enemy lands
+              combat=0x7C8B89, combat_enemy=0x7C8B92, combat_rest=0x7C8BAD)           # the turn's land combat
+GUARD_SITES = dict(unopposed=13, surprise=9, landed=9, combat=9)                      # bytes each replaces
+GUARD_CODE = dict(unopposed=0x000, surprise=0x080, landed=0x100, combat=0x180, end=0x200)
+GUARD_PAGE = 0x3400                     # in the allocation, after the building programme's code
 
 
 def published(blob, name):
@@ -113,7 +127,11 @@ def discover(blob, base, settings=None):
                (0x781e48,16,"bd6c194c52831c9de142bda87a0b93def8643749bbdb49a075f94e2d2f24c139"),   # programme warning count
                (0x781ea4,16,"90c633ceed10eabe734d45ef5571af65fafe6f4aadff0409b19ef8ed526dbb59"),   # programme review count
                (0x7824d2,24,"cc61e4a9f54d6dd7c2e278db5b5428d4ddd9b8faf6cedce4e7975b54b0c59367"),   # programme line text
-               (0x782503,16,"8e86009ac5d550e7b982269d7c69ea6bd2596f93bfd45ebd0167e83c00232db7"))   # programme line count
+               (0x782503,16,"8e86009ac5d550e7b982269d7c69ea6bd2596f93bfd45ebd0167e83c00232db7"),   # programme line count
+               (0x6b7035,16,"80064ecdb6700d14205581072be1fde584540a60c10087d27672e503ddf67348"),   # unopposed enemy invasion
+               (0x6b714a,12,"9c54f0fd4a3767ac69936b29e0b14a977acbf7d4c1fc70dd77011b24c501988f"),   # surprise landing offer
+               (0x7f92c5,13,"b859a9ee9bbc13e6fa3a925cb63060f6622d20e2ffdba4fd7f804a0ae33ec535"),   # enemy landing after battle
+               (0x7c8b89,36,"6339b9265ef6b2a3e292596ef7b5e7341a0cd22f6cdac2a2a377608026158bc3"))   # turn's land combat
     for reference,size,digest in windows:
         at = reference-0x301000
         if hashlib.sha256(normal[at:at+size]).hexdigest() != digest:
@@ -190,6 +208,8 @@ def discover(blob, base, settings=None):
                                building_text=struct.unpack_from("<I", blob, PROGRAMME["line"]+delta-base+1)[0],
                                filter_original=blob[PROGRAMME["filter"]+delta-base:PROGRAMME["filter"]+delta-base+9].hex(),
                                line_original=blob[PROGRAMME["line"]+delta-base:PROGRAMME["line"]+delta-base+5].hex()),
+                guards={k: v+delta for k, v in GUARDS.items()},
+                guard_originals={k: blob[GUARDS[k]+delta-base:GUARDS[k]+delta-base+size].hex() for k, size in GUARD_SITES.items()},
                 player_orders_limited=False, existing_ships_deleted=False)
 
 
@@ -476,6 +496,55 @@ def programme_code(page, info):
     return bytes(image), sites
 
 
+def guards_code(page, info):
+    """The invasion ownership guards on their page: (image bytes, [(name, site, original, replacement)]).
+    Campaign +3204h the player's nation, +4A94h/+4A98h the enemy's invasion target and invader (-1 none, 0 the
+    player), +33B2h the battle's possession; a possession's +61h owner, +75h who attacks it (-1 nobody, 0 the player)."""
+    n, at, code = info["guards"], {k: page+v for k, v in GUARD_CODE.items()}, {}
+    # No friendly ships (EAX campaign), in place of CMP [EAX+4A98h],0 / JLE: the enemy lands only on our possession.
+    c = Code(at["unopposed"]); c.emit(b"\x83\xb8"); c.u32(0x4A98); c.emit(b"\x00"); c.branch(b"\x0f\x8e", n["unopposed_skip"])
+    c.emit(b"\x8b\x88"); c.u32(0x4A94); c.emit(b"\x85\xc9"); c.branch(b"\x0f\x84", "cancel")
+    c.emit(b"\x8b\x90"); c.u32(0x3204); c.emit(b"\x39\x51\x61"); c.branch(b"\x0f\x84", n["unopposed_go"])
+    c.mark("cancel"); c.emit(b"\xc7\x80"); c.u32(0x4A98); c.u32(0xFFFFFFFF); c.emit(b"\xc7\x80"); c.u32(0x4A94); c.u32(0)
+    c.branch(b"\xe9", n["unopposed_skip"])
+    code["unopposed"] = c.finish()
+    # No enemy ships (EAX the caller's frame, [EBX] campaign), in place of CMP BYTE [EAX-1DBh],0 / JE: the surprise
+    # landing is offered only at a possession of a nation at war with us (tension 40 or more, the land combat's test).
+    c = Code(at["surprise"]); c.emit(b"\x80\xb8"+struct.pack("<i", -0x1DB)+b"\x00"); c.branch(b"\x0f\x84", n["surprise_no"])
+    c.emit(b"\x8b\x0b\x8b\x91"); c.u32(0x33B2); c.emit(b"\x85\xd2"); c.branch(b"\x0f\x84", n["surprise_no"])
+    c.emit(b"\x8b\x52\x61\x85\xd2"); c.branch(b"\x0f\x84", n["surprise_no"])                          # neutral
+    c.emit(b"\x3b\x91"); c.u32(0x3204); c.branch(b"\x0f\x84", n["surprise_no"])                       # ours
+    c.emit(b"\x81\xba"); c.u32(0x256); c.u32(0x28); c.branch(b"\x0f\x8c", n["surprise_no"])          # not at war
+    c.branch(b"\xe9", n["surprise_ask"])
+    code["surprise"] = c.finish()
+    # After a battle the enemy won (EAX the battle's possession, EBX campaign), in place of MOV EDX,[EBX+4A98h] /
+    # MOV [EAX+75h],EDX: its troops land only on our possession; otherwise its invasion plan ends.
+    c = Code(at["landed"]); c.emit(b"\x8b\x93"); c.u32(0x3204); c.emit(b"\x39\x50\x61"); c.branch(b"\x0f\x85", "other")
+    c.emit(b"\x8b\x93"); c.u32(0x4A98); c.emit(b"\x89\x50\x75"); c.branch(b"\xe9", n["landed_back"])
+    c.mark("other"); c.emit(b"\xc7\x83"); c.u32(0x4A98); c.u32(0xFFFFFFFF); c.emit(b"\xc7\x83"); c.u32(0x4A94); c.u32(0)
+    c.branch(b"\xe9", n["landed_end"])
+    code["landed"] = c.finish()
+    # The turn's land combat ([ESI] the possession slot, EBX campaign), in place of MOV EAX,[ESI] / MOV EDI,[EAX+75h] /
+    # TEST EDI,EDI / JLE: an enemy's attack on a possession that is not ours stops.
+    c = Code(at["combat"]); c.emit(b"\x8b\x06\x8b\x78\x75\x85\xff"); c.branch(b"\x0f\x8e", n["combat_rest"])
+    c.emit(b"\x8b\x48\x61\x3b\x8b"); c.u32(0x3204); c.branch(b"\x0f\x84", n["combat_enemy"])
+    c.emit(b"\xc7\x40\x75\xff\xff\xff\xff"); c.branch(b"\xe9", n["combat_rest"])
+    code["combat"] = c.finish()
+    image = bytearray(GUARD_CODE["end"])
+    order = sorted(GUARD_CODE, key=GUARD_CODE.get)
+    for name, body in code.items():
+        if len(body) > GUARD_CODE[order[order.index(name)+1]]-GUARD_CODE[name]:
+            raise ValueError("Invasion guard code exceeds its reservation: "+name)
+        image[GUARD_CODE[name]:GUARD_CODE[name]+len(body)] = body
+    labels = dict(unopposed="Invasions: the enemy lands unopposed only on our possessions",
+                  surprise="Invasions: surprise landings only on possessions of nations at war with us",
+                  landed="Invasions: enemy troops land after a battle only on our possessions",
+                  combat="Invasions: enemy land combat only at our possessions")
+    sites = [(labels[k], n[k], bytes.fromhex(info["guard_originals"][k]),
+              b"\xe9"+struct.pack("<i", at[k]-n[k]-5)+b"\x90"*(size-5)) for k, size in GUARD_SITES.items()]
+    return bytes(image), sites
+
+
 def attach(wait=30, settings=None):
     import ai_runtime
     import live_cheats as live
@@ -552,6 +621,9 @@ def attach(wait=30, settings=None):
                 image,sites=programme_code(allocation+0x3000,info)
                 memory.write(handle,allocation+0x3000,image); rt.K.FlushInstructionCache(handle,allocation+0x3000,len(image))
                 plans+=[patch(name,site,old,new) for name,site,old,new in sites]
+            image,sites=guards_code(allocation+GUARD_PAGE,info)
+            memory.write(handle,allocation+GUARD_PAGE,image); rt.K.FlushInstructionCache(handle,allocation+GUARD_PAGE,len(image))
+            plans+=[patch(name,site,old,new) for name,site,old,new in sites]
             old=bytes.fromhex(info["form_show_original"])
             plans.append(patch("Designer mouse wheel on the box under the pointer",info["form_show"],old,
                                b"\xe9"+struct.pack("<i",hook-info["form_show"]-5)+b"\x90"*(len(old)-5)))

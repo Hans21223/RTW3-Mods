@@ -8,10 +8,17 @@ Battle hooks for the modern-research adapter, each gated by its own research (mo
   observer's contacts, the native rule for spotted ships, so missiles can engage it.
 - UAVs: a researching nation's floatplane ships launch and recover without stopping or slowing, as if they had
   a catapult; the launch prompt and the AI treat them as catapult launches and the prompt calls them UAVs.
+- ESM (Sea Power's EM emission tracks): in the spotting pass, before the radar sighting of a target beyond visual
+  range, an observer of a nation with tree.ESM hears an enemy surface ship whose search radar is on (a class, and
+  no radar damage: EMCON counts as damage) within tree.ESM[1]% of that radar's own band. The target becomes a radar
+  contact (level 1 at least, kept for the pass as an in-range radar target is) and joins the observer's contacts,
+  so missiles can engage it; a new contact of the player's side is logged. An observer whose radar is off (EMCON)
+  hears but makes no radar sightings.
 - Start distance: the battle set-up moves each force back until it is a minimum distance from the scenario's
   reference point (30,000 yards close, 50,000 medium, 90,000 long, less before 1938). From START_DISTANCES' years
-  that minimum grows, capped at START_CAP, so missile-era forces start beyond each other's radar and scouting
-  decides who fires first. Land and enemy bases still stop the move as natively.
+  that minimum grows, capped at START_CAP, so missile-era forces start beyond each other's radar, and from the ESM
+  year beyond the 3x radar range ESM hears, and scouting decides who fires first. Land and enemy bases still stop
+  the move as natively.
 - Datalink: when the player's strike is about to be asked whether to adjust its final target location (strikes
   aim at a location, not a ship), a nation with the Tactical data system (DATALINK) aims it instead at the nearest
   spotted enemy surface ship within DATALINK_REACH yards of the old aim point and logs it; otherwise native.
@@ -33,20 +40,26 @@ WINDOWS = (
     (0x6B1606, 0x14, "1112af58b77460152d798054a6235eabce32b7fc7f42d2685ab2390e14c043c3"),   # battle start distance
     (0x97B92A, 0x14, "e922de44d69c058888561fd49dc55f8c43dd3aa5d4fb7c179de51a41f8ddc61e"),   # final strike target
     (0x97BABD, 0x10, "e13dda4794973caf55fbd736f3501f5b65fdd914094ee1433f122138539588af"),   # its "no" answer
+    (0x94FA07, 0x2C, "f91f84aaf5d6e0e2ffc9122d82355a311966e34f47d377ae07c3676191397fd8"),   # RadarAsString: (X), (D)
 )
 NATIVE = dict(range_table=0x91AC14, random=0x307834, index_of=0x3B6E0C, add=0x3B6B8C, radar_far=0x89AF15,
               radar_near=0x89AB52, catapults=0x91BB74, start_back=0x6B160E, year=0x9F7328, ships=0x9F79D8,
               list_get=0x3B6D6C, afloat=0x90E46C, distance=0x90F18C, battle_log=0xA80114, prompt_back=0x97B939,
-              strike_kept=0x97BABD)
-SITES = (("missile_range", 0x91ACCC, 7), ("satellite", 0x89AB4C, 6), ("must_stop", 0x918FB8, 6),
+              strike_kept=0x97BABD, has_any_radar=0x918244, in_range=0x90E374, radar_back=0x89AB1F,
+              player_side=0x9F7008, tag_back=0x94FA0D, tag_done=0x94FA30, cat=0x30C63C)
+# IsInSightingRange(EAX observer, EDX target, ECX yards); [[player_side]]; RadarAsString's damage tags, UStrCat
+SITES = (("missile_range", 0x91ACCC, 7), ("satellite", 0x89AB4C, 6), ("esm", 0x89AB17, 8), ("radar_tag", 0x94FA07, 6), ("must_stop", 0x918FB8, 6),
          ("prompt_text", 0x919057, 5), ("prompt_count", 0x91904E, 5), ("ai_count", 0x92A2F1, 5),
          ("start_distance", 0x6B1606, 8), ("datalink", 0x97B934, 5))
 CALLS = ("prompt_count", "ai_count")   # native calls of the catapult count, retargeted (not jumps)
 TABLES = (0x91ACD6, 0x91ACDE)          # the range wrapper's per-nation level and flag tables (absolute)
 UAV_TEXT = "Launch search UAV(s) from "
 TYPES_LOAD = 0x974276   # FindAircraftType: MOV EAX,[the game's aircraft list]
-START_DISTANCES = ((1975, 200), (1960, 150))   # from these campaign years, % of the native start distance
-START_CAP = 120000      # yards from the reference point: well inside the 280,000-yard "forces far apart" test
+START_DISTANCES = ((1972, 300), (1960, 150))   # from these campaign years, % of the native start distance
+# Yards from the reference point: forces on opposite sides start up to 260,000 apart, beyond an AESA's 129,000-yard
+# ESM reach and still inside the 280,000-yard "forces far apart" test.
+START_CAP = 130000
+ESM_TEXT, EMCON_TAG = "2ESM: enemy radar emissions detected", " (EMCON)"   # the ship panel's tag for a radar off
 DATALINK, DATALINK_REACH = 1524, 40000   # native Tactical data system (1963); yards from the old aim point
 DATALINK_TEXT = "2Strike retargeted by datalink"
 
@@ -72,7 +85,8 @@ def build(page, info):
     import modern_sensors as sensors
     at = dict(missile_range=page, satellite=page+0x200, must_stop=page+0x300, prompt_text=page+0x380,
               count=page+0x400, uav_text=page+0x480, has_uav=page+0x500, start_distance=page+0x600,
-              datalink=page+0x680, datalink_text=page+0x880)
+              datalink=page+0x680, datalink_text=page+0x880, esm=page+0x900, esm_text=page+0xB00,
+              radar_tag=page+0xB80, tag_text=page+0xBC0)
     n, code = info, {}
     site = {s["name"]: s for s in info["sites"]}
 
@@ -104,6 +118,37 @@ def build(page, info):
     c.emit(b"\x8b\x86"); c.u32(0xAD9); c.emit(b"\x8b\xd3"); c.branch(b"\xe8", n["add"])
     c.mark("done"); c.emit(b"\x61"); c.branch(b"\xe9", n["radar_far"])
     code["satellite"] = c.finish()
+
+    # Spotting pass, the radar sighting of a target beyond visual range ([ebp-1Ch] observer, [ebp-4] target), in
+    # place of MOV EAX,[EBP-1Ch] / CALL HasAnyRadar: ESM first, then the native radar unless the observer is silent.
+    ident, percent = tree.ESM
+    c = Code(at["esm"]); c.emit(b"\x60\x8b\x75\xe4\x8b\x5d\xfc")
+    for kind in (12, 14):   # land targets and submarines
+        c.emit(b"\x80\xbb"); c.u32(0x9D3); c.emit(bytes([kind])); c.branch(b"\x0f\x84", "done")
+    c.emit(b"\x80\xbb"); c.u32(0xA9F); c.emit(b"\x00"); c.branch(b"\x0f\x85", "done")                        # sunk
+    c.emit(b"\x8b\x83"); c.u32(0xA55); c.emit(b"\x3b\x86"); c.u32(0xA55); c.branch(b"\x0f\x84", "done")        # same side
+    c.emit(b"\x8b\x8b"); c.u32(0xA0B); c.emit(b"\x85\xc9"); c.branch(b"\x0f\x8e", "done")                       # no radar
+    c.emit(b"\x83\xbb"); c.u32(0xA0F); c.emit(b"\x00"); c.branch(b"\x0f\x85", "done")                          # down or off
+    c.emit(b"\x69\xc9"); c.u32(4000*percent//100); c.emit(b"\x81\xc1"); c.u32(15000*percent//100)
+    c.emit(b"\x8b\xd3\x8b\xc6"); c.branch(b"\xe8", n["in_range"]); c.emit(b"\x84\xc0"); c.branch(b"\x0f\x84", "done")
+    combat.researched(c, n, b"\x8b\x56\x14", ident, "asked"); c.emit(b"\x84\xc0"); c.branch(b"\x0f\x84", "done")
+    c.emit(b"\xc6\x83"); c.u32(0xD61); c.emit(b"\x01")          # in an enemy sensor's reach: the pass keeps its level
+    c.emit(b"\x83\xbb"); c.u32(0xD59); c.emit(b"\x00"); c.branch(b"\x0f\x8f", "listed")
+    c.emit(b"\xc7\x83"); c.u32(0xD59); c.u32(1)
+    c.emit(b"\xa1"); c.u32(n["player_side"]); c.emit(b"\x8b\x00\x3b\x86"); c.u32(0xA55); c.branch(b"\x0f\x85", "listed")
+    c.emit(b"\x8b\xcb\xba"); c.u32(at["esm_text"]+12); c.emit(b"\xa1"); c.u32(n["battle_log"]); c.emit(b"\x8b\x38\xff\x57\x40")
+    c.mark("listed")
+    c.emit(b"\x8b\x86"); c.u32(0xAD9); c.emit(b"\x8b\xd3"); c.branch(b"\xe8", n["index_of"]); c.emit(b"\x40"); c.branch(b"\x0f\x85", "done")
+    c.emit(b"\x8b\x86"); c.u32(0xAD9); c.emit(b"\x8b\xd3"); c.branch(b"\xe8", n["add"])
+    c.mark("done"); c.emit(b"\x61\x8b\x45\xe4\x81\xb8"); c.u32(0xA0F); c.u32(tree.EMCON)
+    c.branch(b"\x0f\x8d", n["radar_far"])                       # radar off: no radar sighting
+    c.branch(b"\xe8", n["has_any_radar"]); c.branch(b"\xe9", n["radar_back"])
+    code["esm"] = c.finish()
+    # RadarAsString (EBX ship, ESI the text's variable): a radar switched off shows (EMCON), not (X) for destroyed.
+    c = Code(at["radar_tag"]); c.emit(bytes.fromhex(site["radar_tag"]["original"])+b"\x3d"); c.u32(tree.EMCON)
+    c.branch(b"\x0f\x8c", n["tag_back"]); c.emit(b"\x8b\xc6\xba"); c.u32(at["tag_text"]+12); c.branch(b"\xe8", n["cat"])
+    c.branch(b"\xe9", n["tag_done"])
+    code["radar_tag"] = c.finish()
 
     # has_uav(EDX nation index) -> AL: the nation has a UAV model in service (a floatplane scout with modern_sensors'
     # UAV mark): developed, not obsolete. The game's aircraft list, newest last.
@@ -174,11 +219,12 @@ def build(page, info):
     c.mark("native"); c.emit(b"\x61"+bytes.fromhex(site["datalink"]["original"])); c.branch(b"\xe9", n["prompt_back"])
     code["datalink"] = c.finish()
 
-    data = struct.pack("<HHiI", 1200, 2, -1, len(UAV_TEXT))+UAV_TEXT.encode("utf-16-le")+b"\0\0"
-    blocks = [dict(name="Modern reconnaissance: UAV text", address=at["uav_text"], bytes=data.hex()),
-              dict(name="Modern reconnaissance: datalink text", address=at["datalink_text"],
-                   bytes=(struct.pack("<HHiI", 1200, 2, -1, len(DATALINK_TEXT))+DATALINK_TEXT.encode("utf-16-le")+b"\0\0").hex())]
-    room = dict(missile_range=0x200, satellite=0x100, has_uav=0x100, datalink=0x200)
+    def literal(text): return (struct.pack("<HHiI", 1200, 2, -1, len(text))+text.encode("utf-16-le")+b"\0\0").hex()
+    blocks = [dict(name="Modern reconnaissance: UAV text", address=at["uav_text"], bytes=literal(UAV_TEXT)),
+              dict(name="Modern reconnaissance: datalink text", address=at["datalink_text"], bytes=literal(DATALINK_TEXT)),
+              dict(name="Modern reconnaissance: ESM text", address=at["esm_text"], bytes=literal(ESM_TEXT)),
+              dict(name="Modern reconnaissance: EMCON tag", address=at["tag_text"], bytes=literal(EMCON_TAG))]
+    room = dict(missile_range=0x200, satellite=0x100, has_uav=0x100, datalink=0x200, esm=0x200, radar_tag=0x40)
     for name, body in code.items():
         if len(body) > room.get(name, 0x80): raise ValueError("Modern reconnaissance code exceeds its reservation: "+name)
         blocks.append(dict(name="Modern reconnaissance: "+name, address=at[name], bytes=body.hex()))
