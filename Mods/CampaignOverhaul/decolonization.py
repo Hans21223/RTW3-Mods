@@ -22,6 +22,7 @@ from hull_rules import patch
 REPORT = Path(__file__).with_name("decolonization_report.json")
 BASE = 0x301000
 TURN_CHECK_OFFSET = 0x774  # CheckTurnEvents -> CheckForPossessionEvent
+START_YEAR = 0x4AA4        # campaign +4AA4h: the start year (the save's CampaignStartYear)
 
 # Value-200 home regions in the shipped start maps, plus the extra U.S. core
 # regions split across separate map areas. These are never valid random
@@ -38,7 +39,9 @@ CORE_POSSESSIONS = (
 # (year, possession, governments which administered that possession)
 # Names and dates follow the game's MapData possession model and historical
 # constitutional or independence milestones. When the campaign's current owner
-# no longer matches, this rule leaves it untouched.
+# no longer matches, this rule leaves it untouched. Each release happens in its
+# year, or in the first year of a campaign that starts later, and never again:
+# a territory the old power takes back afterwards stays with it.
 RELEASES = (
     (1922, "Ireland", ("Great Britain", "European NATO")),
     (1931, "Nova Scotia", ("Great Britain", "European NATO")),
@@ -100,6 +103,9 @@ def discover(blob, text_base):
     get_nation = rt.method_address(blob, text_base, "GetBNationWithName")
     change_owner = rt.method_address(blob, text_base, "ChangePossessionOwner")
     rebellion = rt.method_address(blob, text_base, "DoRebellion")
+    load = rt.method_address(blob, text_base, "LoadBuildCampaign") - text_base
+    if blob[load+0x264:load+0x26D].hex() != "8b55d88982" + struct.pack("<I", START_YEAR).hex():
+        raise ValueError("Unknown campaign start-year field.")   # mov edx,[ebp-28h]; mov [edx+4AA4h],eax
     site = check_turn + TURN_CHECK_OFFSET
     offset = site - text_base
     if not 0 <= offset <= len(blob) - 5 or blob[offset] != 0xE8:
@@ -140,13 +146,16 @@ def delphi_string(value):
 
 
 def release_processor(address, data_base, literals, info):
-    """EAX=campaign object; inspect each dated possession without random rolls."""
+    """EAX=campaign object; inspect each dated possession without random rolls, in the release year or a later
+    campaign start's first year (ECX = the later of the two)."""
     from campaign_security import Code
     c = Code(address)
     c.emit(bytes.fromhex("5356578bd8"))  # preserve nonvolatile registers; EBX = campaign
     for index, (year, possession, owners) in enumerate(RELEASES):
-        c.emit(b"\xa1"); c.u32(info["year_pointer"]); c.emit(bytes.fromhex("8b003d")); c.u32(year)
-        c.branch(b"\x0f\x8c", f"next_{index}")
+        c.emit(b"\xb9"); c.u32(year); c.emit(b"\x8b\x83"); c.u32(START_YEAR)   # ECX = year, EAX = start year
+        c.emit(bytes.fromhex("3bc17e028bc8"))                                  # cmp eax,ecx; jle; mov ecx,eax
+        c.emit(b"\xa1"); c.u32(info["year_pointer"]); c.emit(bytes.fromhex("8b003bc1"))
+        c.branch(b"\x0f\x85", f"next_{index}")
         c.emit(bytes.fromhex("8bc3ba")); c.u32(literals[(possession, None)])
         c.branch(b"\xe8", info["get_possession"])
         c.emit(b"\x85\xc0"); c.branch(b"\x0f\x84", f"next_{index}")
@@ -341,7 +350,7 @@ def attach(wait=30):
                 saved = dict(adapter="historical-decolonization", attached=True, pid=pid, base=module,
                              allocation=allocation, patches=plans, details=report_info,
                              campaign_gameplay_verified=False,
-                             ownership_rule="release to Neutral only when the scheduled year has arrived and the historical administering power still owns it",
+                             ownership_rule="release to Neutral in the scheduled year (or a later-starting campaign's first year) while the historical administering power owns it",
                              native_possession_upheaval_event_preserved=True,
                              protected_possessions=list(PROTECTED_POSSESSIONS),
                              native_core_rebellions_suppressed=True,

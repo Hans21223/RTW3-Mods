@@ -8,8 +8,12 @@ For each listed territory, the mod checks the actual campaign year and current
 owner. When the date arrives, it transfers the territory to **Neutral** only
 if it is still held by one of the historical administering powers listed in
 the schedule. A territory conquered or transferred to another power is left
-alone. Existing later-start campaigns already past a release date are handled
-on their next turn if they still have that colonial owner.
+alone. A campaign that starts after a release date (the 1935 start, the 1947
+and 1960 Cold War starts) releases it during its first year if that colonial
+owner still holds it. Each release happens only then: a territory the old power
+takes back later, by a takeover event, an invasion or a peace treaty, stays
+with it. Before 1.1.2 the mod handed it back to Neutral on the next turn, so
+the game reported the takeover but the map kept showing Neutral.
 
 The game has no native nation slot for most of these newly independent states.
 As in its own later-start maps, independence is represented by Neutral

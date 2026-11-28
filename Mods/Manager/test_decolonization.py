@@ -81,5 +81,79 @@ class DecolonizationGuardTests(unittest.TestCase):
         self.assertTrue(self.call("Hawaii", owner_guard=False))
 
 
+DATA = 0x600000                                # the year global (pointing at DATA+0x10), the campaign, possessions
+CAMPAIGN_OBJECT, GET_NATION, CHANGE_OWNER = DATA+0x1000, STUBS+0x10, STUBS+0x20
+
+
+class ReleaseProcessorTests(unittest.TestCase):
+    """Each dated release happens once: in its year, or in the first year of a campaign that starts later."""
+    def released(self, year, start, held):
+        """Runs the release processor with possessions held as {name: owner}; the names it hands to Neutral."""
+        literals, text = {}, {}
+        for _, possession, owners in feature.RELEASES:
+            for key in [(possession, None), *[(possession, owner) for owner in owners]]:
+                literals[key] = 0x9000+0x10*len(literals)
+                text[literals[key]] = key[1] or key[0]
+        nations = {name: 0x7000+0x10*i for i, name in enumerate(sorted(set(held.values())))}
+        possessions = {name: DATA+0x8000+0x100*i for i, name in enumerate(held)}
+        info = dict(year_pointer=DATA, get_possession=GET_POSSESSION, get_nation=GET_NATION, change_owner=CHANGE_OWNER)
+        code = feature.release_processor(GUARD, 0, literals, info)
+        self.assertLess(len(code), 0x2000)                          # the processor's reserved code area
+        vm = Uc(UC_ARCH_X86, UC_MODE_32)
+        for base in (GUARD, STUBS, STACK, BLOCKED, DATA):
+            vm.mem_map(base, 0x10000)
+        vm.mem_write(GUARD, code)
+        vm.mem_write(DATA, struct.pack("<I", DATA+0x10))
+        vm.mem_write(DATA+0x10, struct.pack("<I", year))
+        vm.mem_write(CAMPAIGN_OBJECT+feature.START_YEAR, struct.pack("<I", start))
+        for name, owner in held.items():
+            vm.mem_write(possessions[name]+0x61, struct.pack("<I", nations[owner]))
+        released = []
+
+        def stand_in(uc, address, size, data):   # GetPossessionWithName, GetBNationWithName, ChangePossessionOwner
+            eax, ecx, edx, sp = (uc.reg_read(r) for r in (UC_X86_REG_EAX, UC_X86_REG_ECX, UC_X86_REG_EDX, UC_X86_REG_ESP))
+            self.assertEqual(eax, CAMPAIGN_OBJECT)
+            if address == GET_POSSESSION:
+                eax = possessions.get(text[edx], 0)
+            elif address == GET_NATION:
+                eax = nations.get(text[edx], 0)
+            else:
+                self.assertEqual(ecx, 0)                             # to Neutral
+                released.append(next(name for name, p in possessions.items() if p == edx))
+            uc.reg_write(UC_X86_REG_EAX, eax)
+            uc.reg_write(UC_X86_REG_ESP, sp+(8 if address == CHANGE_OWNER else 4))   # RET 4 / RET
+            uc.reg_write(UC_X86_REG_EIP, struct.unpack("<I", uc.mem_read(sp, 4))[0])
+
+        def stop(uc, address, size, data):
+            if address == BLOCKED:
+                uc.emu_stop()
+        vm.hook_add(UC_HOOK_CODE, stand_in, begin=STUBS, end=CHANGE_OWNER)
+        vm.hook_add(UC_HOOK_CODE, stop)
+        sp = STACK+0xF000
+        vm.mem_write(sp, struct.pack("<I", BLOCKED))
+        vm.reg_write(UC_X86_REG_EAX, CAMPAIGN_OBJECT)
+        vm.reg_write(UC_X86_REG_ESP, sp)
+        vm.emu_start(GUARD, 0, count=500000)
+        self.assertEqual((vm.reg_read(UC_X86_REG_EIP), vm.reg_read(UC_X86_REG_ESP)), (BLOCKED, sp+4))
+        return sorted(released)
+
+    def test_released_in_its_year(self):
+        self.assertEqual(self.released(1922, 1890, {"Ireland": "Great Britain"}), ["Ireland"])
+
+    def test_a_territory_taken_back_later_stays_taken(self):   # a tester's Ireland went Neutral after every takeover
+        self.assertEqual(self.released(1923, 1890, {"Ireland": "Great Britain"}), [])
+        self.assertEqual(self.released(1950, 1920, {"Ireland": "Great Britain"}), [])
+
+    def test_a_later_start_releases_in_its_first_year_only(self):
+        held = {"Nova Scotia": "Great Britain", "Western Australia": "European NATO", "India": "European NATO"}
+        self.assertEqual(self.released(1935, 1935, {"Nova Scotia": "Great Britain"}), ["Nova Scotia"])
+        self.assertEqual(self.released(1947, 1947, held), ["India", "Nova Scotia", "Western Australia"])
+        self.assertEqual(self.released(1948, 1947, held), [])
+
+    def test_not_before_its_year_nor_from_another_power(self):
+        self.assertEqual(self.released(1921, 1890, {"Ireland": "Great Britain"}), [])
+        self.assertEqual(self.released(1922, 1890, {"Ireland": "Germany"}), [])
+
+
 if __name__ == "__main__":
     unittest.main()
