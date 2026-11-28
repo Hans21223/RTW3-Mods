@@ -12,7 +12,8 @@ from unicorn.x86_const import *
 from test_modern_combat import World, BLOB, CODE, NATION, DATA, STACK, FRAME
 import modern_research as modern
 import modern_tree as tree
-import nuclear_strike as ns
+import nuclear_strike as ns
+import modern_extension as extension
 import nuclear_subs as subs
 import shell_doctrine as sd
 
@@ -174,7 +175,7 @@ class StrikeTests(unittest.TestCase):
             unit = AIR+0x100*i; w.vm.mem_write(unit, bytes(0x100))
             w.put(unit+ns.AIR["count"], aircraft); w.put(unit+ns.AIR["destroyed"], destroyed)
             place(unit+ns.AIR["position"], yards); units.append(unit)
-        for i in range(len(objects)): w.put(EXTDATA+4*i, 0)
+        for i in range(len(objects)): w.vm.mem_write(EXTDATA+16*i, bytes(16))   # data, guard, battle dwords
         w.put(n["ships"], LISTS); w.put(LISTS, LISTS+0x10); w.put(LISTS+0x18, len(objects))
         w.put(n["air"], LISTS+0x40); w.put(LISTS+0x40, LISTS+0x50); w.put(LISTS+0x58, len(units))
         w.put(n["side"], LISTS+0x80); w.put(LISTS+0x80, PLAYER_SIDE)
@@ -183,7 +184,7 @@ class StrikeTests(unittest.TestCase):
             a, b = (struct.unpack("<ii", w.vm.mem_read(w.reg(r), 8)) for r in ("EAX", "EDX"))
             return round(math.hypot(a[0]-b[0], a[1]-b[1]))
         self.stub(n["ll_distance"], distance)
-        self.stub(EXT, lambda: EXTDATA+4*objects.index(w.reg("EAX")) if w.reg("EAX") in objects else 0)
+        self.stub(EXT, lambda: EXTDATA+16*objects.index(w.reg("EAX")) if w.reg("EAX") in objects else 0)
         self.stub(SUBS["random"], lambda: 0x40 if w.reg("EAX") == 360 else 0)                   # the hit's bearing
         def hit():
             args = struct.unpack("<8I", w.vm.mem_read(w.reg("ESP")+4, 32))
@@ -234,7 +235,7 @@ class StrikeTests(unittest.TestCase):
         self.assertEqual(self.texts(c["info"]), [ns.TEXT["picking"]])
         self.assertEqual((self.texts(c["ssbns"]), self.texts(c["target"]), self.texts(c["status"])), (["1"], ["NONE"], ["SAFE"]))
         self.assertEqual(len(self.called("redraw")), 1)
-        w.put(d["pick"], 0, 1); w.put(EXTDATA, ns.STRIKE_BIT)                                     # struck this battle
+        w.put(d["pick"], 0, 1); w.put(EXTDATA+extension.BATTLE_FLAGS, ns.STRIKE_BIT)            # struck this battle
         self.call(self.at["nuke"], EAX=FORM, EDX=c["nuke"])
         self.assertEqual((self.flags(), self.messages), ([0, 0, 0], [ns.TEXT["spent"]]))
         w.put(self.armageddon, 1)
@@ -286,7 +287,7 @@ class StrikeTests(unittest.TestCase):
         self.assertEqual(self.hits, [(s, 3, ns.NUCLEAR_CALIBRE, ns.TEXT["strike"]) for s in ships[:3]])
         self.assertEqual(self.sinking(ships[:4]), [(0, 1), (AFLOAT, 0), (0, 1), (AFLOAT, 0)])     # inside 2,000 yards they sink
         self.assertEqual(self.losses, [(units[0], 10, ns.DESTROYED, ns.AA_LOSS)])
-        self.assertEqual([w.get(EXTDATA+4*i) for i in range(len(ships))], [ns.STRIKE_BIT]*2+[0]*4)
+        self.assertEqual([w.get(EXTDATA+16*i+extension.BATTLE_FLAGS) for i in range(len(ships))], [ns.STRIKE_BIT]*2+[0]*4)
         self.assertEqual(self.log, [(ships[0], ns.TEXT["log0"])])
         self.assertEqual(self.flags(), [0, 0, 1])
         self.assertEqual([w.get(d["step"]), w.get(d["blasts"]) & 0xFF]+[w.get(d["centres"]+4*i) for i in range(3)], [1, 1, *TARGET])
@@ -379,12 +380,12 @@ class StrikeTests(unittest.TestCase):
         w.put(d["key_frame"], 0x07070707)
         self.run_site(INFO["form_show"], INFO["form_show"]+6, EBX=FORM, ESI=0x4567, EDI=0x5678)
         self.assertEqual([w.reg(r) for r in ("EAX", "EBX", "ESI", "EDI")], [0x4A84A8, FORM, 0x4567, 0x5678])
-        kinds = ("nuke", "console")+CONSOLE+("emcon",)
+        kinds = ("nuke", "console")+CONSOLE+("emcon", "sonar")
         made = dict(zip(kinds, self.made))
         self.assertEqual([w.get(m) for m in self.made], [INFO[ns.KINDS[k]] for k in kinds])
         self.assertEqual([w.get(made[k]+ns.CONTROL["tag"]) for k in kinds], [ns.TAGS[k] for k in kinds])
         self.assertEqual(self.called("parent"), [(made["nuke"], TOOLBAR), (made["console"], FORM)]+[(made[k], made["console"]) for k in CONSOLE]
-                         +[(made["emcon"], TOOLBAR)])
+                         +[(made["emcon"], TOOLBAR), (made["sonar"], TOOLBAR)])
         def first(name):   # each control's value from its first call of that setter: its place when made
             seen = {}
             for control, value in self.called(name): seen.setdefault(control, value)
@@ -394,6 +395,7 @@ class StrikeTests(unittest.TestCase):
         nuke_left = 1218+28+ns.NUKE_GAP
         self.assertEqual(bounds["nuke"], [nuke_left, 5, 56, 28])
         self.assertEqual(bounds["emcon"], [nuke_left+56+ns.NUKE_GAP, 5, 84, 28])                    # right of NUKE
+        self.assertEqual(bounds["sonar"], [nuke_left+56+84+2*ns.NUKE_GAP, 5, 84, 28])               # right of EMCON
         self.assertEqual(bounds["console"], [nuke_left+28-ns.CONSOLE[0]//2, 39+ns.GAP, *ns.CONSOLE])   # centred under NUKE
         self.assertEqual({k: bounds[k] for k in ns.LAYOUT}, {k: list(v) for k, v in ns.LAYOUT.items()})
         x, y, _, h = ns.LAYOUT["gauge_arm"]                                                        # refresh: SAFE, no fill
@@ -413,7 +415,7 @@ class StrikeTests(unittest.TestCase):
         self.assertEqual([e for _, e in self.called("font_size")], [ns.LABEL_PT]*4+[ns.INFO_PT])
         self.assertEqual({self.text(e) for _, e in self.called("font_name")}, {ns.FONT})
         clicks = dict(nuke="nuke", key1="key1", key2="key2", launch="glass", tgt="nuke", cancel="cancel", warhead_hit="warhead",
-                      emcon="emcon")
+                      emcon="emcon", sonar="sonar")
         self.assertEqual({k: (w.get(made[k]+ns.CONTROL["on_click"]), w.get(made[k]+ns.CONTROL["on_click"]+4)) for k in clicks},
                          {k: (at[h], FORM) for k, h in clicks.items()})
         self.assertEqual(self.called("set_cursor", 0xFFFF),
@@ -423,10 +425,11 @@ class StrikeTests(unittest.TestCase):
         self.assertEqual([(a, self.text(t)) for a, t in self.called("set_text")],
                          [(made["nuke"], "NUKE"), (made["info"], ns.TEXT["picking"]), (made["emcon"], "RADAR ON"),
                           (made["ssbns"], "1"), (made["target"], "NONE"), (made["status"], "SAFE"),
-                          (made["warhead"], ns.TEXT["name0"])])
+                          (made["warhead"], ns.TEXT["name0"]), (made["sonar"], "PASSIVE")])
         self.assertEqual((self.called("enabled", 0xFF), [v for v in self.called("set_visible", 0xFF) if v[0] == made["console"]]),
                          ([(made["nuke"], 1)], [(made["console"], 0)]))
         self.assertEqual([v for v in self.called("set_visible", 0xFF) if v[0] == made["emcon"]], [(made["emcon"], 0)])  # no radar
+        self.assertEqual([v for v in self.called("set_visible", 0xFF) if v[0] == made["sonar"]], [(made["sonar"], 0)])  # no hydrophones
         self.assertEqual([w.get(d[k]) & 0xFF for k in ("pick", "has_target", "active", "armed", "glass_frame", "glass_target",
                                                         "kind")], [0]*7)
         self.assertEqual((w.get(d["kill"]), w.get(d["ring"])), ns.WARHEADS[0][2:4])                 # each battle: A-BOMB
@@ -465,7 +468,7 @@ class StrikeTests(unittest.TestCase):
             w.put(ship+ns.SEARCH_RADAR, radar); w.put(ship+ns.RADAR_DOWN, down)
         w.put(d["emcon"], 1, 1)
         self.run_site(INFO["form_show"], INFO["form_show"]+6, EBX=FORM, ESI=0x4567, EDI=0x5678)
-        button = self.made[-1]
+        button = self.made[-2]                                                                     # then SONAR
         def down(): return [w.get(s+ns.RADAR_DOWN) for s in ships]
         self.assertEqual((w.get(button+ns.CONTROL["tag"]), down(), w.get(d["emcon"]) & 0xFF,
                           [v for v in self.called("set_visible", 0xFF) if v[0] == button]),
@@ -477,6 +480,22 @@ class StrikeTests(unittest.TestCase):
         w.put(ships[0]+ns.RADAR_DOWN, tree.EMCON+12)                                              # hit while off
         self.call(self.at["emcon"], EAX=FORM, EDX=button)
         self.assertEqual((down(), self.texts(button)[-1], w.get(d["emcon"]) & 0xFF), ([12, 30, 0, 0], "RADAR ON", 0))
+
+    def test_sonar_switches_active_and_passive_and_each_battle_starts_passive(self):
+        w, d = self.world, self.d
+        self.battle([(PLAYER_SIDE, 1000, 0, 0)]); w.owned = {ns.HYDROPHONES}; w.put(d["sonar"], 1, 1)
+        self.run_site(INFO["form_show"], INFO["form_show"]+6, EBX=FORM, ESI=0x4567, EDI=0x5678)
+        button = self.made[-1]
+        self.assertEqual((w.get(button+ns.CONTROL["tag"]), w.get(d["sonar"]) & 0xFF, self.texts(button),
+                          [v for v in self.called("set_visible", 0xFF) if v[0] == button],
+                          (w.get(button+ns.CONTROL["on_click"]), w.get(button+ns.CONTROL["on_click"]+4))),
+                         (ns.TAGS["sonar"], 0, ["PASSIVE"], [(button, 1)], (self.at["sonar"], FORM)))
+        self.assertEqual([self.text(t) for a, t in self.called("assign") if a == button+ns.CONTROL["hint"]], [ns.TEXT["sonar_hint"]])
+        del self.calls[:]
+        self.call(self.at["sonar"], EAX=FORM, EDX=button)
+        self.assertEqual((w.get(d["sonar"]) & 0xFF, self.texts(button), len(self.called("redraw"))), (1, ["ACTIVE"], 1))
+        self.call(self.at["sonar"], EAX=FORM, EDX=button)
+        self.assertEqual((w.get(d["sonar"]) & 0xFF, self.texts(button)[-1]), (0, "PASSIVE"))
 
     def pictures(self):
         for i in range(len(ns.PICTURES)): self.world.put(self.d["pictures"]+4*i, 0xB000+i)        # backdrop, keys, LAUNCH

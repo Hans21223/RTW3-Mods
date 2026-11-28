@@ -41,6 +41,8 @@ class World:
         for item in blocks+[dict(address=p["address"], bytes=p["replacement"]) for p in plans]:
             vm.mem_write(item["address"], bytes.fromhex(item["bytes"]))
         self.at = {b["name"][9:]: b["address"] for b in blocks if b["name"].startswith("Railgun: ")}
+        self.pd = {b["name"][15:]: b["address"] for b in blocks if b["name"].startswith("Point defence: ")}
+        self.named = {b["name"]: b["address"] for b in blocks}
         self.plans = {p["label"][9:]: p for p in plans if p["label"].startswith("Railgun: ")}
         self.owned, self.guns, self.log, self.checked, self.heap = set(owned), 1, [], {}, HEAP
         self.spin, self.rolls, self.damage = {}, [], 0
@@ -262,7 +264,9 @@ class DesignerTests(unittest.TestCase):
         self.assertEqual([(vmt, owner) for _, vmt, owner in created],
                          [(CHECKBOX, FORM), (LABEL_VMT, FORM), (SPIN_VMT, FORM), (LABEL_VMT, FORM), (CHECKBOX, FORM), (CHECKBOX, FORM),
                           (SPIN_VMT, FORM), (LABEL_VMT, FORM), (CHECKBOX, FORM), (CHECKBOX, FORM),
-                          (CHECKBOX, FORM)])   # the last: modern_carrier's Ski jump, through the same sync chain
+                          (CHECKBOX, FORM)]    # modern_carrier's Ski jump, through the same sync chain
+                         +[(SPIN_VMT, FORM), (LABEL_VMT, FORM)]*3+[(CHECKBOX, FORM)]+[(SPIN_VMT, FORM), (LABEL_VMT, FORM)]
+                         +[(LABEL_VMT, FORM)])   # point_defence: SeaRAM, gun-missile, spares, RAM, ATT, readout
         box, label = [entry[2] for entry in world.log if entry[0] == "parent"], None
         box = next(e[1] for e in world.log if e[0] == "parent" and e[2] == DATA+0x9000)
         label = next(e[1] for e in world.log if e[0] == "parent" and e[2] == FORM)
@@ -273,7 +277,7 @@ class DesignerTests(unittest.TestCase):
         self.assertEqual((world.get(box+0xC), world.get(box+0x120), world.get(box+0x124)),
                          (railgun.MAGIC_CHECKBOX, world.at["click"], FORM))
         self.assertEqual(world.get(label+0xC), railgun.MAGIC_LABEL)
-        self.assertEqual(sum(1 for e in world.log if e[0] == "show hint"), 11)   # with the Ski jump box
+        self.assertEqual(sum(1 for e in world.log if e[0] == "show hint"), 11+10)   # with the Ski jump box, point_defence's 10
         for magic, left, caption in ((railgun.MAGIC_SEC_RAIL, 16, "Railgun secondaries"), (railgun.MAGIC_TER_RAIL, 166, "Railgun tertiaries")):
             box2 = next(e[1] for e in world.log if e[0] == "parent" and e[2] == ADDITIONAL and world.get(e[1]+0xC) == magic)
             self.assertEqual({e[0]: e[2] for e in world.log if e[0].startswith("set_") and e[1] == box2},
@@ -407,7 +411,7 @@ class RailgunPointDefenceTests(unittest.TestCase):
             world.put(world.railgun_info["main"], main); world.put(main, DATA+0xB900)
             world.stubs[world.railgun_info["nation"]] = lambda: NATION if world.reg("EDX") == 3 else 0
             world.put(world.at["missile_table"]+0x40, missile if hyper else 0); world.put(world.at["missile_table"]+0x44, railgun.HYPER_BIT)
-            world.rolls = [roll]
+            world.rolls = [roll]; world.put(world.pd["channel"], 1, 1)   # entered after the laser layer: a channel left
             stop = world.railgun_info["ciws_shot"] if shot else world.railgun_info["ciws_step"]
             self.assertTrue(world.run(world.at["rail_layer"], stop, ESI=SHIP, EBX=missile, EBP=frame), (owned, byte, dp, bits, hyper, roll))
             if shot: self.assertIn(("shot", " Incoming missile shot down by railgun."), world.log)
@@ -499,7 +503,8 @@ class HypersonicTests(unittest.TestCase):
         listing, items = DATA+0xD000, DATA+0xD100
         load = sum(railgun.CELL_COST[kind-1]*tubes for kind, tubes in mounts if tubes >= 8)   # every VLS cell's missile
         self.assertEqual(load, 100*16+30*8+40*32+60*64)
-        for data, tons, cost in ((railgun.HYPER_BIT | 2, 20+5*16+1*8+2*64, 200+20*(16+8+64)+load), (2, 20, 200+load)):
+        lasers = 2*railgun.LASER_TONS
+        for data, tons, cost in ((railgun.HYPER_BIT | 2, lasers+5*16+1*8+2*64, 200+20*(16+8+64)+load), (2, lasers, 200+load)):
             world = World(); world.design(); world.guard(SHIP, data); world.put(CELL, SHIP)
             world.put(SHIP+0x9E, listing); world.put(listing+4, items); world.put(listing+8, len(mounts))
             for i, (kind, tubes) in enumerate(mounts):

@@ -90,6 +90,13 @@ own invasion planning stay native. The possession window's "Set invasion
 target" button and the monthly invasion check (which dropped any target worth
 more than 15) follow the same rule.
 
+**Peace terms.** After a won war, the "Select possessions as part of peace
+agreement" list natively offered only possessions worth 10 or less, so big
+colonies such as Western Australia (15) never appeared. It now offers the same
+possessions you may invade: any but a main home region. The game's other rules
+stay: the area must be next to your own possessions, and the total value you
+pick must fit what the peace allows.
+
 **Colonising.** Neutral possessions can be set as invasion targets too (the
 button was greyed out for them). Each turn the landing needs good weather, the
 native blockade rule, more than the native minimum naval force in the sea area,

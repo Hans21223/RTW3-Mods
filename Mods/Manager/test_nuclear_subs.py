@@ -155,7 +155,7 @@ class SubTests(unittest.TestCase):
         blocks, _, _ = modern.build(base, DETAILS)
         size = modern.runtime_allocation_size(DETAILS)
         modern.validate_runtime_blocks(blocks, base, size)
-        self.assertEqual(size, 0x22000)   # with the nuclear strike console's own code and text pages
+        self.assertEqual(size, 0x26000)   # with the nuclear strike console's pages, point defence's three, undersea's
 
     def test_the_list_gains_the_researched_kinds(self):
         w = self.world
@@ -286,6 +286,17 @@ class SubTests(unittest.TestCase):
         self.assertEqual(self.call(entry, EBX=SHOT+0x1000, ESI=TARGET) & 0xFF, 0)                    # an ordinary boat
         w.put(w.doctrine+4, sd.TORPEDO); w.put(SHOT+0x2000+subs.SHOT_NAME, TEXT+12); w.put(SHOT+0x2000+subs.SHOT_NATION, 3)
         self.assertEqual(self.call(entry, EBX=SHOT+0x2000, ESI=TARGET) & 0xFF, 0)                    # not allowed
+
+    def test_a_missile_counts_as_the_nation_of_its_launchers_side(self):
+        w = self.world   # a missile holds its launcher's battle side (here 1), the doctrine and research want nations
+        hits = self.battle()
+        items = LIST+0x100
+        for i, (ship, side) in enumerate(((TARGET, 0), (NEAR, 1), (FAR, 0))):
+            w.put(items+4*i, ship); w.put(ship+0xA55, side)
+        w.put(LIST+4, items); w.put(NEAR+0x14, 3)                                                  # side 1: nation 3
+        w.put(SHOT+subs.SHOT_NAME, self.string(TEXT, "SSG S-9 SSBN")); w.put(SHOT+subs.SHOT_NATION, 1)
+        self.assertEqual(self.call(self.at["missile"], EBX=SHOT, ESI=TARGET) & 0xFF, 1)         # nation 3 pays for it
+        self.assertEqual(hits[0][3][4], 3)                                                       # and its blast is theirs
 
     def test_under_armageddon_every_ssbn_hit_and_heavy_ssm_hits_are_nuclear(self):
         w = self.world

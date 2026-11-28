@@ -106,13 +106,14 @@ class NuclearShellTests(unittest.TestCase):
         size = extension.CLASSES["fighting"][1]
         for owned, battery, main, pushed in (({ident}, 1, 16, [calibre, 16]), (set(), 1, 16, [16, 16]),
                                              ({ident}, 1, 15, [15, 15]), ({ident}, 2, 16, [5, 5])):
-            world = World(owned); world.vm.mem_write(SHIP, bytes(0xE20)); world.put(SHIP+0x14, 3)
+            world = World(owned); world.vm.mem_write(SHIP, bytes(0xE30)); world.put(SHIP+0x14, 3)
             world.put(SHIP, extension.NATIVE["fighting_vmt"]); world.put(SHIP+size+4, extension.MAGIC ^ (SHIP+size))
             world.put(SHIP+0x6D, main); world.put(SHIP+0x71, 5)
             for expected in pushed:   # two hits in one battle
                 execute(world, site("nuclear"), NAVY["nuclear_back"], EAX=SHIP, EDX=battery)
                 self.assertEqual((world.get(STACK+0x8000-4), world.reg("ESP")), (expected, STACK+0x8000-4), (owned, battery, main))
-            self.assertEqual(bool(world.get(SHIP+size) & navy.NUCLEAR_USED_BIT), pushed[0] == calibre)
+            self.assertEqual(bool(world.get(SHIP+size+extension.BATTLE_FLAGS) & navy.NUCLEAR_USED_BIT), pushed[0] == calibre)
+            self.assertEqual(world.get(SHIP+size), 0)                                         # saved data untouched
 
     def test_every_hit_is_nuclear_under_armageddon(self):
         ident, minimum, calibre = tree.NUCLEAR_SHELLS

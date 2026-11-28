@@ -38,7 +38,13 @@ INVASION_RANGE = dict(site=0x7F2DC4, ok=0x7F2DDF, zero=0x7F2DCD, players=(0x6E62
 # Invasion code in the 0x3000-byte allocation: (offset, room). The name checks compare against all the main
 # homelands, so each needs more than 0x100 bytes.
 INVASION_CODE = dict(ui=(0x2000, 0x200), turn=(0x2200, 0x300), success=(0x1580, 0x80), range=(0x1600, 0x200),
-                     invasions=((0x1800, 0x200), (0x1A00, 0x200)), literals=(0x2500, 0x800))
+                     invasions=((0x1800, 0x200), (0x1A00, 0x200)), literals=(0x2500, 0x800),
+                     peace=((0x2D00, 0x180), (0x2E80, 0x180)))
+# Peace terms after a won war (SelectPossessionsAfterWar): the list natively offered only possessions worth 10 or
+# less (Western Australia is 15), in areas next to our own possessions. With invade_possessions it follows the
+# invasion rule: any possession but a main home region. The adjacency rule and the permitted total value stay.
+PEACE = (dict(site=0x7C460A, size=10, ok=0x7C4614, skip=0x7C4731),    # the defeated enemies' possessions
+         dict(site=0x7C46AE, size=6, ok=0x7C46B4, skip=0x7C4731))     # one nation's possessions
 COLONY = dict(ui=0x7B9B78, ui_set=0x7B9B96, turn=0x7C95B1, proceed=0x7C95D8, skip=0x7C98D9, weather=0x7C87C4,
               weather_delay=0x7C95E3, blockade_delay=0x7C9667, force_delay=0x7C986B, landed=0x7C9786,
               blockade=0x8203B8, strength=0x7326CC, success=0x7C97D5, success_native=0x7C97DC, success_done=0x7C97E2)
@@ -117,6 +123,7 @@ def discover(blob, base, settings=None):
                (0x6e6327,44,"8b950e0fb87d8507e5c452f052789fdd5085208122afbc9fa39436235c199955"),   # invasion checks
                (0x6f6148,44,"35e52b129092e0980478c2cf2d4538d03e9b4b79c9f6eb493cf781717b728caf"),
                (0x7f2dc4,27,"f87ecc09d8a24a349059072b9837dd076741f52b974c076c41d66dcfebc7c0a1"),   # invasion range
+               (0x7c45fd,0xb7,"3599c8990451113df1706a4e1c2ba10bbf441560648c345faee62a33102cb85f"),                                                             # peace terms list
                (0x7b9b6d,41,"9d77a1ed0e2252be2464055d00cdee15735d030d6d95d355b125dcb23d08c5bf"),   # invasion target button
                (0x7c95a3,605,"1b92b54fa001e9eefa51a29a455a1f34e34aedb88d3f7f819ce4c7cc21af1770"),  # turn-time invasion
                (0x7c87c4,94,"78b4a279bd6abf3cc750c1eb6e0e9bb702b67a5bca86def15a00d5ea4e22d122"),   # invasion weather
@@ -199,6 +206,7 @@ def discover(blob, base, settings=None):
                 form_show_original=blob[wheel["form_show"]-base:wheel["form_show"]-base+7].hex(), **wheel, **WHEEL_FIELDS,
                 picture=PICTURE["globe"], rotate_button=PICTURE["rotate_button"], pan_button=PICTURE["middle"],
                 invasions=[{k: v+delta for k, v in item.items()} for item in INVASION], message=0x4d7124+delta,
+                peace=[{k: (v+delta if k != "size" else v) for k, v in item.items()} for item in PEACE],
                 invasion_range={k: (tuple(x+delta for x in v) if isinstance(v, tuple) else v+delta) for k, v in INVASION_RANGE.items()},
                 colony=dict({k: v+delta for k, v in COLONY.items()},
                             minimum=struct.unpack_from("<I", blob, 0x7C96C9+delta-base)[0]),   # its MOV EAX,[minimum force]
@@ -285,6 +293,17 @@ def invasion_thunk(address, item, names, text, info):
         c.emit(b"\x8b\x04\x24\x8b\x40\x54\xba"); c.u32(name); c.branch(b"\xe8",info["string_equal"]); c.branch(b"\x0f\x84","home")
     c.mark("pass"); c.emit(b"\x58"); c.branch(b"\xe9",item["ok"])
     c.mark("home"); c.emit(b"\x58\x83\xc9\xff\x83\xca\xff\xb8"); c.u32(text); c.branch(b"\xe8",info["message"]); c.branch(b"\xe9",item["end"])
+    return c.finish()
+
+
+def peace_thunk(address, item, names, info):
+    """Peace terms list, EBX possession: in place of its CMP [EBX+58h],0Bh / JGE skip. Small possessions pass
+    natively; bigger ones pass unless their name is a main home region."""
+    c=Code(address); c.emit(b"\x83\x7b\x58\x0b"); c.branch(b"\x0f\x8c",item["ok"])
+    c.emit(b"\x81\x7b\x58"); c.u32(HOME_VALUE); c.branch(b"\x0f\x85",item["ok"])
+    for name in names:
+        c.emit(b"\x8b\x43\x54\xba"); c.u32(name); c.branch(b"\xe8",info["string_equal"]); c.branch(b"\x0f\x84",item["skip"])
+    c.branch(b"\xe9",item["ok"])
     return c.finish()
 
 
@@ -617,6 +636,13 @@ def attach(wait=30, settings=None):
                                        b"\xe9"+struct.pack("<i",target-item["site"]-5)+b"\x90"))
                     plans.append(patch("Home areas without a blockade",item["blockade"],blob[item["blockade"]-base:item["blockade"]-base+2],
                                        b"\xeb"+blob[item["blockade"]-base+1:item["blockade"]-base+2]))
+                for (offset,room),item in zip(INVASION_CODE["peace"],info["peace"]):
+                    target=allocation+offset; code=peace_thunk(target,item,names[:-1],info)
+                    if len(code)>room: raise ValueError("QoL rules exceed the reserved code area.")
+                    memory.write(handle,target,code); rt.K.FlushInstructionCache(handle,target,len(code))
+                    plans.append(patch("Peace terms offer any possession but a main home region",item["site"],
+                                       blob[item["site"]-base:item["site"]-base+item["size"]],
+                                       b"\xe9"+struct.pack("<i",target-item["site"]-5)+b"\x90"*(item["size"]-5)))
             if info["settings"]["build_programme_min_percent"]:
                 image,sites=programme_code(allocation+0x3000,info)
                 memory.write(handle,allocation+0x3000,image); rt.K.FlushInstructionCache(handle,allocation+0x3000,len(image))

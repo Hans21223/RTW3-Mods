@@ -17,23 +17,23 @@ PACKAGE = HERE.parent/"Library/timeline-2030"   # merged Expanded Timeline packa
 MAX_LEVELS = 36
 
 NATIVE = {
-    0: "Native machinery research +1 (lower machinery weight)",
-    1: "Native armour-quality research +1",
-    2: "Native hull research +1 (lower hull weight)",
-    3: "Native fire-control research +1 (accuracy progresses every two levels)",
-    7: "Native AP-penetration research +1",
-    11: "Native ASW research +1",
-    18: "Native carrier-design research +1 (carrier size allowance)",
-    20: "Native amphibious research +1 (invasion range)",
+    0: "Lighter machinery",
+    1: "Better armour quality",
+    2: "Lighter hulls",
+    3: "Better fire control",
+    7: "Better armour penetration",
+    11: "Gradual increase in national ASW capability",
+    18: "Larger carriers allowed",
+    20: "Longer invasion range",
 }
 LABELS = {
-    "GetROFMod": "National gun ROF modifier +1",
-    "GetDamageControlMod": "Damage-control modifier +1 beyond the native research ceiling",
+    "GetROFMod": "Faster gun fire",
+    "GetDamageControlMod": "Better damage control",
     "GetSAMQ": "SAM quality +1",
     "GetSSMQ": "SSM quality +1",
-    "GetAntiMissile": "Anti-missile countermeasure quality +1",
-    "GetAirborneECMLevel": "Airborne ECM quality +1 (native support-aircraft requirements retained)",
-    "GetSubAccuracy": "New submarine attack-accuracy modifier +1",
+    "GetAntiMissile": "Better missile countermeasures",
+    "GetAirborneECMLevel": "Airborne ECM quality +1",
+    "GetSubAccuracy": "Submarine attack accuracy +1",
     "GetLAAQ": "Light AA quality +1",
     "GetMAAQ": "Medium AA quality +1",
     "GetHAAQ": "Heavy AA quality +1",
@@ -143,104 +143,124 @@ NEW_AREAS = (
     ("Vertical launch systems", "MissileBattery.jpg", (
         # Naval combat systems is full (36 levels); the missile boats sit with the launch systems.
         (2336, 1952, 1012, 60, 40, "Nuclear attack submarines",
-         "Build nuclear attack submarines (SSN): long range boats whose torpedoes can carry nuclear warheads"),
+         "Build nuclear attack submarines (SSN)"),
         # 1953: inserted 2026-11-21, so campaigns past 1953 have this branch's later progress shifted by one row.
         (2347, 1953, 1728, 70, 12, "Aerial refuelling",
-         "Land-based aircraft have 50% more range: tankers refuel them on the way out (KC-97, probe and drogue). Not carrier aircraft"),
+         "Land-based aircraft +50% range"),
         (2337, 1957, 1028, 60, 40, "Ballistic missile submarines",
-         "Build ballistic missile submarines (SSBN): missile boats launching 4 missiles where a missile submarine launches one, one of them nuclear if allowed"),
+         "Build ballistic missile submarines (SSBN)"),
         (2338, 1969, 1823, 70, 14, "Vertical take-off jet fighters",
-         "Light jet fighters are VTOL (Harrier): a carrier need not be jet capable to fly them"),
+         "Light jet fighters are VTOL"),
         (2341, 1965, 1907, 70, 14, "Anti-radiation missiles",
-         "Jet strike aircraft carry anti-radiation missiles (Shrike): enemy SAMs are a quarter less effective against them"),
+         "Strike jets suppress enemy SAMs"),
         (2342, 1967, 1523, 70, 14, "Self-protection jamming pods",
-         "Strike aircraft carry jamming pods (ALQ-71, ALQ-119): enemy SAMs are a fifth less effective against them"),
-        (2201, 1974, 1919, 90, 10, "Vertical launch cells", "Enables 8-cell VLS banks: below-deck cells, one missile each, no reloads"),
+         "Strike aircraft jam enemy SAMs"),
+        (2201, 1974, 1919, 90, 10, "Vertical launch cells",
+         "Enables 8-cell VLS banks"),
         (2202, 1977, 2201, 90, 10, "Modular VLS magazines", "Enables 16-cell VLS banks"),
         (2203, 1980, 2202, 90, 12, "Canister exhaust management", "Enables 32-cell VLS banks"),
         (2204, 1983, 2203, 90, 12, "Large VLS magazines", "Enables 64-cell VLS banks"),
         (2343, 1984, 2341, 70, 18, "High-speed anti-radiation missiles",
-         "HARM, Kh-31P: jet strike aircraft suppress enemy SAMs another fifth"),
+         "Better SAM suppression, missiles home on radars"),
         (2344, 1985, 17, 70, 12, "Hybrid diesel-electric propulsion",
-         "Diesel ships spare a quarter of their horsepower as railgun and laser power (half with Integrated power system) and may mount railguns, and escorts and cruisers designed from 1985 with diesel or gas-turbine drive run quiet on electric motors: ASW value +2 (CODLAG: Type 23, FREMM)"),
+         "Diesel ships can power railguns, quieter escorts"),
         (2205, 1986, 2204, 70, 14, "Lightweight composite launch cells", "VLS cells weigh 20% less"),
         (2206, 1988, 2205, 70, 14, "Hull-integrated VLS modules", "Hulls can carry 25% more VLS cells"),
+        # 1989, 1991, 2008 and 2016: point defence (point_defence), inserted 2026-11-27, so campaigns past 1989 have
+        # this branch's later progress shifted by up to four rows.
+        (2349, 1989, 2107, 70, 14, "Gun-missile close-in weapon systems",
+         "Enables gun-missile CIWS mounts"),
         (2207, 1990, 2206, 70, 16, "Universal VLS fire control", "GetSSMQ"),
-        (2208, 1992, 2207, 70, 20, "Compact self-defence VLS modules", "VLS cells weigh another 10% less and light SAM cells hold four missiles (quad-packed, ESSM)"),
+        (2350, 1991, 1925, 70, 16, "Rolling airframe missiles",
+         "Enables RAM launchers for light SAMs"),
+        (2208, 1992, 2207, 70, 20, "Compact self-defence VLS modules",
+         "VLS cells 10% lighter, quad-packed light SAMs"),
         (2211, 1993, 2207, 70, 20, "Vertical-launch ASW rockets",
-         "Ships with a VLS bank gain ASW value: some cells carry ASW torpedo rockets (VL-ASROC)"),
+         "Ships with VLS gain ASW value"),
         (2209, 2005, 2208, 70, 24, "Peripheral VLS integration", "Hulls can carry 25% more VLS cells again"),
+        (2351, 2008, 2350, 70, 26, "SeaRAM self-contained launchers",
+         "Enables SeaRAM mounts"),
+        (2353, 2013, 1119, 70, 28, "Anti-torpedo torpedoes",
+         "Enables anti-torpedo torpedo launchers"),
+        (2352, 2016, 2349, 70, 28, "Enlarged point-defence magazines",
+         "Point-defence mounts carry 50% more missiles"),
         (2339, 2017, 1917, 70, 28, "Low-observable anti-ship missiles",
-         "Stealthy SSMs (LRASM, NSM, JSM): enemy SAMs, CIWS and radar-guided AA stop a third fewer of them"),
+         "Stealthy SSMs, harder to shoot down"),
         (2340, 2025, 2208, 70, 30, "Hypersonic interceptors",
-         "SAMs keep 60% of their kills against hypersonic missiles instead of 30% (SM-6 Sea-Based Terminal, S-500)"),
+         "SAMs better against hypersonic missiles"),
         # Prerequisites come from the original tree or an earlier row of the same new branch (native load order).
         (2346, 2026, 2340, 70, 30, "Hypervelocity anti-air projectiles",
-         "Railgun main batteries of any calibre fire hypervelocity air-burst rounds at aircraft: 20 heavy AA a gun (a 5-inch DP gun gives 9 to 12), they engage air strikes from three times as far, and their hits strike two aircraft"),
+         "Railguns fire anti-air rounds"),
         (2348, 2027, 2347, 70, 30, "Unmanned carrier tankers",
-         "A carrier's special squadron also flies tanker drones (MQ-25 Stingray): that carrier's aircraft have 30% more range"),
+         "Carrier tanker drones, +30% aircraft range"),
         (2210, 2030, 2209, 70, 28, "Next-generation VLS modules [projected]", "VLS cells weigh another 10% less"))),
     # SAM, SSM and anti-missile quality already reach their reviewed +10 maximum
     # through the appended branches, so this branch improves guns and ship systems.
     ("Naval combat systems", "Radar.jpg", (
         (2334, 1958, 1222, 50, 40, "Nuclear gun projectiles",
-         "Main batteries of 16 inches or more fire one nuclear shell per battle, their first hit (W23 Katie for the Iowas, W33): it wrecks almost any ship"),
+         "One nuclear shell per battle for 16 in guns"),
         (2301, 1965, 1524, 70, 10, "Naval tactical data processing", "GetHAAQ"),
         (2331, 1966, 1119, 70, 10, "Lightweight ASW torpedo tubes",
-         "Destroyers, escorts and cruisers with any torpedo mount gain ASW value (Mk 32 tubes, Mk 46 torpedo)"),
+         "Torpedo-armed escorts gain ASW value"),
         (2302, 1967, 2301, 70, 10, "Automated threat evaluation", "GetLAAQ"),
         (2303, 1969, 2302, 70, 12, "Integrated combat direction system", "GetMAAQ"),
         (2304, 1972, 2303, 70, 12, "Electronic support measures suite", "GetLAAQ"),
         (2305, 1975, 2304, 70, 14, "Phased-array fire control radar", "GetHAAQ"),
         (2323, 1976, 2304, 70, 14, "Ocean surveillance satellites",
-         "Radar ships get occasional satellite fixes on enemy surface ships beyond radar range (US-A Legenda, White Cloud): they count as spotted and missiles can engage them"),
+         "Satellites spot distant enemy ships"),
         (2319, 1977, 822, 70, 14, "Wake-homing and wire-guided torpedoes",
-         "Torpedoes your ships fire home on ships they pass: they hit from two and a half times as far away"),
-        (2324, 1978, 1917, 70, 14, "Turbofan anti-ship missiles", "SSM range +50% (Harpoon, Exocet MM40)"),
+         "Torpedoes home on their target"),
+        (2324, 1978, 1917, 70, 14, "Turbofan anti-ship missiles",
+         "SSM range +50%"),
         (2306, 1979, 2305, 70, 14, "Integrated damage-control systems", "GetDamageControlMod"),
         (2335, 1974, 1823, 70, 16, "Ski-jump flight decks",
-         "Ski jump option for flight decks: a jet deck that readies 2 more aircraft per strike without catapults, and flies heavy jets from an angled deck without catapults (Invincible, Kuznetsov)"),
-        (2325, 1980, 2303, 70, 16, "Extended-range SAMs", "Medium and heavy SAM range doubled (SM-2ER, S-300F)"),
+         "Enables ski-jump flight decks"),
+        (2325, 1980, 2303, 70, 16, "Extended-range SAMs",
+         "Medium and heavy SAM range doubled"),
         (2307, 1996, 2306, 70, 16, "Cooperative engagement capability", "GetMAAQ/GetHAAQ"),
-        (2308, 1987, 2306, 70, 20, "Radar cross-section reduction", "Ships designed from 1987: enemy radar range -20%, jets developed from 1990 are stealth models"),
+        (2308, 1987, 2306, 70, 20, "Radar cross-section reduction",
+         "Stealthier ships and jets"),
         (2332, 1995, 2308, 70, 22, "Composite superstructures",
-         "Light (aluminium) superstructures on ships designed from 1995 are composite: lighter, costlier, no aluminium fire risk (La Fayette, Visby)"),
+         "Composite superstructures, lighter, no fire risk"),
         (2309, 2000, 2308, 70, 24, "Ship self-defence system integration", "GetLAAQ"),
         (2318, 1998, 2305, 70, 26, "Active electronically scanned array radar",
-         "Search radar class 7 (radar limit 7, hulls laid down from 1998): range and detection +20% over Aegis, enemy stealth halved against it"),
+         "Enables AESA search radar (radar 7)"),
         (2326, 2005, 2309, 70, 26, "Shipborne UAVs",
-         "New floatplane scouts are UAV models (ScanEagle, Fire Scout: slow, long endurance, radar), and ships of a nation with one launch and recover scouts without stopping, as from a catapult"),
+         "Floatplane scouts become UAVs"),
         (2320, 2012, 2309, 70, 28, "Guided gun projectiles",
-         "Guns of 6 inches and less fire guided shells: twice the hit chance"),
-        (2327, 2013, 2324, 70, 28, "Long-range anti-ship missiles", "SSM range another +50% (NSM, LRASM)"),
-        (2328, 2014, 2325, 70, 28, "Active-seeker long-range SAMs", "Medium and heavy SAM range another +50% (SM-6)"),
-        (2310, 2008, 2309, 70, 28, "Low-observable ship design", "Ships designed from 2008: enemy radar detection range another -20%"),
+         "Guns up to 6 in fire guided shells"),
+        (2327, 2013, 2324, 70, 28, "Long-range anti-ship missiles",
+         "SSM range +50% more"),
+        (2328, 2014, 2325, 70, 28, "Active-seeker long-range SAMs",
+         "Medium and heavy SAM range +50% more"),
+        (2310, 2008, 2309, 70, 28, "Low-observable ship design",
+         "Stealthier ships"),
         # Zumwalt (low-observable, integrated electric power) was the railgun ship. Power techs sit in year
         # order around the railgun, all before the projected 2311 (slots 10-14).
         (2313, 2003, 2309, 70, 28, "Integrated power system",
-         "Gas turbine ships spare 50% of their horsepower as railgun power instead of 25% (integrated electric drive: Type 45, Zumwalt) and any ship can fit extra generators"),
+         "Gas turbines power railguns, extra generators"),
         (2321, 2009, 1823, 70, 30, "Electromagnetic aircraft launch system",
-         "Carriers laid down from 2009 with catapults: each catapult adds 4 aircraft per strike instead of 1, and heavy jets need 24,000 tons instead of 30,000"),
+         "Electromagnetic catapults, bigger air strikes"),
         (2312, 2020, 2313, 70, 30, "Electromagnetic railgun",
-         "Enables railgun main batteries: twice the range, penetration as a gun 4 inches larger at half the range, inert rounds, needs Nuclear or Gas turbine power"),
+         "Enables railgun main batteries"),
         (2345, 2021, 2326, 70, 30, "Interceptor drone swarms",
-         "Ships with a helicopter deck, catapult or flight deck launch AI interceptor drones (Coyote, Roadrunner): 15% more chance to stop each incoming missile, +4 heavy AA against air attacks, and carriers count as having an AEW squadron for radar and CAP"),
+         "Drones help stop missiles and aircraft"),
         (2316, 2022, 2313, 70, 30, "Shipboard high-energy lasers",
-         "Enables laser mounts (HELIOS, DragonFire): a first layer against incoming missiles, 1 MW each, needs Nuclear or Gas turbine power"),
+         "Enables laser mounts"),
         (2317, 2023, 1917, 70, 30, "Hypersonic anti-ship missiles",
-         "Hypersonic SSMs option (Zircon, Conventional Prompt Strike): SAMs, CIWS, radar AA and lasers stop only 30% as many, heavier VLS cells, and aircraft developed from 2023 launch hypersonic ASMs (Kinzhal, YJ-21)"),
+         "Enables hypersonic SSMs"),
         (2333, 2024, 2326, 70, 30, "Explosive unmanned surface vessels",
-         "MTB squadrons become fast USV squadrons (Black Sea drone boats)"),
+         "MTB squadrons become drone boats (USVs)"),
         (2314, 2025, 2312, 70, 30, "Compact pulsed-power storage",
-         "Railguns need 25% less power and their mounts weigh 25% more instead of 50%"),
+         "Railguns need less power, lighter mounts"),
         (2322, 2026, 2320, 70, 30, "Guided heavy-calibre projectiles [projected]",
-         "Guns over 6 inches fire guided shells too: one and a half times the hit chance"),
+         "Guns over 6 in fire guided shells"),
         (2329, 2027, 2312, 70, 32, "Railgun secondary batteries [projected]",
-         "Railgun secondaries and tertiaries options: those batteries become railguns (twice the range, penetration as a gun 4 inches larger), drawing power and adding 1 t and 50 cost per MW"),
+         "Enables railgun secondaries and tertiaries"),
         (2315, 2028, 2314, 70, 32, "Superconducting pulsed power [projected]",
-         "Railguns need another 25% less power and their mounts weigh only 10% more"),
+         "Railguns need less power, lighter mounts"),
         (2330, 2029, 2312, 70, 32, "Railgun point defence [projected]",
-         "DP railgun batteries engage incoming missiles before CIWS with hypervelocity projectiles: 20% per DP railgun battery, up to 50%, a third of that against hypersonic missiles"),
+         "DP railguns shoot down missiles"),
         (2311, 2030, 2310, 70, 32, "Adaptive combat-system automation [projected]", "GetDamageControlMod/GetROFMod"))),
 )
 VLS_CELLS = {8: 2201, 16: 2202, 32: 2203, 64: 2204}   # cells -> required research
@@ -283,6 +303,12 @@ SATELLITES = (2323, 5)                 # research, per-mille chance per radar sh
 # which a researching nation's ships hear it. EMCON (nuclear_strike's battle button): added to the player's ships'
 # radar damage (Tship +A0Fh) while their radars are off, so every native radar check sees them as down.
 ESM, EMCON = (2304, 300), 1000
+# Hearing is not seeing (modern_recon): a missile fired at a ship its side only hears (not seen, and outside every
+# working radar of the side) locks on, FUZZY[0]% of the time, to the nearest other ship of the target's side within
+# FUZZY[1] yards. Computer ships of a nation with ESM keep their radars off until the other side spots them.
+# ARM (modern_recon, modern_defence): anti-radiation seekers of a nation with the research home on a ship whose
+# radar is on: no decoy, no mix-up.
+FUZZY, ARM = (50, 10000), 2343
 UCAV_YEAR = 2020                       # stealth jet attack prototypes from this year are unmanned, with UAVS
 UAVS = 2326                            # floatplane scouts launch and recover like catapult UAVs
 UAV_YEAR = 2005                        # floatplane scout prototypes from this year are UAV models, with UAVS (modern_sensors)
@@ -296,6 +322,9 @@ QUAD_PACK = 2208                       # light SAM VLS cells hold four missiles 
 SSN, SSBN = 2336, 2337                 # Build submarine list entries, nuclear torpedoes and missiles (nuclear_subs)
 RAILGUN_SECONDARIES = 2329             # Railgun secondaries / tertiaries options (modern_railgun)
 RAILGUN_POINT_DEFENCE = (2330, 20, 50)   # research, % per DP railgun battery against incoming missiles, cap %
+GUN_MISSILE, RAM, SEARAM = 2349, 2350, 2351   # designer point-defence mounts and the RAM tick box (point_defence)
+PD_MAGAZINES = (2352, 50)                     # research, % more missiles in SeaRAM and gun-missile mounts
+ANTI_TORPEDO = 2353                           # ATT launchers box (point_defence), their battle rule (undersea)
 # Interceptor drones (modern_air_defence): research; % more chance a drone ship stops an incoming missile (the decoy
 # roll), heavy AA value it adds against air attacks. Carriers of the nation also count as having an AEW squadron.
 DRONE_SWARMS = (2345, 15, 4)
@@ -308,12 +337,11 @@ AERIAL_REFUELLING, CARRIER_TANKERS = (2347, 150), (2348, 130)
 EMALS = (2321, 2009, 24000, 4)         # research = laid-down year gate, heavy-jet carrier tons, spot per catapult
 RAILGUN_EFFICIENCY = (2314, 2315)      # each: railguns need 25% less power
 LIGHTER_MOUNTS = ((2315, 110), (2314, 125))   # railgun mount weight %, newest first (base 150)
-NOTES = {PHASED_ARRAY: "Search radar 6: Aegis-type phased array (needs all five search radars)",
-         NUCLEAR_PROPULSION: "Enables Nuclear propulsion: any range for less fuel weight than Short, never short of fuel or oil, machinery 60% heavier and 3x the cost",
-         **{ident: f"Nuclear ships spare {percent}% of their horsepower as railgun power" for ident, percent in REACTOR_GENERATIONS}}
-NOTES[THORIUM[0]] = f"Nuclear machinery only {THORIUM[1]-100}% heavier (not 60%), " + NOTES[THORIUM[0]].lower()
-NOTES[ESM[0]] = (f"ESM: enemy ships with their search radar on are heard at {ESM[1]/100:g}x its range and become radar contacts "
-                 "missiles can engage (EMCON in battle turns your radars off)")
+NOTES = {PHASED_ARRAY: "Enables Aegis phased-array radar (radar 6)",
+         NUCLEAR_PROPULSION: "Enables nuclear propulsion (unlimited range)",
+         **{ident: "More reactor power for railguns and lasers" for ident, percent in REACTOR_GENERATIONS}}
+NOTES[THORIUM[0]] = "More reactor power"
+NOTES[ESM[0]] = f"ESM hears enemy radars at {ESM[1]/100:g}x their range"
 VLS_LIGHT = ((2205, 20), (2208, 10), (2210, 10))        # research -> % lighter cells
 VLS_DENSE = ((2206, 64), (2209, 51))                    # research -> tons per cell
 

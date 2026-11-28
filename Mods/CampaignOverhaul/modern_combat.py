@@ -27,6 +27,7 @@ from hull_rules import patch
 BASE = 0x301000
 HYPER_SPEED = 5                # hypersonic missiles (Mach 4-5 glide and cruise) against native 320-550 knots
 TORPEDO_SLOTS = 128            # most recent guided torpedo launches remembered by object address
+TORPEDOES, CURSOR = 0x810, 0x808   # page offsets of that table and its cursor (undersea reads and fills them)
 WINDOWS = (
     (0x908409, 0x3A, "4ef18b37addca429469a234e201ff8f4e17673463b23e528bfb535cf22c97f85"),   # FireGuns hit chance
     (0x876488, 0xA5, "90e8559b83bb5099983e5286603b6dfbe814f9de4161b637cc04141d794a563e"),   # FireTorpedo
@@ -53,7 +54,7 @@ TAGS = (("tag_battle", 0x6CFA33, 5, -0xC, -8, -0xE4), ("tag_info", 0x6D3ADC, 9, 
         ("tag_view", 0x6D4DD1, 9, -0x10, -8, -0x68))
 LABEL, TAG = 0x5C4, " (EML)"
 NATIVE = dict(has_research=0x729FA4, nation=0x750040, catapults=0x94F7FC, distance=0x5733F4,
-              shells_back=0x908443, launch_back=0x876520, hit_back=0x8C2A3A, step_back=0x925C44,
+              shells_back=0x908443, launch_back=0x876520, hit_back=0x8C2A3A, step_back=0x925C44, torpedo_gone=0x8C29C8,
               spot_back=0x95026A, jets_back=0x97D446, get_text=0x451C50, set_text=0x451CA0, str_cat=0x30C63C,
               jets_ok=0x631AC5, jets_refused=0x631AB0, unit_angled=0x97D34A, unit_refused=0x97D353)
 SITES = (("shells", 0x90843C, 7), ("torpedo_launch", 0x876519, 7), ("torpedo_hit", 0x8C2A34, 6),
@@ -99,7 +100,7 @@ def paid(c, doctrine):
         c.emit(b"\x8b\x57\x14"); c.branch(b"\xe8", doctrine["use_guided"]); c.emit(b"\x84\xc0"); c.branch(b"\x0f\x84", "done")
 
 
-def build(page, info, is_hyper, ext, doctrine=None):
+def build(page, info, is_hyper, ext, doctrine=None, targets=None, att=None):
     """One page: code, then the torpedo record and constants. is_hyper(EBX missile) sets ZF clear for
     modern_railgun's hypersonic launches; ext is modern_extension's lookup (railgun secondary bits)."""
     from modern_railgun import RAIL_BATTERIES
@@ -107,7 +108,7 @@ def build(page, info, is_hyper, ext, doctrine=None):
     at = dict(shells=page, torpedo_launch=page+0x100, torpedo_hit=page+0x200, missile_step=page+0x280,
               spot=page+0x6A0, heavy_jets=page+0x380, log_own=page+0xA80, log_seen=page+0xB40, tag_battle=page+0x480,
               tag_info=page+0x500, tag_view=page+0x580, own_text=page+0x600, seen_text=page+0x640, tag_text=page+0x680,
-              heavy_factor=page+0x7FC, factor=page+0x800, jets_flag=page+0x804, cursor=page+0x808, torpedoes=page+0x810,
+              heavy_factor=page+0x7FC, factor=page+0x800, jets_flag=page+0x804, cursor=page+CURSOR, torpedoes=page+TORPEDOES,
               jets_ui=page+0xC00, jets_unit=page+0xC80)
     n, code = info, {}
     original = {site["name"]: bytes.fromhex(site["original"]) for site in info["sites"]}
@@ -164,11 +165,15 @@ def build(page, info, is_hyper, ext, doctrine=None):
     c.mark("kept"); c.emit(b"\x83\xc7\x04\x49"); c.branch(b"\x0f\x85", "forget")
     researched(c, n, b"\x8b\x56\x14", ident, "asked"); c.emit(b"\x84\xc0"); c.branch(b"\x0f\x84", "done")
     c.emit(b"\xa1"); c.u32(at["cursor"]); c.emit(b"\x89\x1c\x85"); c.u32(at["torpedoes"])
+    if targets:   # undersea: the target (FireTorpedo's ECX, kept at [ebp-4]) for homing
+        c.emit(b"\x8b\x55\xfc\x89\x14\x85"); c.u32(targets)
     c.emit(b"\x40\x25"); c.u32(TORPEDO_SLOTS-1); c.emit(b"\xa3"); c.u32(at["cursor"])
     c.mark("done"); c.emit(b"\x61"+bytes.fromhex(info["sites"][1]["original"])); c.branch(b"\xe9", n["launch_back"])
     code["torpedo_launch"] = c.finish()
     # Torpedo hit test, EBX torpedo: [ebp-18h] distance, [ebp-14h] native hit distance.
     c = Code(at["torpedo_hit"])
+    if att:   # undersea: the ship's anti-torpedo torpedo may destroy it first (logged); the native exit as a wake hit
+        c.branch(b"\xe8", att); c.emit(b"\x84\xc0"); c.branch(b"\x0f\x85", n["torpedo_gone"])
     c.emit(b"\x51\x57\xb9"); c.u32(TORPEDO_SLOTS); c.emit(b"\xbf"); c.u32(at["torpedoes"])
     c.mark("scan"); c.emit(b"\x39\x1f"); c.branch(b"\x0f\x84", "guided"); c.emit(b"\x83\xc7\x04\x49"); c.branch(b"\x0f\x85", "scan")
     c.branch(b"\xe9", "native")

@@ -84,10 +84,13 @@ def discover(blob, base, normalized):
     return info
 
 
-def build(page, info, doctrine, flight, drones=None, nuclear_sam=None):
+def build(page, info, doctrine, flight, drones=None, nuclear_sam=None, side_nation=None, arm_lock=None, ram_sam=None,
+          ram_kind=None):
     """Code and data at page (0x400 bytes) and the missile flight routine at flight (its own page).
     doctrine: shell_doctrine's entry points (conserve). modern_air_defence: drones, drone_ship(EAX ship) -> AL;
-    nuclear_sam(EAX ship, EDX kind) -> AL."""
+    nuclear_sam(EAX ship, EDX kind) -> AL. side_nation: modern_recon's side_nation(EDX side) -> EDX nation (a
+    missile holds its launcher's battle side, not its nation); arm_lock(EAX ship, EDX nation) -> AL.
+    point_defence: ram_kind, where the SAM kind fired is noted, and ram_sam(ESI ship) -> AL, RAM light SAMs."""
     from campaign_security import Code
     from hull_rules import patch
     import modern_combat as combat
@@ -96,7 +99,9 @@ def build(page, info, doctrine, flight, drones=None, nuclear_sam=None):
               sums=page+0x350, sam=page+0x35C, ssm=page+0x366, line=page+0x374)
     n, code = info, {}
     # SAMIntercept before FireSAM (ESI ship, EBX kind): free busy launchers by radar class; CL = one SAM only.
-    c = Code(at["shots"]); c.emit(b"\x60\x83\xbe"); c.u32(SHIP["radar_down"]); c.emit(b"\x00"); c.branch(b"\x0f\x85", "asked")
+    c = Code(at["shots"])
+    if ram_kind: c.emit(b"\x89\x1d"); c.u32(ram_kind)                                    # the kind, for ram_sam
+    c.emit(b"\x60\x83\xbe"); c.u32(SHIP["radar_down"]); c.emit(b"\x00"); c.branch(b"\x0f\x85", "asked")
     c.emit(b"\x8b\x86"); c.u32(SHIP["radar"]); c.emit(b"\x83\xf8\x06"); c.branch(b"\x0f\x8c", "asked")
     c.emit(b"\xbf"); c.u32(FREE[6]); c.emit(b"\x83\xf8\x07"); c.branch(b"\x0f\x8c", "roll"); c.emit(b"\xbf"); c.u32(FREE[7])
     c.mark("roll"); c.emit(b"\xb8\x64\x00\x00\x00"); c.branch(b"\xe8", n["random"]); c.emit(b"\x3b\xc7"); c.branch(b"\x0f\x8d", "asked")
@@ -104,8 +109,12 @@ def build(page, info, doctrine, flight, drones=None, nuclear_sam=None):
     c.mark("asked"); c.emit(b"\x8b\x56"+bytes([SHIP["nation"]])); c.branch(b"\xe8", doctrine["conserve"])
     c.emit(b"\x89\x44\x24\x18\x61\x8b\xd3\x8b\xc6"); c.branch(b"\xe9", n["sites"]["shots"]+6)
     code["shots"] = c.finish()
-    # The saturation count (ESI ship) -> ECX.
+    # The saturation count (ESI ship) -> ECX. RAM light SAMs (fire and forget) count half.
     c = Code(at["handled"]); c.emit(b"\x8b\x8e"); c.u32(SHIP["handled"]); c.branch(b"\xe8", flight)
+    if ram_sam:
+        c.emit(b"\x50"); c.branch(b"\xe8", ram_sam); c.emit(b"\x84\xc0\x58"); c.branch(b"\x0f\x84", "radar")
+        c.emit(b"\xd1\xe9")
+        c.mark("radar")
     c.emit(b"\x83\xbe"); c.u32(SHIP["radar_down"]); c.emit(b"\x00"); c.branch(b"\x0f\x85", "back")
     for level in (6, 7):
         c.emit(b"\x83\xbe"); c.u32(SHIP["radar"]); c.emit(bytes([level])); c.branch(b"\x0f\x8c", "back"); c.emit(b"\xd1\xe9")
@@ -160,17 +169,21 @@ def build(page, info, doctrine, flight, drones=None, nuclear_sam=None):
     c.mark("show"); c.branch(b"\xe8", n["set_text"]); c.branch(b"\xe9", n["sites"]["readout"]+7)
     code["readout"] = c.finish()
 
-    # Missile flight, in SAMIntercept's frame ([ebp-4] the missile's nation, [ebp+8] its code): ECX the count, one
-    # more a research, for medium and light SSMs.
+    # Missile flight, in SAMIntercept's frame ([ebp-4] the missile's side, [ebp+8] its code): ECX the count, one
+    # more a research of the side's nation (EBX), for medium and light SSMs.
     c = Code(flight); c.emit(b"\x51\x60\x8b\x45\x08\x83\xe8"+bytes([SKIMMERS[0]])+b"\x83\xf8"+bytes([len(SKIMMERS)-1]))
     c.branch(b"\x0f\x87", "done")
+    c.emit(b"\x8b\x55\xfc")
+    if side_nation: c.branch(b"\xe8", side_nation)
+    c.emit(b"\x8b\xda")
     for ident in tree.MISSILE_FLIGHT:
-        combat.researched(c, n, b"\x8b\x55\xfc", ident, f"asked{ident}"); c.emit(b"\x84\xc0"); c.branch(b"\x0f\x84", f"no{ident}")
+        combat.researched(c, n, b"\x8b\xd3", ident, f"asked{ident}"); c.emit(b"\x84\xc0"); c.branch(b"\x0f\x84", f"no{ident}")
         c.emit(b"\xff\x44\x24\x20"); c.mark(f"no{ident}")
     c.mark("done"); c.emit(b"\x61\x59\xc3")
     flight_block = dict(name="Missile defence: flight", address=flight, bytes=c.finish().hex())
 
-    # The decoy roll (EBP ship, EDI the missile's nation, ESI percent): electronic warfare suites.
+    # The decoy roll (EBP ship, EDI the missile's side, ESI percent): electronic warfare suites; the attacker's
+    # imaging seekers take some back, and its anti-radiation seekers (tree.ARM) leave no decoy against a radar on.
     at["decoy"] = flight+0x80
     c = Code(at["decoy"]); c.emit(b"\x60")                                         # pushad: [esp] EDI, [esp+4] ESI
     for ident, year, percent in tree.EW_SUITES:
@@ -181,8 +194,15 @@ def build(page, info, doctrine, flight, drones=None, nuclear_sam=None):
         c.emit(b"\x8b\xc5"); c.branch(b"\xe8", drones); c.emit(b"\x84\xc0"); c.branch(b"\x0f\x84", "no_drones")
         c.emit(b"\x83\x44\x24\x04"+bytes([tree.DRONE_SWARMS[1]]))
         c.mark("no_drones")
-    combat.researched(c, n, b"\x8b\x14\x24", tree.EW_SEEKER[0], "seeker"); c.emit(b"\x84\xc0"); c.branch(b"\x0f\x84", "out")
+    c.emit(b"\x8b\x14\x24")                                                     # the missile's nation: EBX
+    if side_nation: c.branch(b"\xe8", side_nation)
+    c.emit(b"\x8b\xda")
+    combat.researched(c, n, b"\x8b\xd3", tree.EW_SEEKER[0], "seeker"); c.emit(b"\x84\xc0"); c.branch(b"\x0f\x84", "arm")
     c.emit(b"\x83\x6c\x24\x04"+bytes([tree.EW_SEEKER[1]]))
+    c.mark("arm")
+    if arm_lock:
+        c.emit(b"\x8b\xc5\x8b\xd3"); c.branch(b"\xe8", arm_lock); c.emit(b"\x84\xc0"); c.branch(b"\x0f\x84", "out")
+        c.emit(b"\xc7\x44\x24\x04\x00\x00\x00\x00")                              # no decoy (ESI after POPAD)
     c.mark("out"); c.emit(b"\x61\x8b\xc5"); c.branch(b"\xe8", n["operational"]); c.branch(b"\xe9", n["sites"]["decoy"]+7)
     code["decoy"] = c.finish()
 

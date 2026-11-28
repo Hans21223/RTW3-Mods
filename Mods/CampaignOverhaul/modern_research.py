@@ -203,9 +203,13 @@ def discover(blob, base):
     air = modern_air_defence.discover(blob, base, normalized)
     import nuclear_strike
     strike = nuclear_strike.discover(blob, base, normalized)
+    import point_defence
+    pd = point_defence.discover(blob, base, normalized)
+    import undersea
+    sea = undersea.discover(blob, base, normalized)
     return {**layout, "getters": getters, "loader": loader, "sensors": sensors, "propulsion": propulsion, "railgun": railgun,
             "extension": extension, "combat": combat, "recon": recon, "navy": navy, "ai": ai, "doctrine": doctrine, "subs": subs, "defence": defence, "carrier": carrier, "air": air,
-            "nuclear_strike": strike, "new_technologies": len(nodes),
+            "nuclear_strike": strike, "point_defence": pd, "undersea": sea, "new_technologies": len(nodes),
             "applies_to": "all nations; only their own completed research flags",
             "save_format_changed": "older saves load with gun manufacture moved to record 24",
             "new_weapon_types": False, "campaign_balance_verified": False}
@@ -298,13 +302,21 @@ def build(allocation, details):
     import modern_railgun   # six pages after it
     import nuclear_subs
     import modern_defence
+    import modern_recon   # its side_nation helper: missiles hold a battle side, research and doctrine need nations
+    side_nation, arm_lock = page+0xA000+modern_recon.SIDE_NATION, page+0xA000+modern_recon.ARM_LOCK
+    import point_defence   # SeaRAM, gun-missile CIWS, RAM: two code pages and a text page after the nuclear strike pages
+    pd = point_defence.addresses(page+0x18000)
     railgun_blocks, railgun_plans = modern_railgun.build(page+0x3000, details["railgun"], ext, page+0xD400,
                                                          carrier_sync=carrier_sync,
                                                          propulsion_sync=page+0x1000+modern_propulsion.RANGE_SYNC,
                                                          nuclear_missile=page+0xF000+nuclear_subs.MISSILE_ENTRY,
                                                          cell_cost_at=page+0xFB00,   # free room in the submarines' page
-                                                         asbm=page+0x10000+modern_defence.ASBM)
+                                                         asbm=page+0x10000+modern_defence.ASBM,
+                                                         point_defence=pd, side_nation=side_nation,
+                                                         carrier_weight=page+0x11000+modern_carrier.SKI_WEIGHT)
     sensor_blocks += railgun_blocks; sensor_plans += railgun_plans
+    pd_blocks, pd_plans = point_defence.build(page+0x18000, details["point_defence"], details["railgun"], page+0x3000, ext)
+    sensor_blocks += pd_blocks; sensor_plans += pd_plans
     import designer_names   # in the AESA page, after its code and texts
     sensor_blocks += designer_names.build(page+0xD400, details["railgun"])
     import shell_doctrine   # the last page: the player's choice to fire guided and nuclear shells
@@ -312,24 +324,34 @@ def build(allocation, details):
     sensor_blocks += doctrine_blocks; sensor_plans += doctrine_plans
     import nuclear_subs   # one more page: SSN and SSBN
     subs_blocks, subs_plans = nuclear_subs.build(page+0xF000, details["subs"], doctrine, page+0x10300,
-                                                  page+0x12000, nuclear_ssm=air["nuclear_ssm"])
+                                                  page+0x12000, nuclear_ssm=air["nuclear_ssm"],
+                                                  side_nation=side_nation)
     sensor_blocks += subs_blocks; sensor_plans += subs_plans
     import modern_defence   # in the nuclear submarines' page, after their data and texts
     defence_blocks, defence_plans = modern_defence.build(page+0xFC00, details["defence"], doctrine, page+0x10000,
-                                                         drones=air["drone_ship"], nuclear_sam=air["nuclear_sam"])
+                                                         drones=air["drone_ship"], nuclear_sam=air["nuclear_sam"],
+                                                         side_nation=side_nation, arm_lock=arm_lock,
+                                                         ram_sam=pd["ram_sam"], ram_kind=pd["ram_kind"])
     sensor_blocks += defence_blocks; sensor_plans += defence_plans
     air_blocks, air_plans = modern_air_defence.build(air_page, details["air"], page+0x11000+modern_carrier.HAS_SPECIAL,
-                                                     doctrine)
+                                                     doctrine, side_nation=side_nation)
     sensor_blocks += air_blocks; sensor_plans += air_plans
     import nuclear_strike   # the battle's nuclear strike console: code, data, console code and text pages after the air defence page
+    import undersea   # its page holds the SONAR button's code; the flag lives in the strike data page
     strike_blocks, strike_plans = nuclear_strike.build(page+0x14000, page+0x15000, details["nuclear_strike"], doctrine, ext,
                                                        page+0xF000+nuclear_subs.STRIKE_ENTRY, page+0xF000, page+0x16000,
-                                                       page+0x17000)
+                                                       page+0x17000, sonar=undersea.addresses(page+0x1B000)["sonar_button"])
     sensor_blocks += strike_blocks; sensor_plans += strike_plans
     import modern_combat   # one page after the railgun pages
+    import undersea   # homing torpedoes, anti-torpedo torpedoes, moving submarines: the page after point defence's
+    sea = undersea.addresses(page+0x1B000)
     combat_blocks, combat_plans = modern_combat.build(page+0x9000, details["combat"], page+0x3000+modern_railgun.IS_HYPER, ext,
-                                                      doctrine)
+                                                      doctrine, targets=sea["targets"], att=sea["att"])
     sensor_blocks += combat_blocks; sensor_plans += combat_plans
+    sea_blocks, sea_plans, _ = undersea.build(page+0x1B000, details["undersea"], page+0x9000, ext, side_nation,
+                                              page+0xF000,   # nuclear_subs' is_kind starts its page
+                                              sonar=page+0x15000+nuclear_strike.SONAR)
+    sensor_blocks += sea_blocks; sensor_plans += sea_plans
     import modern_recon   # one page after combat
     recon_blocks, recon_plans = modern_recon.build(page+0xA000, details["recon"])
     sensor_blocks += recon_blocks; sensor_plans += recon_plans
@@ -371,9 +393,9 @@ def verify(handle, plans, key):
 
 
 def runtime_allocation_size(details):
-    # Existing fixed runtime pages, the player SSN/SSBN auto-build bridge, the air defence page and the four
-    # nuclear strike console pages (code, data, the console's code, its texts).
-    return 0x1000*(len(details["getters"])+24)
+    # Existing fixed runtime pages, the player SSN/SSBN auto-build bridge, the air defence page, the four
+    # nuclear strike console pages (code, data, the console's code, its texts), point defence's three and undersea's.
+    return 0x1000*(len(details["getters"])+28)
 
 
 def validate_runtime_blocks(blocks, allocation, size):

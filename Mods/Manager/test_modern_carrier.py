@@ -412,7 +412,7 @@ class ElectronicWarfareTests(unittest.TestCase):
     def test_sead_research_cuts_sam_effectiveness_against_the_formation(self):
         (arm, _, _), (harm, _, _), (pods, _, _) = tree.SEAD
         for owned, role, left, logged in ((set(), 12, 100, 0), ({arm}, 12, 75, 1), ({arm}, 2, 100, 0),
-                                          ({arm, harm}, 11, 60, 2), ({arm, harm, pods}, 10, 48, 3),
+                                          ({arm, harm}, 11, 60, 1), ({arm, harm, pods}, 10, 48, 2),   # ARMs noted once
                                           ({arm, harm, pods}, 2, 80, 1), ({pods}, 13, 80, 1)):
             world = World(owned); texts = []
             world.vm.mem_write(SHIP, bytes(0xC00)); world.vm.mem_write(self.FORMATION, bytes(0x60))
@@ -427,6 +427,8 @@ class ElectronicWarfareTests(unittest.TestCase):
                              (owned, role))
             self.assertTrue(all(ship == SHIP for _, ship in texts))
             self.assertTrue(world.reg("EFLAGS") & 0x40)                               # the replayed radar test: not down
+            self.execute(world, 0x97D077, 0x97D07E, EBX=100, ESI=SHIP)               # the next salvo at it
+            self.assertEqual((world.reg("EBX"), len(texts)), (left, logged), (owned, role))   # cut again, not noted again
 
 
 if __name__ == "__main__":

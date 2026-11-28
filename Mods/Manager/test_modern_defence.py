@@ -129,6 +129,35 @@ class DefenceTests(unittest.TestCase):
             self.assertEqual((w.reg("ESI"), w.reg("EAX"), w.reg("EDI"), w.reg("EBP"), w.reg("ESP")),
                              (percent, 1, 3, SHIP, STACK+0x8000), (owned, year))
 
+    def sides(self, w, nation_of_side_one=3):   # the battle ship list: one ship of side 1 (the missile's), nation 3
+        ships, var, items, other = DATA+0x3000, DATA+0x3800, DATA+0x3900, DATA+0x4000
+        w.vm.mem_write(other, bytes(0xE20)); w.put(other+0xA55, 1); w.put(other+0x14, nation_of_side_one)
+        w.put(0x9F79D8, var); w.put(var, ships); w.put(ships+4, items); w.put(ships+8, 1); w.put(items, other)
+
+    def decoy(self, w, side, percent=13):
+        w.stubs[INFO["operational"]] = lambda: 1
+        site = INFO["sites"]["decoy"]
+        for reg, value in dict(EAX=0x11, EBX=2, ESI=percent, EDI=side, EBP=SHIP, ESP=STACK+0x8000).items():
+            w.vm.reg_write(globals()["UC_X86_REG_"+reg], value)
+        w.vm.emu_start(site, site+7, count=5000)
+        self.assertEqual((w.reg("EDI"), w.reg("EBP"), w.reg("ESP")), (side, SHIP, STACK+0x8000))
+        return w.reg("ESI")
+
+    def test_a_missile_counts_as_the_nation_of_its_launchers_side(self):
+        seeker, less = tree.EW_SEEKER
+        w = self.ship(5); w.owned = {seeker}; w.put(SHIP+defence.DESIGN_YEAR, 1960); self.sides(w)
+        self.assertEqual(self.decoy(w, side=1), 13-less)                                # side 1's nation: 3
+        skim, _ = tree.MISSILE_FLIGHT
+        w = self.ship(5, 0, 4); w.owned = {skim}; self.sides(w); w.put(FRAME-4, 1); w.put(FRAME+8, 32)
+        self.run_site("handled")
+        self.assertEqual(w.reg("ECX"), 5)                                                # sea-skimming counted
+
+    def test_anti_radiation_seekers_leave_no_decoy_against_a_radar_that_is_on(self):
+        for owned, radar, down, percent in (({tree.ARM}, 5, 0, 0), ({tree.ARM}, 5, tree.EMCON, 13),
+                                            ({tree.ARM}, 5, 20, 13), ({tree.ARM}, 0, 0, 13), (set(), 5, 0, 13)):
+            w = self.ship(radar, down); w.owned = owned; w.put(SHIP+defence.DESIGN_YEAR, 1960)
+            self.assertEqual(self.decoy(w, side=3), percent, (owned, radar, down))
+
     def test_sea_skimming_and_manoeuvring_medium_and_light_missiles_are_harder_to_engage(self):
         skim, weave = tree.MISSILE_FLIGHT
         for owned, radar, handled, counted, code in (

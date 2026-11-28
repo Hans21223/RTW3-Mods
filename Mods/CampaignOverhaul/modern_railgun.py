@@ -39,7 +39,7 @@ MAGIC_CHECKBOX, MAGIC_LABEL = 0x52474E31, 0x52474E32   # Tag values of the two c
 # Lasers (count in modern_extension's data, low byte): HELIOS/DragonFire-class mounts, about 1 MW each
 # with cooling, 10 t and 100 cost per mount. Against an incoming missile: 15% per mount, at most 60%,
 # halved in rain or mist and again in heavy seas, and only 30% of that against hypersonic missiles.
-MAX_LASERS, LASER_MW, LASER_TONS, LASER_COST = 8, 1, 10, 100
+MAX_LASERS, LASER_MW, LASER_TONS, LASER_COST = 8, 1, 20, 100   # topside points and channels: point_defence
 LASER_PERCENT, LASER_CAP, SEA_ROUGH, CLEAR_WEATHER = 15, 60, 4, 2
 SPIN_BOUNDS, LASER_LABEL_BOUNDS = (92, 114, 49, 22), (8, 118)   # AA group, below AA directors
 MAGIC_LASERS, MAGIC_LASER_LABEL = 0x52474E33, 0x52474E34
@@ -73,6 +73,8 @@ GEN_SPIN_BOUNDS, GEN_LABEL_BOUNDS = (550, 448, 64, 22), (440, 452)              
 MAGIC_GEN, MAGIC_GEN_LABEL = 0x52474E37, 0x52474E38
 IS_HYPER = 0x2A80   # page offset of is_hyper (modern_combat speeds up hypersonic missiles)
 POWER = 0xA00       # page offset of power(design, nation, flag) (ai_modern sizes AI railguns and lasers by it)
+# Page offsets point_defence uses: find, scale, the laser layer it enters and the kill-stands rules.
+FIND, SCALE, LASER_LAYER, SAM_STANDS, GUN_STANDS = 0x2C0, 0x4380, 0x2340, 0x2880, 0x2940
 # Railgun secondaries and tertiaries (extension bits; research tree.RAILGUN_SECONDARIES): MW per gun as the main
 # battery, plus pulsed-power storage per MW counted with the armament. Battle: twice the range and the railgun
 # penetration for that battery. Batteries: (bit, calibre field, gun count field, battle battery number).
@@ -155,17 +157,11 @@ VCL = dict(components=0x10, tag=0xC, hint=0x90, on_click=0x120, create=0x3C, set
            spin_increment=0x310)
 TEXT = dict(
     caption="Railgun",
-    hint="Electromagnetic railgun main battery: twice the range, penetration as a gun 4 inches larger at half the "
-         "range, inert rounds (no turret flash fires or main magazine explosions, half the ammunition weight). Mounts "
-         "weigh 50% more (less with pulsed-power research) and cost 2.5x. Needs Electromagnetic railgun research, Nuclear, Gas turbine or hybrid Diesel propulsion and enough power.",
-    power_hint="Power: MW the railguns and lasers need (16 MW per 5-inch railgun, growing with calibre "
-               "squared, less with pulsed-power research; 1 MW per laser"
-               ") / MW the plant can spare (Nuclear: all of its horsepower, up to twice with newer reactors; "
-               "Gas turbine, and Diesel with Hybrid diesel-electric propulsion: a quarter, half with Integrated power "
-               "system; others none) plus extra generators.",
+    hint="Railgun main battery: double range, better penetration, no magazine explosions. Heavier, costlier "
+         "mounts. Needs electric drive and power.",
+    power_hint="Power: MW needed by railguns and lasers / MW the plant can spare.",
     gen_caption="Generators (MW)",
-    gen_hint="Extra turbine generator sets (Zumwalt, Type 45): power for railguns and lasers on any propulsion, "
-             "40 t and 200 cost per 10 MW, counted with the armament. Needs Integrated power system research.",
+    gen_hint="Extra generators for railguns and lasers: 40 t and 200 cost per 10 MW.",
     gen_research="Extra generators need research: Integrated power system (2003, Naval combat systems).",
     err_gen_research="Error: Extra generators need Integrated power system research.",
     power="Power: ", slash=" / ", mw=" MW",
@@ -176,34 +172,24 @@ TEXT = dict(
     err_drive="Error: Railguns need Nuclear or Gas turbine propulsion, or Diesel with hybrid diesel-electric drive.",
     err_power="Error: Railguns and lasers need more power than the plant can spare (see Power).",
     lasers_caption="Lasers",
-    lasers_hint="Laser mounts (HELIOS/DragonFire class): a first layer against incoming missiles, 15% per mount up "
-                "to 60%, halved in rain, mist or heavy seas, weak against hypersonic missiles. 10 t, 1 MW each. "
-                "Needs Shipboard high-energy lasers research and power (see Power).",
+    lasers_hint="Lasers against missiles, weaker in bad weather. 20 t, 1 MW and 3 topside points each.",
     laser_research="Lasers need research: Shipboard high-energy lasers (2022, Naval combat systems).",
     err_laser_research="Error: Lasers need Shipboard high-energy lasers research.",
     laser_shot=" Incoming missile shot down by laser.",
     rail_shot=" Incoming missile shot down by railgun.",
     hyper_caption="Hypersonic SSMs",
-    hyper_hint="Hypersonic anti-ship missiles (Zircon, Conventional Prompt Strike): SAMs, CIWS, radar-guided AA and "
-               "lasers stop only 30% as many of this ship's SSMs. VLS SSM cells weigh about 50% more and cost 20 more "
-               "each. Needs Hypersonic anti-ship missiles research.",
+    hyper_hint="Hypersonic SSMs: much harder to shoot down. VLS SSM cells are heavier and costlier.",
     hyper_research="Hypersonic SSMs need research: Hypersonic anti-ship missiles (2023, Naval combat systems).",
     err_hyper_research="Error: Hypersonic SSMs need Hypersonic anti-ship missiles research.",
     sec_rail_caption="Railgun secondaries",
-    sec_rail_hint="Secondary guns as railguns: twice the range, penetration as a gun 4 inches larger at half the range. "
-                  "Each needs power like a main-battery railgun of its calibre, plus 1 t and 50 cost per MW of pulsed-power "
-                  "storage. Needs Railgun secondary batteries research and enough power (see Power).",
+    sec_rail_hint="Secondary guns become railguns: double range, better penetration. They need power.",
     sec_rail_research="Railgun secondaries and tertiaries need research: Railgun secondary batteries (2027, Naval combat systems).",
     ter_rail_caption="Railgun tertiaries",
-    ter_rail_hint="Tertiary guns as railguns: twice the range, penetration as a gun 4 inches larger at half the range. "
-                  "Each needs power like a main-battery railgun of its calibre, plus 1 t and 50 cost per MW of pulsed-power "
-                  "storage. Needs Railgun secondary batteries research and enough power (see Power).",
+    ter_rail_hint="Tertiary guns become railguns: double range, better penetration. They need power.",
     ter_rail_research="Railgun secondaries and tertiaries need research: Railgun secondary batteries (2027, Naval combat systems).",
     err_rail_research="Error: Railgun secondaries and tertiaries need Railgun secondary batteries research.",
     super_caption="Super heavy SSMs",
-    super_hint="Super heavy anti-ship missiles (P-500 Bazalt, P-700 Granit) for CA, BC and BB hulls: this ship's heavy "
-               "SSMs reach twice as far and hit about twice as hard; heavy SSM mounts weigh twice as much. Needs "
-               "Effective cruise missiles research.",
+    super_hint="Super heavy SSMs (CA, BC, BB): heavy SSMs reach twice as far and hit harder. Heavier mounts.",
     super_research="Super heavy SSMs need research: Effective cruise missiles (1960, Missile technology).",
     super_hull="Super heavy SSMs need a CA, BC or BB hull.",
     err_super_research="Error: Super heavy SSMs need Effective cruise missiles research.",
@@ -245,19 +231,20 @@ def discover(blob, base, normalized):
 
 
 def build(page, info, ext, names_sync=None, nuclear_missile=None, cell_cost_at=None, asbm=None, carrier_sync=None,
-          propulsion_sync=None):
+          propulsion_sync=None, point_defence=None, side_nation=None, carrier_weight=None):
     """Six pages: code in page, page+0x2000, page+0x3000, page+0x4000 and page+0x5000, strings in page+0x1000 and
-    the gaps after them; ext is modern_extension's lookup. Returns blocks, patches."""
+    the gaps after them; ext is modern_extension's lookup. point_defence: its addresses() (layer, channel, weight,
+    sync); side_nation: modern_recon's (a missile holds its launcher's battle side). Returns blocks, patches."""
     from campaign_security import Code   # imported late: campaign_security imports modern_research
-    at = dict(scale=page+0x4380, refresh=page, sync=page+0x40, find=page+0x2C0, create_box=page+0x300, create_label=page+0x3C0,
+    at = dict(scale=page+SCALE, refresh=page, sync=page+0x40, find=page+FIND, create_box=page+0x300, create_label=page+0x3C0,
               power=page+POWER, click=page+0x4C0, turret_weight=page+0xB80, haa=page+0x940,
               turret_cost=page+0x700, gun_data=page+0x780, range_entry=page+0x7A0,
               range_exit=page+0x5700, fire_ie=page+0x5780, penetration=page+0x2800, magazine=page+0x880,
               diving=page+0x8C0, flash=page+0x900, battery=page+0xFF0,
               laser_sync=page+0x2000, create_spin=page+0x2100, create_laser_label=page+0x21C0,
-              laser_change=page+0x2240, laser_layer=page+0x2340, hyper_sync=page+0x2440, create_hyper=page+0x2540,
+              laser_change=page+0x2240, laser_layer=page+LASER_LAYER, hyper_sync=page+0x2440, create_hyper=page+0x2540,
               hyper_click=page+0x2600, sam1=page+0x2700, sam2=page+0x2740, layer3=page+0x2780, ciws_hyper=page+0x27C0,
-              sam_stands=page+0x2880, gun_stands=page+0x2940, drive_kind=page+0x2A00,
+              sam_stands=page+SAM_STANDS, gun_stands=page+GUN_STANDS, drive_kind=page+0x2A00,
               maa_hyper=page+0x2A40, is_hyper=page+IS_HYPER, gen_sync=page+0x4000, create_gen=page+0x4100,
               create_gen_label=page+0x41C0, gen_change=page+0x4240,
               hyper_tons=page+0x2AC0, hyper_pending=page+0x2AC4, hyper_cursor=page+0x2AC8,
@@ -270,7 +257,7 @@ def build(page, info, ext, names_sync=None, nuclear_missile=None, cell_cost_at=N
               ter_rail_click=page+0x54C0, rail_mw=page+0x5600, rail_layer=page+0x5800)
     texts, blocks = {}, []
     areas = [(page+0x1000, page+0x2000), (page+0x2C00, page+0x3000), (page+0x3B80, page+0x4000), (page+0x4400, page+0x5000),
-             (page+0x5900, page+0x6000)]
+             (page+0x5A00, page+0x6000)]   # after rail_layer
     offset, end = areas.pop(0)
     for key, text in TEXT.items():
         body = literal(text); size = (len(body)+15) & ~15
@@ -340,6 +327,8 @@ def build(page, info, ext, names_sync=None, nuclear_missile=None, cell_cost_at=N
         c.emit(b"\x8b\xc3"); c.branch(b"\xe8", carrier_sync)
     if propulsion_sync:   # modern_propulsion: the Range box, greyed for a nuclear design
         c.emit(b"\x8b\xc3"); c.branch(b"\xe8", propulsion_sync)
+    if point_defence:   # the point-defence strip under the armament tabs
+        c.emit(b"\x8b\xc3"); c.branch(b"\xe8", point_defence["sync"])
     c.emit(b"\x8d\x45\xf4\xba\x03\x00\x00\x00"); c.branch(b"\xe8", n["clear_n"])
     c.emit(bytes.fromhex("5f5e5b8be55dc3"))
     code["sync"] = c.finish()
@@ -530,6 +519,8 @@ def build(page, info, ext, names_sync=None, nuclear_missile=None, cell_cost_at=N
     c.mark("store"); c.emit(b"\x89\x82"); c.u32(0xAAC)
     c.emit(b"\x60")                                                              # pushad; EDX design
     if cell_cost_at: c.branch(b"\xe8", cell_cost_at)                             # every VLS cell's missile
+    if point_defence: c.branch(b"\xe8", point_defence["weight"])                 # SeaRAM, gun-missile, RAM
+    if carrier_weight: c.branch(b"\xe8", carrier_weight)                         # modern_carrier: the ski jump
     c.emit(b"\x8b\xc2"); c.branch(b"\xe8", ext); c.emit(b"\x85\xc0"); c.branch(b"\x0f\x84", "done")
     c.emit(b"\x8b\xf0\x0f\xb6\x06\x6b\xc8"); c.emit(bytes([LASER_TONS])); c.emit(b"\x01\x8a"); c.u32(0xAA4)   # armament weight
     c.emit(b"\x6b\xc8"); c.emit(bytes([LASER_COST])); c.emit(b"\x01\x8a"); c.u32(0xA8C)                    # armament cost
@@ -635,6 +626,9 @@ def build(page, info, ext, names_sync=None, nuclear_missile=None, cell_cost_at=N
     c.emit(b"\x0f\xb6\x38\x85\xff"); c.branch(b"\x0f\x84", "no")
     c.emit(b"\xb8\x64\x00\x00\x00"); c.branch(b"\xe8", n["random"]); c.emit(b"\x50\x8b\xc6"); c.branch(b"\xe8", n["superstructure"])
     c.emit(b"\x5a\x3b\xd0"); c.branch(b"\x0f\x8e", "no")                         # knocked out with the superstructure
+    if point_defence:   # a fire-control channel left after SeaRAM and gun-missile mounts
+        c.emit(b"\x80\x3d"); c.u32(point_defence["channel"]); c.emit(b"\x00"); c.branch(b"\x0f\x84", "no")
+        c.emit(b"\xfe\x0d"); c.u32(point_defence["channel"])
     c.emit(b"\x6b\xff"); c.emit(bytes([LASER_PERCENT])); c.emit(b"\x83\xff"); c.emit(bytes([LASER_CAP]))
     c.branch(b"\x0f\x8e", "capped"); c.emit(b"\xbf"); c.u32(LASER_CAP)
     c.mark("capped"); c.emit(b"\xa1"); c.u32(n["precipitation"]); c.emit(b"\x80\x38"); c.emit(bytes([CLEAR_WEATHER]))
@@ -668,7 +662,10 @@ def build(page, info, ext, names_sync=None, nuclear_missile=None, cell_cost_at=N
     c.emit(b"\x8b\xc7\x33\xd2\xb9\x03\x00\x00\x00\xf7\xf1\x8b\xf8")               # a third against hypersonic missiles
     c.mark("slow"); c.emit(b"\xb8\x64\x00\x00\x00"); c.branch(b"\xe8", n["random"]); c.emit(b"\x3b\xc7"); c.branch(b"\x0f\x8d", "no")
     c.emit(b"\x61\x8d\x45\xfc\xba"); c.u32(texts["rail_shot"]); c.branch(b"\xe8", n["lstr_asg"]); c.branch(b"\xe9", n["ciws_shot"])
-    c.mark("no"); c.emit(b"\x61"+bytes.fromhex(info["laser_layer_original"])); c.branch(b"\xe9", n["ciws_step"])
+    c.mark("no"); c.emit(b"\x61")
+    if point_defence:   # the gun CIWS needs a channel left too (railgun point defence takes none)
+        c.emit(b"\x80\x3d"); c.u32(point_defence["channel"]); c.emit(b"\x00"); c.branch(b"\x0f\x84", n["ciws_fail"])
+    c.emit(bytes.fromhex(info["laser_layer_original"])); c.branch(b"\xe9", n["ciws_step"])
     code["rail_layer"] = c.finish()
 
     def option(name, bit, magic, bounds, research, hulls=()):
@@ -815,7 +812,9 @@ def build(page, info, ext, names_sync=None, nuclear_missile=None, cell_cost_at=N
         else: c.emit(b"\xb9"); c.u32(HYPER_KEEP)
         c.mark("roll"); c.emit(b"\x51\xb8\x64\x00\x00\x00"); c.branch(b"\xe8", n["random"]); c.emit(b"\x59\x3b\xc1")
         c.branch(b"\x0f\x8d", "survives")
-        c.mark("stealth"); combat.researched(c, n, b"\x8b\x53\x3e", tree.STEALTH_SSM[0], "asked")
+        c.mark("stealth"); c.emit(b"\x8b\x53\x3e")                       # the missile's side, then its nation
+        if side_nation: c.branch(b"\xe8", side_nation)
+        combat.researched(c, n, b"", tree.STEALTH_SSM[0], "asked")
         c.emit(b"\x84\xc0"); c.branch(b"\x0f\x84", "stands")
         c.emit(b"\xb8\x64\x00\x00\x00"); c.branch(b"\xe8", n["random"]); c.emit(b"\x83\xf8"+bytes([tree.STEALTH_SSM[1]]))
         c.branch(b"\x0f\x8d", "survives")
@@ -978,7 +977,7 @@ def build(page, info, ext, names_sync=None, nuclear_missile=None, cell_cost_at=N
                   range_frame8=0x40, range_frameC=0x40, super_hit=0x40, is_super=0x20, missile_flag=0xA0,
                   range_exit=0x80, fire_ie=0x80, penetration=0x80, magazine=0x40, diving=0x40, flash=0x40, haa=0x40,
                   sec_rail_sync=0x100, create_sec_rail=0xC0, sec_rail_click=0x140, ter_rail_sync=0x100,
-                  create_ter_rail=0xC0, ter_rail_click=0x140, rail_mw=0x80, rail_layer=0x100)
+                  create_ter_rail=0xC0, ter_rail_click=0x140, rail_mw=0x80, rail_layer=0x200)
     for name, body in code.items():
         if len(body) > limits[name]: raise ValueError("Railgun code exceeds its reservation: "+name)
         blocks.append(dict(name="Railgun: "+name, address=at[name], bytes=body.hex()))
@@ -992,12 +991,13 @@ def build(page, info, ext, names_sync=None, nuclear_missile=None, cell_cost_at=N
                  range_auto2=at["range_ebx"], range_salvo=at["range_ebx"], range_longest=at["range_edi"],
                  range_longest2=at["range_edi"], range_ai=at["range_frame8"], range_screen=at["range_frameC"],
                  range_screen2=at["range_frameC"])
+    jumps = dict(at, laser_layer=point_defence["layer"]) if point_defence else at   # its layers come first
     plans = []
     for site in info["sites"]:
         old, name = bytes.fromhex(site["original"]), site["name"]
         if name in calls:
             new = b"\xe8"+struct.pack("<i", calls[name]-site["address"]-5)+b"\x90"*(len(old)-5)
         else:
-            new = b"\xe9"+struct.pack("<i", at[name]-site["address"]-5)+b"\x90"*(len(old)-5)
+            new = b"\xe9"+struct.pack("<i", jumps[name]-site["address"]-5)+b"\x90"*(len(old)-5)
         plans.append(patch("Railgun: "+name, site["address"], old, new))
     return blocks, plans

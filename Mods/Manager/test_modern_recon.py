@@ -194,6 +194,82 @@ class ESMTests(unittest.TestCase):
             else: self.assertEqual((added, world.reg("EAX")), ([], down))            # native (X) and (D)
 
 
+class BlindingTests(unittest.TestCase):
+    """Computer EMCON, the seeker mix-up on targets only heard, anti-radiation seekers, a missile's nation."""
+    VAR, LIST, ITEMS, SIDE, SHIPS = DATA+0x13000, DATA+0x13100, DATA+0x13200, DATA+0x13300, DATA+0x14000
+    AT = {k: CODE+len(modern.discover(BLOB, 0x301000)["getters"])*0x1000+0xA000+v
+          for k, v in dict(side_nation=0xC00, arm_lock=0xEA0).items()}
+
+    def world(self, owned, ships, player=0):
+        """ships: (side, nation, kind, radar class, radar damage, seen, x yards); returns their addresses."""
+        world = World(owned); made = []
+        for i, (side, nation, kind, radar, down, seen, x) in enumerate(ships):
+            ship = self.SHIPS+i*0xE00; world.vm.mem_write(ship, bytes(0xE00)); made.append(ship)
+            for offset, value in ((0xA55, side), (0x14, nation), (0xA0B, radar), (0xA0F, down), (0xD55, seen), (0xA1C, x)):
+                world.put(ship+offset, value)
+            world.put(ship+0x9D3, kind, 1)
+        world.put(RECON["ships"], self.VAR); world.put(self.VAR, self.LIST); world.put(self.LIST+4, self.ITEMS)
+        world.put(self.LIST+8, len(made))
+        for i, ship in enumerate(made): world.put(self.ITEMS+4*i, ship)
+        world.put(RECON["player_side"], self.SIDE); world.put(self.SIDE, player)
+        world.stubs[0x8ECD20] = lambda: abs(world.get(world.reg("EAX")+0xA1C)-world.get(world.reg("EDX")+0xA1C))   # range
+        return world, made
+
+    def test_side_nation_finds_the_nation_of_a_sides_ships(self):
+        world, _ = self.world(set(), [(0, 3, 1, 5, 0, 0, 0), (1, 5, 1, 5, 0, 0, 0)])
+        def nation(side): call(world, self.AT["side_nation"], EDX=side); return world.reg("EDX")
+        self.assertEqual([nation(side) for side in (0, 1, 2)], [3, 5, 2])                     # 2: no ship, unchanged
+
+    def emcon(self, owned, ship, player=0):
+        world, (one,) = self.world(owned, [ship], player)
+        world.put(FRAME-0x1C, one)
+        execute(world, site("ai_emcon"), 0x89971E)
+        self.assertEqual((world.reg("EAX"), world.reg("ESP")), (world.get(one+0xD55), STACK+0x8000))   # native: its level
+        return world.get(one+0xA0F)
+
+    def test_computer_ships_keep_their_radars_off_until_seen(self):
+        E = tree.EMCON; esm = {tree.ESM[0]}
+        computer = lambda **k: tuple({**dict(side=1, nation=3, kind=1, radar=5, down=0, seen=0, x=0), **k}.values())
+        self.assertEqual(self.emcon(esm, computer()), E)                                   # unseen: dark
+        self.assertEqual(self.emcon(esm, computer(down=E)), E)                             # stays dark, once
+        self.assertEqual(self.emcon(esm, computer(down=E, seen=1)), 0)                     # seen: radar on
+        self.assertEqual(self.emcon(esm, computer(down=E+20, seen=2)), 20)                 # its damage kept
+        self.assertEqual(self.emcon(set(), computer()), 0)                                 # no ESM: no EMCON
+        self.assertEqual(self.emcon(esm, computer(), player=1), 0)                         # the player's: the button
+        for other in (dict(kind=14), dict(kind=12), dict(radar=0)):
+            self.assertEqual(self.emcon(esm, computer(**other)), 0, other)
+
+    def launch(self, owned, ships, roll=0):
+        """FireSSM's target choice: ships[0] the target, ships[1] a ship of the firing side (side 1). -> new target."""
+        world, made = self.world(owned, ships)
+        world.put(FRAME-4, 1); world.stubs[RECON["random"]] = lambda: roll
+        execute(world, site("fuzzy"), 0x876433, ESI=made[0])
+        self.assertEqual((world.reg("EDX"), world.reg("ESP"), world.reg("EBP")), (FRAME-0x18, STACK+0x8000, FRAME))
+        return made.index(world.reg("ESI"))
+
+    def test_a_missile_at_a_ship_only_heard_may_lock_on_to_the_nearest_other_ship(self):
+        target, shooter = (0, 7, 1, 5, 0, 0, 100000), (1, 3, 1, 5, 0, 0, 0)            # 100,000 yd: beyond its radar
+        escort, far = (0, 7, 1, 5, 0, 0, 104000), (0, 7, 1, 5, 0, 0, 112000)
+        fuzzy = tree.FUZZY[0]
+        self.assertEqual(self.launch(set(), [target, shooter, far, escort], roll=fuzzy-1), 3)   # the escort, nearest
+        self.assertEqual(self.launch(set(), [target, shooter, far, escort], roll=fuzzy), 0)     # half the time: right
+        self.assertEqual(self.launch(set(), [target, shooter, far], roll=0), 0)                 # nobody within reach
+        seen = (0, 7, 1, 5, 0, 1, 100000)
+        self.assertEqual(self.launch(set(), [seen, shooter, escort], roll=0), 0)                # seen: no mix-up
+        close = (1, 3, 1, 5, 0, 0, 70000)                                                       # 30,000 yd: its radar
+        self.assertEqual(self.launch(set(), [target, close, escort], roll=0), 0)
+        dark = (1, 3, 1, 5, tree.EMCON, 0, 70000)                                               # its radar off: heard
+        self.assertEqual(self.launch(set(), [target, dark, escort], roll=0), 2)
+        sub = (0, 7, 14, 0, 0, 0, 101000)
+        self.assertEqual(self.launch(set(), [target, shooter, sub], roll=0), 0)                 # no submarine
+
+    def test_anti_radiation_seekers_home_on_a_target_whose_radar_is_on(self):
+        target, shooter, escort = (0, 7, 1, 5, 0, 0, 100000), (1, 3, 1, 5, 0, 0, 0), (0, 7, 1, 5, 0, 0, 104000)
+        self.assertEqual(self.launch({tree.ARM}, [target, shooter, escort], roll=0), 0)           # nation 3's ARM
+        silent = (0, 7, 1, 5, tree.EMCON, 0, 100000)
+        self.assertEqual(self.launch({tree.ARM}, [silent, shooter, escort], roll=0), 2)           # EMCON beats ARM
+
+
 class UAVTests(unittest.TestCase):
     def ship(self, world, catapults=0):
         world.vm.mem_write(SHIP, bytes(0xE00)); world.put(SHIP+0x14, 3); world.put(SHIP+0x9D3, 1, 1)

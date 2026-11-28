@@ -74,6 +74,11 @@ class World:
         return self.reg("EIP") == stop
 
 
+# Point defence data: RAM, 5 gun-missile and 2 SeaRAM mounts, 3 spare steps, 4 lasers; saved as elevation 2 with it.
+PD_DATA = extension.RAM_BIT | 5 << extension.GUN_MISSILE_SHIFT | 2 << extension.SEARAM_SHIFT | 3 << extension.SPARE_SHIFT | 4
+PD_VALUE = 2 | (PD_DATA << 8) & 0xFFFFFFFF | (PD_DATA >> 24 & 0x3F) << 2
+
+
 class ExtensionTests(unittest.TestCase):
     def test_ship_classes_allocate_extension_bytes_but_keep_their_instance_size(self):
         # The RTL frees a monitor it finds at InstanceSize-4 (0x30A73C): a guard there corrupted the heap.
@@ -88,7 +93,7 @@ class ExtensionTests(unittest.TestCase):
             world.vm.reg_write(UC_X86_REG_ESP, sp); world.vm.reg_write(UC_X86_REG_EAX, vmt)
             world.vm.emu_start(world.at["new_instance"], STOP, count=100000)
             self.assertEqual((world.reg("EAX"), requested[-1], world.get(block)), (block, size+extension.EXTRA, vmt))
-            self.assertEqual((world.get(block+size-4), world.get(block+size), world.get(block+size+4)), (0, 0, 0))
+            self.assertEqual([world.get(block+size+k) for k in (-4, 0, 4, 8, 12)], [0]*5)   # data, guard, two battle dwords
 
     def test_constructors_stamp_a_guard_and_lookup_needs_it(self):
         world = World()
@@ -117,13 +122,14 @@ class ExtensionTests(unittest.TestCase):
 
     def test_campaign_save_writes_elevation_with_data_and_reads_it_back(self):
         world = World(); parent = STACK+0xB000; world.put(parent-4, LIST)
-        for elevation, data, line in ((1, 0, "1"), (0, 0, "0"), (2, 0, "2"), (1, 4, "1025"), (0, 0x104, "66560")):
+        for elevation, data, line in ((1, 0, "1"), (0, 0, "0"), (2, 0, "2"), (1, 4, "1025"), (0, 0x104, "66560"),
+                                      (2, PD_DATA, str(PD_VALUE))):   # bits 24-29 in the integer's bits 2-7
             world.lines.clear(); world.ship(DESIGN, DESIGN_VMT, DESIGN_SIZE, data=data, elevation=elevation)
             sp = STACK+0x8000; world.put(sp, STOP); world.put(sp+4, parent); world.vm.mem_write(STOP, b"\xc3")
             for name, value in (("ESP", sp), ("EAX", elevation), ("EBX", DESIGN)): world.vm.reg_write(globals()["UC_X86_REG_"+name], value)
             world.vm.emu_start(world.at["big_save"], STOP, count=10000)
             self.assertEqual(world.lines, [line], (elevation, data))
-        for value, elevation, data in ((1025, 1, 4), (66560, 0, 0x104), (2, 2, 0)):
+        for value, elevation, data in ((1025, 1, 4), (66560, 0, 0x104), (2, 2, 0), (PD_VALUE, 2, PD_DATA)):
             world.ship(DESIGN, DESIGN_VMT, DESIGN_SIZE, data=0xFFFF)
             for start, stop in ((0x94DC50, 0x94DC56), (0x9430EF, 0x9430F5), (0x8EDF10, 0x8EDF16)):
                 self.assertTrue(world.run(start, stop, EAX=value, EBX=DESIGN))
@@ -134,7 +140,7 @@ class ExtensionTests(unittest.TestCase):
 
     def test_design_files_push_elevation_with_data_and_switch_to_integer_keys(self):
         world = World()
-        for elevation, data, pushed in ((2, 0, 2), (1, 0x104, 0x10401), (0, 0, 0)):
+        for elevation, data, pushed in ((2, 0, 2), (1, 0x104, 0x10401), (0, 0, 0), (2, PD_DATA, PD_VALUE)):
             world.ship(DESIGN, DESIGN_VMT, DESIGN_SIZE, data=data, elevation=elevation)
             self.assertTrue(world.run(0x93FFB6, 0x93FFBE, EDI=DESIGN))
             self.assertEqual(world.get(world.reg("ESP")), pushed)

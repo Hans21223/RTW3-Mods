@@ -101,6 +101,8 @@ CALLS = ("request_role", "request_done", "types_role", "item_role", "ready_role"
 # The battle's HasSpecialSquadron(EAX carrier) calls, by the squadron they need (the rescue call stays native).
 AEW, EW = 1, 2
 HAS_SPECIAL = 0xC40   # page offset of has_special(EAX carrier, ECX kind) -> AL (modern_air_defence's AEW check calls it)
+SKI_WEIGHT = 0xF80    # page offset of ski_weight(EDX design) (modern_railgun's ammunition hook calls it)
+SKI_PERCENT, SKI_MIN_TONS, SKI_COST_PER_TON = 15, 150, 10   # tenths of a percent of displacement; the armament rate
 SPECIAL = ((0x91973A, AEW), (0x962EAE, AEW), (0x962EE8, AEW),   # radar; CAP vectoring x2
            (0x962FA9, EW), (0x97CF30, EW))                       # enemy ECM against CAP; against SAMs
 # CAPIntercept's third AEW check only logs "AEW improves CAP vectoring", once per CAP intercept: with AEW on every
@@ -115,9 +117,8 @@ VCL = dict(components=0x10, tag=0xC, hint=0x90, on_click=0x120, create=0x3C, set
            get_checked=0x16C, set_checked=0x170)
 TEXT = dict(
     caption="Ski jump",
-    hint="A ski-jump ramp (Invincible, Kuznetsov): a jet deck, so Jet capable is ticked with it. Without catapults "
-         "the deck readies 2 more aircraft per strike, and an angled ski-jump deck flies heavy jets (STOBAR). "
-         "Needs Ski-jump flight decks research and a flight deck.",
+    hint=f"Ski-jump ramp: a jet deck that launches more aircraft without catapults. Weighs {SKI_PERCENT/10:g}% of "
+         "displacement.",
     research="A ski jump needs research: Ski-jump flight decks (1974, Naval combat systems).",
     deck="A ski jump needs a flight deck.",
     uav="UAV",
@@ -169,7 +170,7 @@ def build(page, info, uav_request=None, aew=None):
               request_list=page+0x580, request_role=page+0x600, request_store=page+0x640, role_name=page+0x6A0,
               request_done=page+0x6E0, types_role=page+0x720, item_role=page+0x728, role_of=page+0x730,
               ready_role=page+0x760, none_role=page+0x760, prototype_nil=page+0x780, texts=page+0x800, has_special=page+HAS_SPECIAL,
-              has_aew=page+0xCE0, has_ew=page+0xCF0, sam_air=page+0xD00)
+              has_aew=page+0xCE0, has_ew=page+0xCF0, sam_air=page+0xD00, ski_weight=page+SKI_WEIGHT, sead_last=page+0xFF8)
     texts, blocks, offset = {}, [], at["texts"]
     for key, text in TEXT.items():
         body = literal(text); texts[key] = offset+12
@@ -391,8 +392,9 @@ def build(page, info, uav_request=None, aew=None):
         else: c.emit(b"\xb9"); c.u32(kind); c.branch(b"\xe9", at["has_special"])
         code[name] = c.finish()
     # SAMs against an air formation, at the end of their effectiveness (EBX, ESI the ship, [EBP-8] the formation):
-    # SEAD research of the formation's nation cuts it, each research its percent; the log notes ARMs and pods.
-    c = Code(at["sam_air"]); c.emit(b"\x57")
+    # SEAD research of the formation's nation cuts it, each research its percent. The log notes ARMs and pods once
+    # per formation (each SAM salvo used to log them, ARMs twice with both researches: over a thousand lines a battle).
+    c = Code(at["sam_air"]); c.emit(b"\x57\x33\xff")                                       # EDI: 1 ARMs, 2 pods
     for index, (ident, cut, jets) in enumerate(tree.SEAD):
         if jets:
             c.emit(b"\x8b\x45\xf8\x8b\x40\x10\x85\xc0"); c.branch(b"\x0f\x84", f"skip{index}")
@@ -400,12 +402,26 @@ def build(page, info, uav_request=None, aew=None):
         combat.researched(c, n, b"\x8b\x55\xf8\x8b\x52\x38", ident, f"asked{index}")
         c.emit(b"\x84\xc0"); c.branch(b"\x0f\x84", f"skip{index}")
         c.emit(b"\x6b\xdb"+bytes([100-cut])+b"\x8b\xc3\x99\xb9\x64\x00\x00\x00\xf7\xf9\x8b\xd8")
-        c.emit(b"\x8b\xce\xba"); c.u32(texts["sead" if jets else "pods"]); c.emit(b"\xa1"); c.u32(n["battle_log"])
-        c.emit(b"\x8b\x38\xff\x57\x40")
+        c.emit(b"\x83\xcf"+bytes([1 if jets else 2]))
         c.mark(f"skip{index}")
-    c.emit(b"\x5f"+bytes.fromhex(next(s["original"] for s in n["sites"] if s["name"] == "sam_air")))
+    c.emit(b"\x8b\x45\xf8\x3b\x05"); c.u32(at["sead_last"]); c.branch(b"\x0f\x84", "noted")
+    c.emit(b"\xa3"); c.u32(at["sead_last"]); c.emit(b"\x57")
+    for bit, key in ((1, "sead"), (2, "pods")):
+        c.emit(b"\xf6\x04\x24"+bytes([bit])); c.branch(b"\x0f\x84", f"quiet{bit}")
+        c.emit(b"\x8b\xce\xba"); c.u32(texts[key]); c.emit(b"\xa1"); c.u32(n["battle_log"]); c.emit(b"\x8b\x38\xff\x57\x40")
+        c.mark(f"quiet{bit}")
+    c.emit(b"\x83\xc4\x04")
+    c.mark("noted"); c.emit(b"\x5f"+bytes.fromhex(next(s["original"] for s in n["sites"] if s["name"] == "sam_air")))
     c.branch(b"\xe9", n["sam_air_back"])
     code["sam_air"] = c.finish()
+    # ski_weight(EDX design): a ski jump weighs SKI_PERCENT tenths of a percent of the displacement (at least
+    # SKI_MIN_TONS), counted with the armament at SKI_COST_PER_TON. Keeps every register.
+    c = Code(at["ski_weight"]); c.emit(b"\x60\xf6\x82"); c.u32(0x9DF); c.emit(bytes([SKI_BIT])); c.branch(b"\x0f\x84", "done")
+    c.emit(b"\x8b\x42\x2c\x6b\xc0"+bytes([SKI_PERCENT])+b"\x8b\xda\x99\xb9\xe8\x03\x00\x00\xf7\xf9\x3d"); c.u32(SKI_MIN_TONS)
+    c.branch(b"\x0f\x8d", "tons"); c.emit(b"\xb8"); c.u32(SKI_MIN_TONS)
+    c.mark("tons"); c.emit(b"\x01\x83"); c.u32(0xAA4); c.emit(b"\x6b\xc0"+bytes([SKI_COST_PER_TON])+b"\x01\x83"); c.u32(0xA8C)
+    c.mark("done"); c.emit(b"\x61\xc3")
+    code["ski_weight"] = c.finish()
     c = Code(at["ready_role"])   # ESI main
     c.emit(b"\x0f\xb6\x86"); c.u32(REQUEST); c.emit(b"\x80\x3d"); c.u32(uav_request); c.emit(b"\x00")
     c.branch(b"\x0f\x84", "ret"); c.emit(b"\xb8"); c.u32(UAV_ROLE)
@@ -423,6 +439,7 @@ def build(page, info, uav_request=None, aew=None):
 
     for name, body in code.items():
         blocks.append(dict(name="Ski jump: "+name, address=at[name], bytes=body.hex()))
+    blocks.append(dict(name="Ski jump: sead_last", address=at["sead_last"], bytes="00000000"))
     plans = [patch("Ski jump: JetCapable "+key["name"], key["address"], bytes.fromhex(key["original"]),
                    b"\xe8"+struct.pack("<i", key["target"]-key["address"]-5)) for key in n["keys"]]
     plans.append(patch("Ski jump: nearest enemy air formation returned", n["nearest_air"], bytes.fromhex(NEAREST_AIR[1]),

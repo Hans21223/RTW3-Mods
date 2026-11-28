@@ -13,7 +13,12 @@ Battle hooks for the modern-research adapter, each gated by its own research (mo
   no radar damage: EMCON counts as damage) within tree.ESM[1]% of that radar's own band. The target becomes a radar
   contact (level 1 at least, kept for the pass as an in-range radar target is) and joins the observer's contacts,
   so missiles can engage it; a new contact of the player's side is logged. An observer whose radar is off (EMCON)
-  hears but makes no radar sightings.
+  hears but makes no radar sightings. Computer surface ships of a nation with ESM keep their radars off until the
+  other side sees them (the spotting pre-pass, from the last pass's levels), then switch them on.
+- Hearing is not seeing: FireSSM's target, when the firing side only hears it (not seen, outside every working
+  radar of the side), mixes up the seeker tree.FUZZY[0]% of the time: the missile locks on to the nearest other
+  ship of the target's side within tree.FUZZY[1] yards. Anti-radiation seekers (tree.ARM, arm_lock) of the side's
+  nation home on a target whose radar is on. side_nation maps a battle side (what a missile holds) to its nation.
 - Start distance: the battle set-up moves each force back until it is a minimum distance from the scenario's
   reference point (30,000 yards close, 50,000 medium, 90,000 long, less before 1938). From START_DISTANCES' years
   that minimum grows, capped at START_CAP, so missile-era forces start beyond each other's radar, and from the ESM
@@ -41,14 +46,17 @@ WINDOWS = (
     (0x97B92A, 0x14, "e922de44d69c058888561fd49dc55f8c43dd3aa5d4fb7c179de51a41f8ddc61e"),   # final strike target
     (0x97BABD, 0x10, "e13dda4794973caf55fbd736f3501f5b65fdd914094ee1433f122138539588af"),   # its "no" answer
     (0x94FA07, 0x2C, "f91f84aaf5d6e0e2ffc9122d82355a311966e34f47d377ae07c3676191397fd8"),   # RadarAsString: (X), (D)
+    (0x899715, 0x12, "46abe07d8efeacef3473606600344278be63e208d75a4d63da0b0cd1fa6f7918"),   # spotting pre-pass, a ship
+    (0x87642C, 0x1C, "599d80734aa060d58b65acac57338f2ee25c2177a07b0807692df7575d9ca435"),   # FireSSM: its target
 )
 NATIVE = dict(range_table=0x91AC14, random=0x307834, index_of=0x3B6E0C, add=0x3B6B8C, radar_far=0x89AF15,
               radar_near=0x89AB52, catapults=0x91BB74, start_back=0x6B160E, year=0x9F7328, ships=0x9F79D8,
               list_get=0x3B6D6C, afloat=0x90E46C, distance=0x90F18C, battle_log=0xA80114, prompt_back=0x97B939,
               strike_kept=0x97BABD, has_any_radar=0x918244, in_range=0x90E374, radar_back=0x89AB1F,
-              player_side=0x9F7008, tag_back=0x94FA0D, tag_done=0x94FA30, cat=0x30C63C)
+              player_side=0x9F7008, tag_back=0x94FA0D, tag_done=0x94FA30, cat=0x30C63C, range_to_ship=0x8ECD20,
+              ai_back=0x89971E, fuzzy_none=0x876448, fuzzy_back=0x876433)
 # IsInSightingRange(EAX observer, EDX target, ECX yards); [[player_side]]; RadarAsString's damage tags, UStrCat
-SITES = (("missile_range", 0x91ACCC, 7), ("satellite", 0x89AB4C, 6), ("esm", 0x89AB17, 8), ("radar_tag", 0x94FA07, 6), ("must_stop", 0x918FB8, 6),
+SITES = (("missile_range", 0x91ACCC, 7), ("satellite", 0x89AB4C, 6), ("esm", 0x89AB17, 8), ("radar_tag", 0x94FA07, 6), ("ai_emcon", 0x899715, 9), ("fuzzy", 0x87642C, 7), ("must_stop", 0x918FB8, 6),
          ("prompt_text", 0x919057, 5), ("prompt_count", 0x91904E, 5), ("ai_count", 0x92A2F1, 5),
          ("start_distance", 0x6B1606, 8), ("datalink", 0x97B934, 5))
 CALLS = ("prompt_count", "ai_count")   # native calls of the catapult count, retargeted (not jumps)
@@ -59,6 +67,8 @@ START_DISTANCES = ((1972, 300), (1960, 150))   # from these campaign years, % of
 # Yards from the reference point: forces on opposite sides start up to 260,000 apart, beyond an AESA's 129,000-yard
 # ESM reach and still inside the 280,000-yard "forces far apart" test.
 START_CAP = 130000
+# side_nation's offset in the page: modern_defence, modern_air_defence and nuclear_subs call it before it is built.
+SIDE_NATION, ARM_LOCK = 0xC00, 0xEA0
 ESM_TEXT, EMCON_TAG = "2ESM: enemy radar emissions detected", " (EMCON)"   # the ship panel's tag for a radar off
 DATALINK, DATALINK_REACH = 1524, 40000   # native Tactical data system (1963); yards from the old aim point
 DATALINK_TEXT = "2Strike retargeted by datalink"
@@ -86,7 +96,8 @@ def build(page, info):
     at = dict(missile_range=page, satellite=page+0x200, must_stop=page+0x300, prompt_text=page+0x380,
               count=page+0x400, uav_text=page+0x480, has_uav=page+0x500, start_distance=page+0x600,
               datalink=page+0x680, datalink_text=page+0x880, esm=page+0x900, esm_text=page+0xB00,
-              radar_tag=page+0xB80, tag_text=page+0xBC0)
+              radar_tag=page+0xB80, tag_text=page+0xBC0, side_nation=page+SIDE_NATION, ai_emcon=page+0xC40,
+              fuzzy=page+0xD40, arm_lock=page+ARM_LOCK)
     n, code = info, {}
     site = {s["name"]: s for s in info["sites"]}
 
@@ -149,6 +160,82 @@ def build(page, info):
     c.branch(b"\x0f\x8c", n["tag_back"]); c.emit(b"\x8b\xc6\xba"); c.u32(at["tag_text"]+12); c.branch(b"\xe8", n["cat"])
     c.branch(b"\xe9", n["tag_done"])
     code["radar_tag"] = c.finish()
+
+    # side_nation(EDX a battle side) -> EDX the nation index of that side's ships, or EDX unchanged when no ship has
+    # that side. A missile keeps its launcher's side (FireSSM gets the ship's +A55h), not its nation, and research
+    # and doctrine checks need the nation. Keeps the other registers.
+    c = Code(at["side_nation"]); c.emit(b"\x50\x51\x56\xa1"); c.u32(n["ships"]); c.emit(b"\x8b\x00\x85\xc0"); c.branch(b"\x0f\x84", "done")
+    c.emit(b"\x8b\x48\x08\x8b\x70\x04")                                            # ECX count, ESI items
+    c.mark("next"); c.emit(b"\x49"); c.branch(b"\x0f\x88", "done")
+    c.emit(b"\x8b\x04\x8e\x39\x90"); c.u32(0xA55); c.branch(b"\x0f\x85", "next")
+    c.emit(b"\x8b\x50\x14")
+    c.mark("done"); c.emit(b"\x5e\x59\x58\xc3")
+    code["side_nation"] = c.finish()
+
+    # The spotting pre-pass, a ship ([ebp-1Ch]), in place of MOV EAX,[EBP-1Ch] / MOV EAX,[EAX+D55h], before its last
+    # levels are copied: a computer surface ship of a nation with ESM keeps its radars off (EMCON) until the other
+    # side sees it (visual or radar level from the last pass), then on. The player's ships follow their button.
+    c = Code(at["ai_emcon"]); c.emit(b"\x60\x8b\x75\xe4\xa1"); c.u32(n["player_side"]); c.emit(b"\x8b\x00\x3b\x86"); c.u32(0xA55)
+    c.branch(b"\x0f\x84", "done")
+    c.emit(b"\x83\xbe"); c.u32(0xA55); c.emit(b"\x03"); c.branch(b"\x0f\x84", "done")                       # neutral
+    for kind in (12, 14):   # land targets and submarines
+        c.emit(b"\x80\xbe"); c.u32(0x9D3); c.emit(bytes([kind])); c.branch(b"\x0f\x84", "done")
+    c.emit(b"\x80\xbe"); c.u32(0xA9F); c.emit(b"\x00"); c.branch(b"\x0f\x85", "done")                       # sunk
+    c.emit(b"\x83\xbe"); c.u32(0xA0B); c.emit(b"\x00"); c.branch(b"\x0f\x8e", "done")                       # no radar
+    combat.researched(c, n, b"\x8b\x56\x14", tree.ESM[0], "asked"); c.emit(b"\x84\xc0"); c.branch(b"\x0f\x84", "done")
+    for level in (0xD55, 0xD59):
+        c.emit(b"\x83\xbe"); c.u32(level); c.emit(b"\x00"); c.branch(b"\x0f\x8f", "on")
+    c.emit(b"\x81\xbe"); c.u32(0xA0F); c.u32(tree.EMCON); c.branch(b"\x0f\x8d", "done")
+    c.emit(b"\x81\x86"); c.u32(0xA0F); c.u32(tree.EMCON); c.branch(b"\xe9", "done")
+    c.mark("on"); c.emit(b"\x81\xbe"); c.u32(0xA0F); c.u32(tree.EMCON); c.branch(b"\x0f\x8c", "done")
+    c.emit(b"\x81\xae"); c.u32(0xA0F); c.u32(tree.EMCON)
+    c.mark("done"); c.emit(b"\x61\x8b\x45\xe4\x8b\x80"); c.u32(0xD55); c.branch(b"\xe9", n["ai_back"])
+    code["ai_emcon"] = c.finish()
+
+    # FireSSM, the target given (ESI; [ebp-4] the firing side), in place of TEST ESI,ESI / JE / LEA EDX,[EBP-18h]:
+    # a target the side only hears (not seen, outside every working radar of the side) mixes up the seeker FUZZY[0]%
+    # of the time: it locks on to the nearest other ship of the target's side within FUZZY[1] yards. ARM seekers of
+    # the side's nation home on a target whose radar is on.
+    fuzzy, reach = tree.FUZZY
+    c = Code(at["fuzzy"]); c.emit(b"\x85\xf6"); c.branch(b"\x0f\x84", n["fuzzy_none"])
+    c.emit(b"\x60\x8b\x7d\xfc\x83\xbe"); c.u32(0xD55); c.emit(b"\x00"); c.branch(b"\x0f\x8f", "keep")      # EDI side; seen
+    c.emit(b"\xa1"); c.u32(n["ships"]); c.emit(b"\x8b\x00\x85\xc0"); c.branch(b"\x0f\x84", "keep")
+    c.emit(b"\x8b\x48\x08\x8b\x58\x04")                                            # ECX count, EBX items
+    c.mark("radar"); c.emit(b"\x49"); c.branch(b"\x0f\x88", "heard")
+    c.emit(b"\x8b\x04\x8b\x39\xb8"); c.u32(0xA55); c.branch(b"\x0f\x85", "radar")      # a ship of the firing side
+    c.emit(b"\x80\xb8"); c.u32(0xA9F); c.emit(b"\x00"); c.branch(b"\x0f\x85", "radar")
+    c.emit(b"\x8b\x90"); c.u32(0xA0B); c.emit(b"\x85\xd2"); c.branch(b"\x0f\x8e", "radar")
+    c.emit(b"\x83\xb8"); c.u32(0xA0F); c.emit(b"\x00"); c.branch(b"\x0f\x85", "radar")    # its radar works and is on
+    c.emit(b"\x51\x69\xca"); c.u32(4000); c.emit(b"\x81\xc1"); c.u32(15000); c.emit(b"\x8b\xd6")
+    c.branch(b"\xe8", n["in_range"]); c.emit(b"\x59\x84\xc0"); c.branch(b"\x0f\x85", "keep")   # inside its radar band
+    c.branch(b"\xe9", "radar")
+    c.mark("heard"); c.emit(b"\x8b\xd7"); c.branch(b"\xe8", at["side_nation"]); c.emit(b"\x8b\xc6")
+    c.branch(b"\xe8", at["arm_lock"]); c.emit(b"\x84\xc0"); c.branch(b"\x0f\x85", "keep")
+    c.mark("mixup"); c.emit(b"\xb8"); c.u32(100); c.branch(b"\xe8", n["random"]); c.emit(b"\x83\xf8"+bytes([fuzzy]))
+    c.branch(b"\x0f\x8d", "keep")
+    c.emit(b"\x33\xdb\xbd"); c.u32(reach)                                          # EBX the nearest, EBP its range
+    c.emit(b"\xa1"); c.u32(n["ships"]); c.emit(b"\x8b\x00\x8b\x48\x08\x8b\x78\x04")    # ECX count, EDI items
+    c.mark("near"); c.emit(b"\x49"); c.branch(b"\x0f\x88", "pick")
+    c.emit(b"\x8b\x04\x8f\x3b\xc6"); c.branch(b"\x0f\x84", "near")
+    c.emit(b"\x8b\x90"); c.u32(0xA55); c.emit(b"\x3b\x96"); c.u32(0xA55); c.branch(b"\x0f\x85", "near")   # the target's side
+    c.emit(b"\x80\xb8"); c.u32(0xA9F); c.emit(b"\x00"); c.branch(b"\x0f\x85", "near")
+    for kind in (12, 14):
+        c.emit(b"\x80\xb8"); c.u32(0x9D3); c.emit(bytes([kind])); c.branch(b"\x0f\x84", "near")
+    c.emit(b"\x51\x50\x8b\xd0\x8b\xc6"); c.branch(b"\xe8", n["range_to_ship"]); c.emit(b"\x5a\x59")
+    c.emit(b"\x3b\xc5"); c.branch(b"\x0f\x8d", "near"); c.emit(b"\x8b\xe8\x8b\xda"); c.branch(b"\xe9", "near")
+    c.mark("pick"); c.emit(b"\x85\xdb"); c.branch(b"\x0f\x84", "keep"); c.emit(b"\x89\x5c\x24\x04")   # ESI after POPAD
+    c.mark("keep"); c.emit(b"\x61\x85\xf6"); c.branch(b"\x0f\x84", n["fuzzy_none"])
+    c.emit(b"\x8d\x55\xe8"); c.branch(b"\xe9", n["fuzzy_back"])
+    code["fuzzy"] = c.finish()
+
+    # arm_lock(EAX ship, EDX nation) -> AL: the nation's anti-radiation seekers (tree.ARM) home on the ship, whose
+    # search radar is on (a class, no damage, not EMCON). Keeps EBX, ECX, ESI, EDI, EBP.
+    c = Code(at["arm_lock"]); c.emit(b"\x51\x83\xb8"); c.u32(0xA0B); c.emit(b"\x00"); c.branch(b"\x0f\x8e", "no")
+    c.emit(b"\x83\xb8"); c.u32(0xA0F); c.emit(b"\x00"); c.branch(b"\x0f\x85", "no")
+    combat.researched(c, n, b"", tree.ARM, "asked"); c.branch(b"\xe9", "out")
+    c.mark("no"); c.emit(b"\x33\xc0")
+    c.mark("out"); c.emit(b"\x59\xc3")
+    code["arm_lock"] = c.finish()
 
     # has_uav(EDX nation index) -> AL: the nation has a UAV model in service (a floatplane scout with modern_sensors'
     # UAV mark): developed, not obsolete. The game's aircraft list, newest last.
@@ -224,7 +311,8 @@ def build(page, info):
               dict(name="Modern reconnaissance: datalink text", address=at["datalink_text"], bytes=literal(DATALINK_TEXT)),
               dict(name="Modern reconnaissance: ESM text", address=at["esm_text"], bytes=literal(ESM_TEXT)),
               dict(name="Modern reconnaissance: EMCON tag", address=at["tag_text"], bytes=literal(EMCON_TAG))]
-    room = dict(missile_range=0x200, satellite=0x100, has_uav=0x100, datalink=0x200, esm=0x200, radar_tag=0x40)
+    room = dict(missile_range=0x200, satellite=0x100, has_uav=0x100, datalink=0x200, esm=0x200, radar_tag=0x40,
+                side_nation=0x40, ai_emcon=0x100, fuzzy=0x160, arm_lock=0x60)
     for name, body in code.items():
         if len(body) > room.get(name, 0x80): raise ValueError("Modern reconnaissance code exceeds its reservation: "+name)
         blocks.append(dict(name="Modern reconnaissance: "+name, address=at[name], bytes=body.hex()))

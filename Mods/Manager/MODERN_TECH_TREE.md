@@ -112,10 +112,15 @@ personal-save edits in this package.
 | 2344 | 1985 | Hybrid diesel-electric propulsion (needs 17 Turbo electric drive) | Diesel ships spare power for railguns and lasers; quiet electric drive +2 ASW (see Railguns, Anti-submarine weapons) |
 | 2205 | 1986 | Lightweight composite launch cells | Cells 20% lighter |
 | 2206 | 1988 | Hull-integrated VLS modules | 1 cell per 64 t instead of 80 t |
+| 2349 | 1989 | Gun-missile close-in weapon systems (needs 2107 Improved close in defence weapons) | Gun-missile CIWS mounts (see Point defence) |
 | 2207 | 1990 | Universal VLS fire control | SSM quality +1 |
+| 2350 | 1991 | Rolling airframe missiles (needs 1925 Improved Light SAM) | RAM launchers tick box (see Point defence) |
 | 2208 | 1992 | Compact self-defence VLS modules | Cells another 10% lighter |
 | 2211 | 1993 | Vertical-launch ASW rockets | Ships with a VLS bank +2 ASW value (see Anti-submarine weapons) |
 | 2209 | 2005 | Peripheral VLS integration | 1 cell per 51 t |
+| 2353 | 2013 | Anti-torpedo torpedoes (needs 1119 Improved ASW torpedoes) | ATT launchers (see Undersea warfare) |
+| 2351 | 2008 | SeaRAM self-contained launchers (needs 2350) | SeaRAM mounts (see Point defence) |
+| 2352 | 2016 | Enlarged point-defence magazines (needs 2349) | SeaRAM and gun-missile mounts carry 50% more missiles |
 | 2339 | 2017 | Low-observable anti-ship missiles (needs 1917 Effective cruise missiles) | Stealthy SSMs (see Hypersonic missiles) |
 | 2340 | 2025 | Hypersonic interceptors (needs 2208) | SAMs better against hypersonic missiles (see Hypersonic missiles) |
 | 2348 | 2027 | Unmanned carrier tankers (needs 2347) | A carrier with its special squadron: its aircraft +30% range (see Tankers) |
@@ -451,7 +456,35 @@ and datalink. Underneath, EMCON adds 1,000 to
 each ship's radar damage, so every native radar check sees the set as down;
 hits taken while it is off still add damage, radar repairs wait until it is
 back on, and the ship panel shows "(EMCON)" instead of "(X)". Click again for
-RADAR ON. Each battle starts with radars on; computer ships never go silent.
+RADAR ON. Each battle starts with radars on.
+
+**Computer EMCON.** A computer surface ship whose nation has the ESM research
+keeps its radars off until your side sees it (eyes, aircraft, radar or your
+ESM: any sighting level from the last spotting pass), then switches them on and
+keeps them on while it stays seen. Until then it hunts with its own ESM: it hears
+your radars and can fire at them without being heard itself. Submarines, land
+batteries and ships without a search radar are left alone.
+
+**Hearing is not seeing.** A missile fired at a ship its side only hears (not
+seen by anyone, and outside the range of every working radar of the side:
+ESM contacts, satellite fixes, launch positions) may lock on to the wrong ship:
+half the time its seeker takes the nearest other ship of the target's side
+within 10,000 yards (an escort, or a decoy ship) instead. A lone ship is found
+anyway. Seen targets, or targets inside your own radar range, are never mixed
+up.
+
+**Anti-radiation seekers.** With **High-speed anti-radiation missiles** (1984),
+your anti-ship missiles home on a target whose radar is on: its decoys cannot
+fool them, and an only-heard target is not mixed up. Against a ship in EMCON, or
+one whose radar is damaged, they are ordinary missiles. Both sides get it from
+their research.
+
+**A missile's nation.** A missile records its launcher's battle side (0 or 1),
+not its nation. The research and doctrine checks of the earlier missile rules
+(sea-skimming flight, imaging seekers, nuclear heavy SSMs, the SSBN salvo's
+nuclear hit) read that side as a nation index until 1.46.0, so the computer's
+missiles used the research of whichever nation came second in the campaign's
+list. They now use the nation of the side's ships.
 
 **Shipborne UAVs** (ID 2326, 2005: ScanEagle, Fire Scout). With the research,
 the aircraft request dialog (Aircraft types > Request) lists **UAV** under the
@@ -521,10 +554,46 @@ above 155 mm yet; the smaller gain reflects their long flight times and few
 rounds.
 
 **Wake-homing and wire-guided torpedoes** (ID 2319, 1977: the Soviet wake-homing
-53-65K, Sweden's wire-guided Tp 613): torpedoes fired by the ships of a nation
-with the research hit ships they pass at two and a half times the native
-distance, which grows with the target's size. Speed, range, damage and
-malfunctions are native.
+53-65K, Sweden's wire-guided Tp 613): torpedoes fired by the ships and
+submarines of a nation with the research steer at their target every step while
+it is afloat, as missiles do (natively torpedoes always run straight), and they
+hit ships they pass at two and a half times the native distance. Their range
+still runs out, so a long stern chase misses. Speed, damage and malfunctions are
+native.
+
+## Undersea warfare
+
+`CampaignOverhaul/undersea.py`.
+
+**Anti-torpedo torpedoes** (ID 2353, 2013: Russia's Paket-NK, the US SSTD
+trials): an **ATT** box (0-3 launchers) at the end of the point-defence strip.
+Each launcher carries 4 and weighs 6 t, costs 120 and adds 2 topside points.
+When an enemy torpedo comes within 1,500 yards, the ship fires one at it: 40%
+for one launcher, +10% a launcher more, at most 60%. Each torpedo is engaged
+once. The battle log says when one is destroyed. Computer designs fit them too
+(see AI designs).
+
+**Submarines move.** Natively a battle's submarines never move. Now, each battle
+minute, every submarine still in the fight closes on the nearest enemy ship it
+can hear (12,000 yards, or 24,000 for your ships while their sonar is ACTIVE) at
+8 knots, or 20 knots for an SSN or SSBN, until that ship is inside two thirds of
+its torpedo range. Then it holds and attacks as before.
+
+**Sonar.** Natively the battle map never shows enemy torpedoes. Now one is drawn
+while one of your ships can see or hear it:
+
+| Detection | Range |
+| --- | --- |
+| Its wake, by eye | 1,500 yards; 400 when the firing nation has Oxygen fuelled or Electric torpedoes |
+| Early hydrophones (1107) | 1,000 yards |
+| Improved hydrophones (1113) | 2,000 yards |
+| Enhanced sonar systems (1122) | 3,000 yards |
+| Digital passive-sonar processing (1140) | 4,000 yards |
+
+A **SONAR** button right of EMCON (shown once you have Early hydrophones)
+switches your ships between **PASSIVE** and **ACTIVE**. ACTIVE hears torpedoes
+50% farther, but enemy submarines hear your ships twice as far away and close
+in. Each battle starts PASSIVE.
 
 ## Hypersonic speed and EMALS
 
@@ -543,7 +612,9 @@ uses the player's research, as before).
 Flight installations gain a **Ski jump** box under Flight deck. It needs the
 research and a flight deck, and any hull may have one (Hermes got hers in a
 refit). A ski jump is a jet deck, so ticking it ticks Jet capable too;
-unticking Jet capable removes the ski jump. A ski-jump deck:
+unticking Jet capable removes the ski jump. The ramp weighs 1.5% of the
+displacement (at least 150 t), counted with the armament at the armament cost
+per ton (since 1.46.0; it was free before). A ski-jump deck:
 
 - readies 2 more aircraft per strike when it has no catapults (Invincible);
 - flies heavy jets and jet attack aircraft without catapults when it also has
@@ -697,12 +768,13 @@ No research is needed. Computer nations do not design BBVs.
 **Shipboard high-energy lasers** (ID 2316, 2022, after Integrated power system;
 HELIOS went to sea in 2022, DragonFire follows) adds a **Lasers** box under AA
 directors in the anti-aircraft panel: 0 to 8 laser mounts. Each mount weighs
-10 t, costs 100 and needs 1 MW from the Power budget (railguns and lasers share
-it). Without the research the box stays at 0; the design report lists missing
-research or power.
+20 t (10 t before 1.46.0), costs 100, adds 3 topside load points and needs 1 MW
+from the Power budget (railguns and lasers share it). Without the research the
+box stays at 0; the design report lists missing research or power.
 
-In battle the lasers are a first layer against each incoming missile, ahead of
-CIWS: 15% per mount, at most 60%. Rain or mist halves that, heavy seas halve it
+In battle the lasers are a close-in layer against each incoming missile, after
+SeaRAM and gun-missile mounts and ahead of the gun CIWS, and they need a free
+fire-control channel (see Point defence): 15% per mount, at most 60%. Rain or mist halves that, heavy seas halve it
 again, and against a hypersonic missile it is only 30% of the result. Like CIWS,
 lasers are knocked out by superstructure damage. Lasers have unlimited
 magazines. Against air attacks (aircraft and drones) each laser mount adds 4
@@ -713,6 +785,57 @@ Laser counts (and future per-ship systems) are kept in a small extension of
 the native ship objects: designs and the ships built from them carry it into
 battle, and design files and campaign saves store it with the main battery's
 elevation value. Ships without lasers save exactly as before.
+
+## Point defence
+
+SeaRAM, gun-missile CIWS (Kashtan, Kortik) and RAM launchers, with fire-control
+channels that limit how many close-in systems engage one missile
+(`CampaignOverhaul/point_defence.py`). A strip under the armament tabs, beside
+Topside load, holds the controls and a readout:
+
+| Control | Research | Per mount |
+| --- | --- | --- |
+| **SeaRAM** 0-3 | 2351 SeaRAM self-contained launchers (2008) | 8 t, cost 150, 5 topside points, 11 missiles |
+| **Gun-missile CIWS** 0-7 | 2349 Gun-missile close-in weapon systems (1989) | 15 t, cost 200, 6 topside points, 32 missiles |
+| **Spare missiles** 0-3 | a design with either mount | each step half a load more: 3 t a SeaRAM, 5 t a gun-missile mount, cost 40 a mount |
+| **RAM launchers** tick box | 2350 Rolling airframe missiles (1991) | light SAM launchers weigh 20% more (cost 10 a ton added) |
+| **ATT** 0-3 | 2353 Anti-torpedo torpedoes (2013) | 6 t, cost 120, 2 topside points, 4 anti-torpedo torpedoes (see Undersea warfare) |
+
+Enlarged point-defence magazines (2352, 2016) adds half a load to every mount
+with no extra weight. The readout line says, for example, "Point defence: 3
+systems / 2 channels - too few channels.   Missiles: SeaRAM 22, gun-missile 0".
+The topside report lists the point-defence load (lasers count 3 a mount).
+
+**Fire-control channels.** Each close-in system that engages an incoming missile
+uses one channel, in the order SeaRAM, gun-missile, lasers, gun CIWS; systems
+past the channels hold fire against that missile. A ship has 2 channels, +1 for
+each AA director (up to +2), +1 with a working phased-array (Aegis) search
+radar and +2 with AESA. A radar that is damaged or switched off (EMCON) gives no
+channels. A system knocked out with the superstructure, or a SeaRAM mount with
+no missiles left, uses none. Railgun point defence is gunfire and needs none. So
+SeaRAM with a gun CIWS works on any ship, and lasers on top need a director or
+a modern radar.
+
+**In battle.** After the SAMs and decoys, SeaRAM fires 2 missiles at the incoming
+missile: 40% for one mount, +10% a mount, at most 60%. Gun-missile mounts fire 2
+missiles (35%, +5% a mount, at most 50%), then their 30 mm guns (20%, +5% a
+mount, at most 35%); with no missiles left the guns still fire. Like the native
+CIWS, the odds fall with every missile the ship has already met this turn
+(the roll is out of 100 + 30 for each), and the kills follow the hypersonic and
+low-observable SSM rules (see Hypersonic missiles). A mount's missiles last the
+battle: 11 a SeaRAM and 32 a gun-missile mount, half a load more for each spare
+step and for Enlarged point-defence magazines.
+
+**RAM launchers.** With the box ticked, the ship's light SAMs are Rolling
+Airframe Missiles: fire and forget with an infrared seeker, so they count half
+the missiles already met this turn (see Missile defence). This applies to every
+light SAM mount of that ship, launchers and VLS cells alike.
+
+The values are stored in the ship extension; its bits 24-29 ride in the spare
+bits 2-7 of the saved elevation integer, so older saves load with none.
+Computer designs fit point defence by the nation's real-world style (see AI
+designs). Adding the four rows shifts the Vertical launch systems progress of
+campaigns past 1989 by up to four rows.
 
 ## Hypersonic missiles
 
@@ -776,7 +899,9 @@ The cuts multiply: a jet strike with all three faces SAMs at about half their
 strength, before the EW squadron's jamming. Anti-radiation missiles suppress
 rather than destroy: they do not knock out the target's radar. The battle log
 says "Anti-radiation missiles suppress SAMs" and "Jamming pods reduce SAM
-effectiveness" when they act. Unsupported strikes meet modern SAMs at full
+effectiveness" once for each attacking formation (until 1.46.0 every SAM salvo
+logged them, the first twice with both ARM researches: over a thousand lines in
+a big air battle). Unsupported strikes meet modern SAMs at full
 strength.
 
 **Fleet air defence fix** (all eras, both sides). The game has a routine that
@@ -832,7 +957,16 @@ AI design applies what the nation has researched, as far as its economy and the 
   remaining spare weight back into hull. Eligible designs take Nuclear, railguns and super heavy SSMs 50-60% of
   the time and hypersonic SSMs 80%, so fleets stay varied.
 
-Extra generators, railgun secondaries and point defence, BBV hybrids and larger hull sizes stay player
+- **Point defence**, on ships of 1,500 t or more once the nation earns more than it spends, in its real-world
+  style. A nation whose name contains Russia, Soviet, Pact or India fits gun-missile CIWS mounts: 1 below
+  6,000 t, 2 below 15,000 t, 4 below 30,000 t, else 6. Every other nation ticks RAM launchers on ships with
+  light SAMs (80% of the time) and fits SeaRAM: 1 below 8,000 t, 2 below 40,000 t, else 3. With three months
+  in cash they carry one spare-missile step. The mounts are undone when the design comes out overweight or
+  over its topside capacity.
+- **Anti-torpedo torpedoes**, on the same ships, half of them, any nation with the research: 1 launcher below
+  3,000 t, 2 below 30,000 t, else 3. Fitted after point defence and undone the same way (since 1.46.0).
+
+Extra generators, railgun secondaries and railgun point defence, BBV hybrids and larger hull sizes stay player
 options (decided 2026-11-08). AI designs also turn their missile launchers into VLS banks once they earn more
 than they spend (VLS_CELLS.md, "AI designs").
 
@@ -892,6 +1026,9 @@ deal with this turn. Every ship had the same fire control in it. Now
   afterwards, so Aegis halves the penalty and AESA nearly removes it. Both
   sides get it from their research. Heavy SSMs (P-700, P-500 class) cruise high
   and get neither; CIWS and AA guns already hit them more easily.
+- **RAM launchers** (see Point defence). A ship with the RAM launchers box
+  ticked counts half of that total (missiles met plus flight) for its light
+  SAMs, before the radar class divides it.
 - **Electronic warfare.** The game already decoys some missiles by a hidden
   ECM level (4% plus 9% a level). Ships designed from 1972 by a nation with
   **Electronic support measures suite** add 10% (jammers and chaff), ships

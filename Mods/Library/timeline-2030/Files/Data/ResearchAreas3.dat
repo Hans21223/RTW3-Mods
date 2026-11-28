@@ -32,10 +32,10 @@ Supercharged diesels;1943;N;60;10;25;Reduces weight of diesel engines by 10%
 Lightweight engine component materials;1945;N;100;10;26;1% weight saving on machinery
 Forced lubrication;1947;N;100;10;27;1% weight saving on machinery
 Gas turbines;1960;Y;100;10;28;Enables gas turbine engines
-Naval nuclear propulsion;1961;N;70;20;40;Enables Nuclear propulsion: any range for less fuel weight than Short, never short of fuel or oil, machinery 60% heavier and 3x the cost, Native machinery research +1 (lower machinery weight);28
-Life-of-ship reactor cores;1995;N;70;24;41;Nuclear ships spare 125% of their horsepower as railgun power, Native machinery research +1 (lower machinery weight);40
-Third-generation naval reactors;2008;N;70;28;42;Nuclear ships spare 150% of their horsepower as railgun power, Native machinery research +1 (lower machinery weight);41
-Thorium molten-salt naval reactors [projected];2030;N;70;32;43;Nuclear machinery only 30% heavier (not 60%), nuclear ships spare 200% of their horsepower as railgun power, Native machinery research +1 (lower machinery weight);42
+Naval nuclear propulsion;1961;N;70;20;40;Enables nuclear propulsion (unlimited range), Lighter machinery;28
+Life-of-ship reactor cores;1995;N;70;24;41;More reactor power for railguns and lasers, Lighter machinery;40
+Third-generation naval reactors;2008;N;70;28;42;More reactor power for railguns and lasers, Lighter machinery;41
+Thorium molten-salt naval reactors [projected];2030;N;70;32;43;More reactor power, Lighter machinery;42
 [Armour development 1]
 PicName=ArmourMill.jpg
 Harvey armour;1892;Y;100;6;130;Considerable improvement of armour quality
@@ -66,10 +66,10 @@ Improved armour face toughness;1939;N;80;14;116;Gradual improvement of armour qu
 Micro alloy additions (vanadium, boron, copper);1941;N;80;14;123;Gradual improvement of armour quality
 Thermo mechanically treated armour materials;1944;N;80;14;124;Gradual improvement of armour quality
 Low Carbon STS;1954;N;80;14;127;Gradual improvement of armour quality
-Modern ballistic-steel quality control;1980;N;70;20;140;Native armour-quality research +1;127
-Improved structural armour metallurgy;1995;N;70;24;141;Native armour-quality research +1;140
-Advanced armour manufacturing control;2010;N;70;28;142;Native armour-quality research +1;141
-Optimized protective steel [projected];2030;N;70;32;143;Native armour-quality research +1;142
+Modern ballistic-steel quality control;1980;N;70;20;140;Better armour quality;127
+Improved structural armour metallurgy;1995;N;70;24;141;Better armour quality;140
+Advanced armour manufacturing control;2010;N;70;28;142;Better armour quality;141
+Optimized protective steel [projected];2030;N;70;32;143;Better armour quality;142
 [Hull construction 2]
 PicName=Hull.jpg
 Improved shipbuilding steel;1892;Y;100;7;231;1% weight saving on hull
@@ -99,10 +99,10 @@ High-strength alloyed steel;1944;N;80;15;224;1% weight saving on hull
 Supercarriers;1950;Y;100;22;223;Considerable increase in maximum carrier size
 Aluminium superstructure;1955;Y;100;18;228;Enables use of aluminium superstructure.
 Modern fin stabilizers;1956;Y;100;22;229;Improves gun and missile accuracy for DD
-Computer-aided structural optimization;1980;N;70;20;240;Native hull research +1 (lower hull weight);229
-Precision modular hull construction;1995;N;70;24;241;Native hull research +1 (lower hull weight);240
-Digital structural weight management;2010;N;70;28;242;Native hull research +1 (lower hull weight);241
-Integrated lightweight hull design [projected];2030;N;70;32;243;Native hull research +1 (lower hull weight);242
+Computer-aided structural optimization;1980;N;70;20;240;Lighter hulls;229
+Precision modular hull construction;1995;N;70;24;241;Lighter hulls;240
+Digital structural weight management;2010;N;70;28;242;Lighter hulls;241
+Integrated lightweight hull design [projected];2030;N;70;32;243;Lighter hulls;242
 [Fire control 3]
 PicName=FireControl.jpg
 Telescopic sights;1892;Y;100;7;330;Gradual national accuracy improvement
@@ -137,10 +137,10 @@ Improved electronic gunnery computer;1954;N;80;20;325;Gradual national accuracy 
 Minaturized fire control;1956;N;80;20;326;enables electro-optical director for DD and KE
 Multi-domain directors;1959;N;80;20;329;Increases AA and surface accuracy of autoloaded DP guns below 6 inches
 Missile Fire Control System;1960;N;80;18;332;Improves hit rates of SSM and SAM
-Digital gun fire-control computation;1980;N;70;20;340;Native fire-control research +1 (accuracy progresses every two levels);332
-Integrated electro-optical gun tracking;1995;N;70;24;341;Native fire-control research +1 (accuracy progresses every two levels);340
-Multi-sensor gunnery track fusion;2010;N;70;28;342;Native fire-control research +1 (accuracy progresses every two levels);341
-Adaptive gunnery prediction [projected];2030;N;70;32;343;Native fire-control research +1 (accuracy progresses every two levels);342
+Digital gun fire-control computation;1980;N;70;20;340;Better fire control;332
+Integrated electro-optical gun tracking;1995;N;70;24;341;Better fire control;340
+Multi-sensor gunnery track fusion;2010;N;70;28;342;Better fire control;341
+Adaptive gunnery prediction [projected];2030;N;70;32;343;Better fire control;342
 [Subdivision and damage control 4]
 PicName=Subdivision.jpg
 Improved watertight integrity;1893;Y;100;7;430;Gradual damage control improvement
@@ -167,10 +167,10 @@ Built in foam extinguisher systems;1940;N;90;14;423;Gradual damage control impro
 Sprinkler system in hangars;1943;N;90;10;426;Improves firefighting in carriers
 Improved foam extinguisher system;1946;N;90;14;424;Improves firefighting in carriers
 Flight deck washdown system;1968;N;90;14;427;Improves firefighting in carriers
-Distributed fire and flooding detection;1980;N;70;20;440;Damage-control modifier +1 beyond the native research ceiling;427
-Integrated damage-control monitoring;1995;N;70;24;441;Damage-control modifier +1 beyond the native research ceiling;440
-Networked emergency response systems;2010;N;70;28;442;Damage-control modifier +1 beyond the native research ceiling;441
-Predictive damage-control support [projected];2030;N;70;32;443;Damage-control modifier +1 beyond the native research ceiling;442
+Distributed fire and flooding detection;1980;N;70;20;440;Better damage control;427
+Integrated damage-control monitoring;1995;N;70;24;441;Better damage control;440
+Networked emergency response systems;2010;N;70;28;442;Better damage control;441
+Predictive damage-control support [projected];2030;N;70;32;443;Better damage control;442
 [Turrets and gun mountings 5]
 PicName=Turret.jpg
 Loading mechanization;1892;Y;100;6;530;Gradual national rate of fire (ROF) improvement
@@ -202,10 +202,10 @@ Improved 3 in autoloader;1948;N;90;15;521;Increases effectiveness of 3 in AA gun
 Electronically stabilized gun mounts;1954;N;90;10;525;Reduces gunnery penalty for CL and DD
 Fully automatic 3 in gun;1958;Y;80;10;524;Increases ROF and AA effectiveness of 3 in guns
 Lightweight gun turrets;1968;Y;80;18;526;Lowers weight of gun turrets less than 6 inches.
-Electronic ammunition-handling control;1980;N;70;20;540;National gun ROF modifier +1;526
-Modern automatic naval gun mechanisms;1995;N;70;24;541;National gun ROF modifier +1;540
-Continuous ammunition-flow monitoring;2010;N;70;28;542;National gun ROF modifier +1;541
-Advanced conventional gun automation [projected];2030;N;70;32;543;National gun ROF modifier +1;542
+Electronic ammunition-handling control;1980;N;70;20;540;Faster gun fire;526
+Modern automatic naval gun mechanisms;1995;N;70;24;541;Faster gun fire;540
+Continuous ammunition-flow monitoring;2010;N;70;28;542;Faster gun fire;541
+Advanced conventional gun automation [projected];2030;N;70;32;543;Faster gun fire;542
 [Ship design 6]
 PicName=ShipConstruction.jpg
 Belt and sloping armour deck configuration;1891;Y;70;5;635;Enables sloping deck armour scheme
@@ -273,10 +273,10 @@ Advanced penetrator alloys;1943;N;70;15;718;Gradual AP penetration improvement
 Improved shell streamlining;1946;Y;90;12;722;Gradual AP penetration improvement
 Improved AP CAP and penetrator alloys;1959;N;90;12;724;Gradual AP penetration improvement
 Base bleed shells;1960;N;40;22;723;10% range increase for all guns
-Modern penetrator manufacturing tolerances;1980;N;70;20;740;Native AP-penetration research +1;723
-Improved naval penetrator metallurgy;1995;N;70;24;741;Native AP-penetration research +1;740
-Computer-optimized AP projectile shaping;2010;N;70;28;742;Native AP-penetration research +1;741
-Advanced naval AP projectiles [projected];2030;N;70;32;743;Native AP-penetration research +1;742
+Modern penetrator manufacturing tolerances;1980;N;70;20;740;Better armour penetration;723
+Improved naval penetrator metallurgy;1995;N;70;24;741;Better armour penetration;740
+Computer-optimized AP projectile shaping;2010;N;70;28;742;Better armour penetration;741
+Advanced naval AP projectiles [projected];2030;N;70;32;743;Better armour penetration;742
 [Light forces and torpedo warfare 8]
 PicName=TorpedoWarfare.jpg
 Destroyers;1893;Y;100;8;834;Enables building of Destroyers, initially up to 300 tons displacement
@@ -351,8 +351,8 @@ Missile torpedoes;1953;N;60;12;933;Enables use of rocket delivered stand off tor
 Wire guided torpedoes;1955;N;60;14;926;Increases submarine torpedo hit chance vs surface ships
 Advanced acoustic torpedoes;1962;N;60;12;934;Increases torpedo hit chance
 Monopropellant torpedo fuel;1965;N;60;12;935;Increases torpedo speed
-Digital submarine torpedo fire control;1990;N;70;20;940;New submarine attack-accuracy modifier +1;935
-Adaptive submarine torpedo processing [projected];2030;N;70;24;941;New submarine attack-accuracy modifier +1;940
+Digital submarine torpedo fire control;1990;N;70;20;940;Submarine attack accuracy +1;935
+Adaptive submarine torpedo processing [projected];2030;N;70;24;941;Submarine attack accuracy +1;940
 [Submarines 10]
 PicName=SubConstruction.jpg
 Early coastal submarine;1901;Y;100;5;1002;Enables building of coastal submarines
@@ -386,9 +386,9 @@ Improved submarine electronics and sensors;1952;N;80;15;1030;Increase in submari
 Missile submarine;1956;Y;80;18;1028;Enables building of missile submarines
 Super silent propellers;1960;Y;80;20;1031;Increase in submarine survivability
 Improved missile submarine;1964;Y;80;20;1029;Increases missile submarine capabilities 
-Integrated submarine combat-system processing;1980;N;70;20;1040;New submarine attack-accuracy modifier +1;1029
-Modern submarine sonar-track fusion;2005;N;70;24;1041;New submarine attack-accuracy modifier +1;1040
-Distributed submarine sensor processing [projected];2030;N;70;28;1042;New submarine attack-accuracy modifier +1;1041
+Integrated submarine combat-system processing;1980;N;70;20;1040;Submarine attack accuracy +1;1029
+Modern submarine sonar-track fusion;2005;N;70;24;1041;Submarine attack accuracy +1;1040
+Distributed submarine sensor processing [projected];2030;N;70;28;1042;Submarine attack accuracy +1;1041
 [Anti submarine warfare 11]
 PicName=ASW.jpg
 Explosive sweeps;1907;Y;100;5;1101;Gradual increase in national ASW capability
@@ -414,11 +414,11 @@ Air dropped homing ASW torpedoes;1950;N;80;12;1120;Improves ASW ability of aircr
 Enhanced sonar systems;1952;Y;80;12;1122;Needed to keep ASW effectiveness vs modern submarines.
 Rocket-assisted ASW torpedo;1960;Y;80;15;1121;Improves efficiency of ASW mortars.
 Towed array sonar;1960;Y;80;15;1123;Enables towed array sonar on ships.
-Digital passive-sonar processing;1980;N;70;20;1140;Native ASW research +1;1123
-Integrated towed-array processing;1995;N;70;24;1141;Native ASW research +1;1140
-Multistatic ASW coordination;2005;N;70;28;1142;Native ASW research +1;1141
-Broadband ASW track fusion;2020;N;70;32;1143;Native ASW research +1;1142
-Distributed ASW processing [projected];2030;N;70;36;1144;Native ASW research +1;1143
+Digital passive-sonar processing;1980;N;70;20;1140;Gradual increase in national ASW capability;1123
+Integrated towed-array processing;1995;N;70;24;1141;Gradual increase in national ASW capability;1140
+Multistatic ASW coordination;2005;N;70;28;1142;Gradual increase in national ASW capability;1141
+Broadband ASW track fusion;2020;N;70;32;1143;Gradual increase in national ASW capability;1142
+Distributed ASW processing [projected];2030;N;70;36;1144;Gradual increase in national ASW capability;1143
 [Explosive shells 12]
 PicName=Shells.jpg
 Melinite;1892;Y;80;7;1230;Gradual increase in shell damage
@@ -486,9 +486,9 @@ Improved ship to ship communications;1960;Y;70;8;1328;Reduces signalling errors,
 Tactical Data system for ASW;1965;N;70;8;1327; Improves the performance of aerial ASW
 Improved EW tactics;1965;N;70;12;1329; Improves ECM and jamming capabilities
 Advanced missile tactics;1974;N;70;12;1331; Missiles are more likely to target high value targets  
-Coordinated fleet electronic defence;1983;N;70;20;1340;Anti-missile countermeasure quality +1;1331
-Networked countermeasure coordination;2005;N;70;24;1341;Anti-missile countermeasure quality +1;1340
-Adaptive fleet electronic defence [projected];2030;N;70;28;1342;Anti-missile countermeasure quality +1;1341
+Coordinated fleet electronic defence;1983;N;70;20;1340;Better missile countermeasures;1331
+Networked countermeasure coordination;2005;N;70;24;1341;Better missile countermeasures;1340
+Adaptive fleet electronic defence [projected];2030;N;70;28;1342;Better missile countermeasures;1341
 [Anti aircraft artillery 14]
 PicName=AAA.jpg
 Heavy AA MG;1918;Y;100;3;1401;Enables light AA weapons
@@ -550,10 +550,10 @@ Communications satellites;1962;N;70;10;1513;Reduces signalling errors
 Tactical data system;1963;N;70;12;1524;Reduces report delay and allows missile launches at targets spotted by other ships 
 Advanced tactical data system;1970;N;60;12;1526;Improves missile target acquisition
 Advanced multiple target tracking;1973;N;60;16;1528;Increases MSAM and HSAM effectiveness and MSAM hit chances againist missiles
-Phased-array combat-system integration;1978;N;70;20;1540;Search radar 6: Aegis-type phased array (needs all five search radars), SAM quality +1;1528
+Phased-array combat-system integration;1978;N;70;20;1540;Enables Aegis phased-array radar (radar 6), SAM quality +1;1528
 Digital ship-to-ship engagement links;1990;N;70;24;1541;SSM quality +1;1540
 Cooperative air-defence track processing;2000;N;70;28;1542;SAM quality +1;1541
-Digital electronic-support processing;2010;N;70;32;1543;Anti-missile countermeasure quality +1;1542
+Digital electronic-support processing;2010;N;70;32;1543;Better missile countermeasures;1542
 Active-array engagement management;2020;N;70;36;1544;SAM quality +1;1543
 Distributed air-defence sensor fusion [projected];2030;N;70;40;1545;SAM quality +1;1544
 [Naval aviation, lighter than air 16]
@@ -597,9 +597,9 @@ Low level air attack profile;1960;Y;80;12;1726;Reduces hit chances for enemy hea
 Radar equipped helicopters;1961;Y;80;14;1729;Ships with helicopters in the air have increased radar range (with tactical data system).
 Long range air to air missiles;1966;Y;80;12;1730;Increases Air to Air value of HJF. CAP forces enemy aircraft to launch anti ship missiles with lower hit rates. 
 Reconnaissance pods;1966;Y;80;12;1732;Increases spotting probability for recon aircraft vs ships
-Digital airborne escort jamming;1980;N;70;20;1740;Airborne ECM quality +1 (native support-aircraft requirements retained);1732
-Integrated airborne electronic attack;2005;N;70;24;1741;Airborne ECM quality +1 (native support-aircraft requirements retained);1740
-Cooperative airborne electronic attack [projected];2030;N;70;28;1742;Airborne ECM quality +1 (native support-aircraft requirements retained);1741
+Digital airborne escort jamming;1980;N;70;20;1740;Airborne ECM quality +1;1732
+Integrated airborne electronic attack;2005;N;70;24;1741;Airborne ECM quality +1;1740
+Cooperative airborne electronic attack [projected];2030;N;70;28;1742;Airborne ECM quality +1;1741
 [Shipboard aircraft operation 18]
 PicName=ShipboardAviation.jpg
 Seaplane carrier;1915;Y;70;6;1801;Enables small seaplane carriers
@@ -627,11 +627,11 @@ Steam catapults;1952;Y;80;10;1823;Reduces the carrier displacement limit for ope
 Mirror landing aids;1955;Y;80;8;1824;Reduces landing accidents 
 Helipad;1958;Y;80;8;1825;Allows ships to be equipped with a helipad 
 Improved instrument landing systems;1962;Y;80;8;1826;Allows air operations in low cloud and drizzle
-Integrated carrier deck-cycle planning;1980;N;70;20;1840;Native carrier-design research +1 (carrier size allowance);1826
-Computer-assisted carrier layout;1995;N;70;24;1841;Native carrier-design research +1 (carrier size allowance);1840
-Digital carrier aircraft-space management;2005;N;70;28;1842;Native carrier-design research +1 (carrier size allowance);1841
-Integrated carrier support-space design;2020;N;70;32;1843;Native carrier-design research +1 (carrier size allowance);1842
-Optimized carrier aviation layout [projected];2030;N;70;36;1844;Native carrier-design research +1 (carrier size allowance);1843
+Integrated carrier deck-cycle planning;1980;N;70;20;1840;Larger carriers allowed;1826
+Computer-assisted carrier layout;1995;N;70;24;1841;Larger carriers allowed;1840
+Digital carrier aircraft-space management;2005;N;70;28;1842;Larger carriers allowed;1841
+Integrated carrier support-space design;2020;N;70;32;1843;Larger carriers allowed;1842
+Optimized carrier aviation layout [projected];2030;N;70;36;1844;Larger carriers allowed;1843
 [Missile technology 19]
 PicName=Missile.jpg
 Guided bomb;1943;N;70;12;1900;Medium bombers can carry guided bombs
@@ -677,10 +677,10 @@ Combat supply loading;1938;N;70;8;2004;Improves invasion capability
 Higgins boats;1941;Y;70;6;2005;Improves invasion capability
 Assault landing craft;1942;Y;70;10;2006;Improves invasion capability
 Specialized landing craft;1943;Y;70;10;2007;Improves invasion capability
-Modern amphibious logistics planning;1980;N;70;20;2040;Native amphibious research +1 (invasion range);2007
-Integrated ship-to-shore logistics;1995;N;70;24;2041;Native amphibious research +1 (invasion range);2040
-Digital expeditionary support planning;2010;N;70;28;2042;Native amphibious research +1 (invasion range);2041
-Distributed amphibious sustainment [projected];2030;N;70;32;2043;Native amphibious research +1 (invasion range);2042
+Modern amphibious logistics planning;1980;N;70;20;2040;Longer invasion range;2007
+Integrated ship-to-shore logistics;1995;N;70;24;2041;Longer invasion range;2040
+Digital expeditionary support planning;2010;N;70;28;2042;Longer invasion range;2041
+Distributed amphibious sustainment [projected];2030;N;70;32;2043;Longer invasion range;2042
 [Missile countermeasures 21]
 PicName=AntiMissile.jpg
 Early anti missile jamming;1944;N;70;10;2101;Reduces hit chance of missiles and guided bombs
@@ -691,72 +691,77 @@ Anti-missile tactics;1965;N;70;8;2105;Reduces missile hit chances on ships
 Close in defence weapons;1970;N;70;9;2106;Allows the mounting of CIWS systems for missile defence
 Improved Missile Decoys;1972;N;70;14;2108;Reduces missile hit chances on ships
 Improved close in defence weapons;1978;N;70;12;2107;Increases chance of incoming missiles shot down by CIWS
-Digital defensive electronic warfare;1980;N;70;20;2140;Anti-missile countermeasure quality +1;2107
-Integrated chaff and decoy control;1990;N;70;24;2141;Anti-missile countermeasure quality +1;2140
-Active offboard missile decoy integration;1999;N;70;28;2142;Anti-missile countermeasure quality +1;2141
-Digital radio-frequency countermeasures;2010;N;70;32;2143;Anti-missile countermeasure quality +1;2142
-Multi-sensor soft-kill coordination;2020;N;70;36;2144;Anti-missile countermeasure quality +1;2143
-Adaptive terminal defence coordination [projected];2030;N;70;40;2145;Anti-missile countermeasure quality +1;2144
+Digital defensive electronic warfare;1980;N;70;20;2140;Better missile countermeasures;2107
+Integrated chaff and decoy control;1990;N;70;24;2141;Better missile countermeasures;2140
+Active offboard missile decoy integration;1999;N;70;28;2142;Better missile countermeasures;2141
+Digital radio-frequency countermeasures;2010;N;70;32;2143;Better missile countermeasures;2142
+Multi-sensor soft-kill coordination;2020;N;70;36;2144;Better missile countermeasures;2143
+Adaptive terminal defence coordination [projected];2030;N;70;40;2145;Better missile countermeasures;2144
 [Vertical launch systems 22]
 PicName=MissileBattery.jpg
-Nuclear attack submarines;1952;N;60;40;2336;Build nuclear attack submarines (SSN): long range boats whose torpedoes can carry nuclear warheads;1012
-Aerial refuelling;1953;N;70;12;2347;Land-based aircraft have 50% more range: tankers refuel them on the way out (KC-97, probe and drogue). Not carrier aircraft;1728
-Ballistic missile submarines;1957;N;60;40;2337;Build ballistic missile submarines (SSBN): missile boats launching 4 missiles where a missile submarine launches one, one of them nuclear if allowed;1028
-Anti-radiation missiles;1965;N;70;14;2341;Jet strike aircraft carry anti-radiation missiles (Shrike): enemy SAMs are a quarter less effective against them;1907
-Self-protection jamming pods;1967;N;70;14;2342;Strike aircraft carry jamming pods (ALQ-71, ALQ-119): enemy SAMs are a fifth less effective against them;1523
-Vertical take-off jet fighters;1969;N;70;14;2338;Light jet fighters are VTOL (Harrier): a carrier need not be jet capable to fly them;1823
-Vertical launch cells;1974;N;90;10;2201;Enables 8-cell VLS banks: below-deck cells, one missile each, no reloads;1919
+Nuclear attack submarines;1952;N;60;40;2336;Build nuclear attack submarines (SSN);1012
+Aerial refuelling;1953;N;70;12;2347;Land-based aircraft +50% range;1728
+Ballistic missile submarines;1957;N;60;40;2337;Build ballistic missile submarines (SSBN);1028
+Anti-radiation missiles;1965;N;70;14;2341;Strike jets suppress enemy SAMs;1907
+Self-protection jamming pods;1967;N;70;14;2342;Strike aircraft jam enemy SAMs;1523
+Vertical take-off jet fighters;1969;N;70;14;2338;Light jet fighters are VTOL;1823
+Vertical launch cells;1974;N;90;10;2201;Enables 8-cell VLS banks;1919
 Modular VLS magazines;1977;N;90;10;2202;Enables 16-cell VLS banks;2201
 Canister exhaust management;1980;N;90;12;2203;Enables 32-cell VLS banks;2202
 Large VLS magazines;1983;N;90;12;2204;Enables 64-cell VLS banks;2203
-High-speed anti-radiation missiles;1984;N;70;18;2343;HARM, Kh-31P: jet strike aircraft suppress enemy SAMs another fifth;2341
-Hybrid diesel-electric propulsion;1985;N;70;12;2344;Diesel ships spare a quarter of their horsepower as railgun and laser power (half with Integrated power system) and may mount railguns, and escorts and cruisers designed from 1985 with diesel or gas-turbine drive run quiet on electric motors: ASW value +2 (CODLAG: Type 23, FREMM);17
+High-speed anti-radiation missiles;1984;N;70;18;2343;Better SAM suppression, missiles home on radars;2341
+Hybrid diesel-electric propulsion;1985;N;70;12;2344;Diesel ships can power railguns, quieter escorts;17
 Lightweight composite launch cells;1986;N;70;14;2205;VLS cells weigh 20% less;2204
 Hull-integrated VLS modules;1988;N;70;14;2206;Hulls can carry 25% more VLS cells;2205
+Gun-missile close-in weapon systems;1989;N;70;14;2349;Enables gun-missile CIWS mounts;2107
 Universal VLS fire control;1990;N;70;16;2207;SSM quality +1;2206
-Compact self-defence VLS modules;1992;N;70;20;2208;VLS cells weigh another 10% less and light SAM cells hold four missiles (quad-packed, ESSM);2207
-Vertical-launch ASW rockets;1993;N;70;20;2211;Ships with a VLS bank gain ASW value: some cells carry ASW torpedo rockets (VL-ASROC);2207
+Rolling airframe missiles;1991;N;70;16;2350;Enables RAM launchers for light SAMs;1925
+Compact self-defence VLS modules;1992;N;70;20;2208;VLS cells 10% lighter, quad-packed light SAMs;2207
+Vertical-launch ASW rockets;1993;N;70;20;2211;Ships with VLS gain ASW value;2207
 Peripheral VLS integration;2005;N;70;24;2209;Hulls can carry 25% more VLS cells again;2208
-Low-observable anti-ship missiles;2017;N;70;28;2339;Stealthy SSMs (LRASM, NSM, JSM): enemy SAMs, CIWS and radar-guided AA stop a third fewer of them;1917
-Hypersonic interceptors;2025;N;70;30;2340;SAMs keep 60% of their kills against hypersonic missiles instead of 30% (SM-6 Sea-Based Terminal, S-500);2208
-Hypervelocity anti-air projectiles;2026;N;70;30;2346;Railgun main batteries of any calibre fire hypervelocity air-burst rounds at aircraft: 20 heavy AA a gun (a 5-inch DP gun gives 9 to 12), they engage air strikes from three times as far, and their hits strike two aircraft;2340
-Unmanned carrier tankers;2027;N;70;30;2348;A carrier's special squadron also flies tanker drones (MQ-25 Stingray): that carrier's aircraft have 30% more range;2347
+SeaRAM self-contained launchers;2008;N;70;26;2351;Enables SeaRAM mounts;2350
+Anti-torpedo torpedoes;2013;N;70;28;2353;Enables anti-torpedo torpedo launchers;1119
+Enlarged point-defence magazines;2016;N;70;28;2352;Point-defence mounts carry 50% more missiles;2349
+Low-observable anti-ship missiles;2017;N;70;28;2339;Stealthy SSMs, harder to shoot down;1917
+Hypersonic interceptors;2025;N;70;30;2340;SAMs better against hypersonic missiles;2208
+Hypervelocity anti-air projectiles;2026;N;70;30;2346;Railguns fire anti-air rounds;2340
+Unmanned carrier tankers;2027;N;70;30;2348;Carrier tanker drones, +30% aircraft range;2347
 Next-generation VLS modules [projected];2030;N;70;28;2210;VLS cells weigh another 10% less;2209
 [Naval combat systems 23]
 PicName=Radar.jpg
-Nuclear gun projectiles;1958;N;50;40;2334;Main batteries of 16 inches or more fire one nuclear shell per battle, their first hit (W23 Katie for the Iowas, W33): it wrecks almost any ship;1222
+Nuclear gun projectiles;1958;N;50;40;2334;One nuclear shell per battle for 16 in guns;1222
 Naval tactical data processing;1965;N;70;10;2301;Heavy AA quality +1;1524
-Lightweight ASW torpedo tubes;1966;N;70;10;2331;Destroyers, escorts and cruisers with any torpedo mount gain ASW value (Mk 32 tubes, Mk 46 torpedo);1119
+Lightweight ASW torpedo tubes;1966;N;70;10;2331;Torpedo-armed escorts gain ASW value;1119
 Automated threat evaluation;1967;N;70;10;2302;Light AA quality +1;2301
 Integrated combat direction system;1969;N;70;12;2303;Medium AA quality +1;2302
-Electronic support measures suite;1972;N;70;12;2304;ESM: enemy ships with their search radar on are heard at 3x its range and become radar contacts missiles can engage (EMCON in battle turns your radars off), Light AA quality +1;2303
-Ski-jump flight decks;1974;N;70;16;2335;Ski jump option for flight decks: a jet deck that readies 2 more aircraft per strike without catapults, and flies heavy jets from an angled deck without catapults (Invincible, Kuznetsov);1823
+Electronic support measures suite;1972;N;70;12;2304;ESM hears enemy radars at 3x their range, Light AA quality +1;2303
+Ski-jump flight decks;1974;N;70;16;2335;Enables ski-jump flight decks;1823
 Phased-array fire control radar;1975;N;70;14;2305;Heavy AA quality +1;2304
-Ocean surveillance satellites;1976;N;70;14;2323;Radar ships get occasional satellite fixes on enemy surface ships beyond radar range (US-A Legenda, White Cloud): they count as spotted and missiles can engage them;2304
-Wake-homing and wire-guided torpedoes;1977;N;70;14;2319;Torpedoes your ships fire home on ships they pass: they hit from two and a half times as far away;822
-Turbofan anti-ship missiles;1978;N;70;14;2324;SSM range +50% (Harpoon, Exocet MM40);1917
-Integrated damage-control systems;1979;N;70;14;2306;Damage-control modifier +1 beyond the native research ceiling;2305
-Extended-range SAMs;1980;N;70;16;2325;Medium and heavy SAM range doubled (SM-2ER, S-300F);2303
-Radar cross-section reduction;1987;N;70;20;2308;Ships designed from 1987: enemy radar range -20%, jets developed from 1990 are stealth models;2306
-Composite superstructures;1995;N;70;22;2332;Light (aluminium) superstructures on ships designed from 1995 are composite: lighter, costlier, no aluminium fire risk (La Fayette, Visby);2308
+Ocean surveillance satellites;1976;N;70;14;2323;Satellites spot distant enemy ships;2304
+Wake-homing and wire-guided torpedoes;1977;N;70;14;2319;Torpedoes home on their target;822
+Turbofan anti-ship missiles;1978;N;70;14;2324;SSM range +50%;1917
+Integrated damage-control systems;1979;N;70;14;2306;Better damage control;2305
+Extended-range SAMs;1980;N;70;16;2325;Medium and heavy SAM range doubled;2303
+Radar cross-section reduction;1987;N;70;20;2308;Stealthier ships and jets;2306
+Composite superstructures;1995;N;70;22;2332;Composite superstructures, lighter, no fire risk;2308
 Cooperative engagement capability;1996;N;70;16;2307;Medium AA quality +1, Heavy AA quality +1;2306
-Active electronically scanned array radar;1998;N;70;26;2318;Search radar class 7 (radar limit 7, hulls laid down from 1998): range and detection +20% over Aegis, enemy stealth halved against it;2305
+Active electronically scanned array radar;1998;N;70;26;2318;Enables AESA search radar (radar 7);2305
 Ship self-defence system integration;2000;N;70;24;2309;Light AA quality +1;2308
-Integrated power system;2003;N;70;28;2313;Gas turbine ships spare 50% of their horsepower as railgun power instead of 25% (integrated electric drive: Type 45, Zumwalt) and any ship can fit extra generators;2309
-Shipborne UAVs;2005;N;70;26;2326;New floatplane scouts are UAV models (ScanEagle, Fire Scout: slow, long endurance, radar), and ships of a nation with one launch and recover scouts without stopping, as from a catapult;2309
-Low-observable ship design;2008;N;70;28;2310;Ships designed from 2008: enemy radar detection range another -20%;2309
-Electromagnetic aircraft launch system;2009;N;70;30;2321;Carriers laid down from 2009 with catapults: each catapult adds 4 aircraft per strike instead of 1, and heavy jets need 24,000 tons instead of 30,000;1823
-Guided gun projectiles;2012;N;70;28;2320;Guns of 6 inches and less fire guided shells: twice the hit chance;2309
-Long-range anti-ship missiles;2013;N;70;28;2327;SSM range another +50% (NSM, LRASM);2324
-Active-seeker long-range SAMs;2014;N;70;28;2328;Medium and heavy SAM range another +50% (SM-6);2325
-Electromagnetic railgun;2020;N;70;30;2312;Enables railgun main batteries: twice the range, penetration as a gun 4 inches larger at half the range, inert rounds, needs Nuclear or Gas turbine power;2313
-Interceptor drone swarms;2021;N;70;30;2345;Ships with a helicopter deck, catapult or flight deck launch AI interceptor drones (Coyote, Roadrunner): 15% more chance to stop each incoming missile, +4 heavy AA against air attacks, and carriers count as having an AEW squadron for radar and CAP;2326
-Shipboard high-energy lasers;2022;N;70;30;2316;Enables laser mounts (HELIOS, DragonFire): a first layer against incoming missiles, 1 MW each, needs Nuclear or Gas turbine power;2313
-Hypersonic anti-ship missiles;2023;N;70;30;2317;Hypersonic SSMs option (Zircon, Conventional Prompt Strike): SAMs, CIWS, radar AA and lasers stop only 30% as many, heavier VLS cells, and aircraft developed from 2023 launch hypersonic ASMs (Kinzhal, YJ-21);1917
-Explosive unmanned surface vessels;2024;N;70;30;2333;MTB squadrons become fast USV squadrons (Black Sea drone boats);2326
-Compact pulsed-power storage;2025;N;70;30;2314;Railguns need 25% less power and their mounts weigh 25% more instead of 50%;2312
-Guided heavy-calibre projectiles [projected];2026;N;70;30;2322;Guns over 6 inches fire guided shells too: one and a half times the hit chance;2320
-Railgun secondary batteries [projected];2027;N;70;32;2329;Railgun secondaries and tertiaries options: those batteries become railguns (twice the range, penetration as a gun 4 inches larger), drawing power and adding 1 t and 50 cost per MW;2312
-Superconducting pulsed power [projected];2028;N;70;32;2315;Railguns need another 25% less power and their mounts weigh only 10% more;2314
-Railgun point defence [projected];2029;N;70;32;2330;DP railgun batteries engage incoming missiles before CIWS with hypervelocity projectiles: 20% per DP railgun battery, up to 50%, a third of that against hypersonic missiles;2312
-Adaptive combat-system automation [projected];2030;N;70;32;2311;Damage-control modifier +1 beyond the native research ceiling, National gun ROF modifier +1;2310
+Integrated power system;2003;N;70;28;2313;Gas turbines power railguns, extra generators;2309
+Shipborne UAVs;2005;N;70;26;2326;Floatplane scouts become UAVs;2309
+Low-observable ship design;2008;N;70;28;2310;Stealthier ships;2309
+Electromagnetic aircraft launch system;2009;N;70;30;2321;Electromagnetic catapults, bigger air strikes;1823
+Guided gun projectiles;2012;N;70;28;2320;Guns up to 6 in fire guided shells;2309
+Long-range anti-ship missiles;2013;N;70;28;2327;SSM range +50% more;2324
+Active-seeker long-range SAMs;2014;N;70;28;2328;Medium and heavy SAM range +50% more;2325
+Electromagnetic railgun;2020;N;70;30;2312;Enables railgun main batteries;2313
+Interceptor drone swarms;2021;N;70;30;2345;Drones help stop missiles and aircraft;2326
+Shipboard high-energy lasers;2022;N;70;30;2316;Enables laser mounts;2313
+Hypersonic anti-ship missiles;2023;N;70;30;2317;Enables hypersonic SSMs;1917
+Explosive unmanned surface vessels;2024;N;70;30;2333;MTB squadrons become drone boats (USVs);2326
+Compact pulsed-power storage;2025;N;70;30;2314;Railguns need less power, lighter mounts;2312
+Guided heavy-calibre projectiles [projected];2026;N;70;30;2322;Guns over 6 in fire guided shells;2320
+Railgun secondary batteries [projected];2027;N;70;32;2329;Enables railgun secondaries and tertiaries;2312
+Superconducting pulsed power [projected];2028;N;70;32;2315;Railguns need less power, lighter mounts;2314
+Railgun point defence [projected];2029;N;70;32;2330;DP railguns shoot down missiles;2312
+Adaptive combat-system automation [projected];2030;N;70;32;2311;Better damage control, Faster gun fire;2310

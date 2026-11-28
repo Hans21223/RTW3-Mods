@@ -60,7 +60,7 @@ RADIUS_CALLS = dict(ebx=(0x8CDA5D, 0x8CDBC0, 0x8CE1E3, 0x8CE8BA, 0x6F8D92, 0x6F9
 HEAVY_DP = {7: 5, 8: 4}                  # calibre: heavy AA a DP gun counts (one more with an autoloader)
 HEAVY_DP_RESEARCH = (1404, 520)          # 6 in dual purpose mounting (1934), 7 and 8 in autoloader (1945)
 DESIGNER_NATION = 0xC63                  # the designer form's nation, which the native DP rule asks
-MISSILE = dict(kind=0x28, nation=0x3E)     # a missile object: its code (HandleHit calibre), its nation's index
+MISSILE = dict(kind=0x28, side=0x3E)       # a missile object: its code (HandleHit calibre), its launcher's battle side
 HEAVY_SSM = 31
 TEXT = "2Nuclear SAM detonates among the attacking aircraft"
 WINDOWS = (
@@ -119,7 +119,7 @@ def literal(text):
     return struct.pack("<HHiI", 1200, 2, -1, len(text))+text.encode("utf-16-le")+b"\0\0"
 
 
-def build(page, info, has_special, doctrine):
+def build(page, info, has_special, doctrine, side_nation=None):
     """Code and data on its own page. has_special: modern_carrier's squadron check; doctrine: shell_doctrine's
     entries (use_missile, used, armageddon)."""
     from campaign_security import Code
@@ -215,8 +215,11 @@ def build(page, info, has_special, doctrine):
     # pay for) a nuclear missile. Keeps all but EAX.
     c = Code(at["nuclear_ssm"]); c.emit(b"\x51\x52\x80\x3d"); c.u32(doctrine["armageddon"]); c.emit(b"\x00")
     c.branch(b"\x0f\x84", "no"); c.emit(b"\x83\x7b"+bytes([MISSILE["kind"], HEAVY_SSM])); c.branch(b"\x0f\x85", "no")
-    combat.researched(c, n, b"\x8b\x53"+bytes([MISSILE["nation"]]), warhead, "asked"); c.emit(b"\x84\xc0"); c.branch(b"\x0f\x84", "no")
-    c.emit(b"\x8b\x53"+bytes([MISSILE["nation"]])); c.branch(b"\xe8", doctrine["use_missile"]); c.branch(b"\xe9", "out")
+    c.emit(b"\x8b\x53"+bytes([MISSILE["side"]]))                                 # the side's nation, kept on the stack
+    if side_nation: c.branch(b"\xe8", side_nation)
+    c.emit(b"\x52"); combat.researched(c, n, b"\x8b\x14\x24", warhead, "asked"); c.emit(b"\x84\xc0"); c.branch(b"\x0f\x84", "drop")
+    c.emit(b"\x8b\x14\x24"); c.branch(b"\xe8", doctrine["use_missile"]); c.emit(b"\x83\xc4\x04"); c.branch(b"\xe9", "out")
+    c.mark("drop"); c.emit(b"\x83\xc4\x04")
     c.mark("no"); c.emit(b"\x33\xc0")
     c.mark("out"); c.emit(b"\x5a\x59\xc3")
     code["nuclear_ssm"] = c.finish()

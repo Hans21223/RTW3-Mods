@@ -201,6 +201,23 @@ class QoLTests(unittest.TestCase):
                 self.assertEqual((end,shown),(item["end"],[text]) if home else (item["ok"],[]),(value,name))
                 self.assertEqual(m.reg_read(UC_X86_REG_ESP),0x1508000)
 
+    def test_peace_terms_offer_big_possessions_but_not_main_home_regions(self):
+        i=self.info;thunk=0x1200000
+        for value,name,offered in ((5,"Ceylon",True),(10,"Malta",True),(15,"Western Australia",True),
+                                   (200,"Southern France",True),(200,"Germany",False),(200,"Java",False)):
+            for item in i["peace"]:
+                m=self.vm();m.mem_write(0x301000,self.blob);names=self.homelands(m);possession=0x1302000
+                m.mem_write(possession+0x58,struct.pack("<i",value))
+                m.mem_write(possession+0x54,struct.pack("<I",self.literal(m,0x1303000,name)))
+                m.mem_write(thunk,qol.peace_thunk(thunk,item,names,i))
+                m.reg_write(UC_X86_REG_EBX,possession);m.reg_write(UC_X86_REG_ESP,0x1508000)
+                end=self.execute(m,thunk,item["ok"],item["skip"])
+                self.assertEqual(end,item["ok"] if offered else item["skip"],(value,name,hex(item["site"])))
+                self.assertEqual((m.reg_read(UC_X86_REG_ESP),m.reg_read(UC_X86_REG_EBX)),(0x1508000,possession))
+        blob=self.blob   # the replaced checks: CMP [EBX+58h],0Bh / JGE skip (near, then short)
+        for item,original in zip(i["peace"],("837b580b0f8d1d010000","837b580b7d7d")):
+            self.assertEqual(blob[item["site"]-0x301000:item["site"]-0x301000+item["size"]].hex(),original)
+
     def test_invasion_range_opens_big_possessions_to_the_player_buttons_only(self):
         i=self.info;thunk=0x1200000;item=i["invasion_range"];frame=0x1509000
         def literal(m,address,value):
@@ -293,7 +310,9 @@ class QoLTests(unittest.TestCase):
         for key,size in sizes.items(): self.assertLessEqual(size,layout[key][1],key)
         for (offset,room),item in zip(layout["invasions"],i["invasions"]):
             self.assertLessEqual(len(qol.invasion_thunk(0x1200000,item,names,text,i)),room)
-        spans=sorted([layout[k] for k in ("ui","turn","success","range","literals")]+list(layout["invasions"]))
+        for (offset,room),item in zip(layout["peace"],i["peace"]):
+            self.assertLessEqual(len(qol.peace_thunk(0x1200000,item,names,i)),room)
+        spans=sorted([layout[k] for k in ("ui","turn","success","range","literals")]+list(layout["invasions"])+list(layout["peace"]))
         self.assertGreaterEqual(spans[0][0],0x1148)                 # after the procurement state block
         for (a,ra),(b,_) in zip(spans,spans[1:]): self.assertLessEqual(a+ra,b)
         self.assertLessEqual(spans[-1][0]+spans[-1][1],0x3000)       # inside the allocation

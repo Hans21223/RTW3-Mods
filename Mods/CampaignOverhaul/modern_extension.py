@@ -12,6 +12,13 @@ copy carries the data.
 Saving rides on the main battery's Increased elevation key, which this module
 also switches from Boolean to integer (railguns store 2 there): files hold
 elevation | data << 8, so ships without extension data save exactly as before.
+The elevation value is 0..2, so the integer's bits 2-7 carry data bits 24-29
+(point_defence); older files have zeros there.
+Every ship also gets a third and a fourth dword, zeroed with the object and never
+saved or copied: a battle ship's state. The third (BATTLE_PD) counts the missiles
+its SeaRAM and gun-missile mounts fired (low and high word); the fourth
+(BATTLE_FLAGS) holds the anti-torpedo torpedoes fired (low byte) and this battle's
+nuclear shell and strike marks (modern_navy, nuclear_strike).
 Part of the modern-research adapter; imported lazily.
 """
 import hashlib
@@ -22,9 +29,14 @@ from hull_rules import patch
 BASE = 0x301000
 MAGIC = 0x5854584D
 CLASSES = dict(design=(0x9358F0, 0xBC8), fighting=(0x8E4124, 0xE10))   # VMT, native InstanceSize
-EXTRA = 8                                      # data, guard: allocated past InstanceSize
+EXTRA = 16                                     # data, guard, two battle dwords: allocated past InstanceSize
+BATTLE_PD, BATTLE_FLAGS = 8, 12                # offsets of the battle dwords from the data dword
 LASERS_MASK, HYPERSONIC_BIT, SUPER_HEAVY_BIT = 0xFF, 0x100, 0x200      # data dword layout
 SECONDARY_RAIL_BIT, TERTIARY_RAIL_BIT = 0x400, 0x800                   # railgun secondary/tertiary batteries
+# Bits 16-23 are extra generators (modern_railgun). Bits 12-13 were battle flags until 1.46.0 (never saved).
+SPARE_SHIFT, SEARAM_SHIFT, GUN_MISSILE_SHIFT, RAM_BIT = 14, 24, 26, 1 << 29   # point_defence: 2, 2 and 3 bits
+ATT_SHIFT = 12                                 # point_defence: anti-torpedo torpedo launchers, 2 bits
+HIGH_SHIFT, HIGH_MASK = 24, 0x3F               # data bits 24-29: saved in the integer's bits 2-7
 
 WINDOWS = (
     (0x9358E4, 4, "c28b879758b381be63f5af692b2d122f5baf42e9f8bd3e70dd75a0a811da1414"),   # TDesignShip NewInstance slot
@@ -80,7 +92,7 @@ def build(page, info):
     # NewInstance(EAX class): TObject.NewInstance with EXTRA more bytes, zeroed (GetMem leaves them dirty).
     c = Code(at["new_instance"])
     c.emit(b"\x53\x8b\xd8\x8b\x43\xcc\x83\xc0"+bytes([EXTRA])); c.branch(b"\xe8", n["get_mem"])
-    c.emit(b"\x8b\x53\xcc\x33\xc9\x89\x0c\x10\x89\x4c\x10\x04")   # [obj+InstanceSize], [+4] := 0
+    c.emit(b"\x8b\x53\xcc\x33\xc9\x89\x0c\x10\x89\x4c\x10\x04\x89\x4c\x10\x08\x89\x4c\x10\x0c")   # [+0..+12] := 0
     c.emit(b"\x8b\xd0\x8b\xc3"); c.branch(b"\xe8", n["init_instance"]); c.emit(b"\x5b\xc3")
     code["new_instance"] = c.finish()
 
@@ -116,27 +128,33 @@ def build(page, info):
     c.mark("done"); c.emit(b"\x61\x0f\xb6\x45\xff\x5f"); c.branch(b"\xe9", n["copy_back"])
     code["copy"] = c.finish()
 
+    def pack(c):   # EAX data, [esp] elevation: [esp] := elevation | data << 8 | data bits 24-29 << 2
+        c.emit(b"\x8b\xd0\xc1\xea"+bytes([HIGH_SHIFT])+b"\x83\xe2"+bytes([HIGH_MASK])+b"\xc1\xe2\x02\x09\x14\x24")
+        c.emit(b"\xc1\xe0\x08\x09\x04\x24")
+
     # Campaign save line: AL elevation byte, EBX ship, [esp+4] the saver's frame (list at [frame-4]).
     c = Code(at["big_save"])
     c.emit(b"\x0f\xb6\xc0\x50\x8b\xc3"); c.branch(b"\xe8", at["ext"]); c.emit(b"\x85\xc0"); c.branch(b"\x0f\x84", "plain")
-    c.emit(b"\x8b\x00\xc1\xe0\x08\x09\x04\x24")
+    c.emit(b"\x8b\x00"); pack(c)
     c.mark("plain"); c.emit(b"\x58\x83\xf8\x01"); c.branch(b"\x0f\x86", n["bool_writer"])
     c.emit(b"\x55\x8b\xec\x6a\x00\x8d\x55\xfc"); c.branch(b"\xe8", n["int_to_str"])
     c.emit(b"\x8b\x45\x08\x8b\x40\xfc\x8b\x55\xfc\x8b\x08\xff\x51\x3c\x8d\x45\xfc"); c.branch(b"\xe8", n["clear"])
     c.emit(b"\x8b\xe5\x5d\xc3")
     code["big_save"] = c.finish()
 
-    def unpack(c, back):   # EAX integer read, EBX ship: elevation byte and extension data
-        c.emit(b"\x88\x83"); c.u32(0x9A6); c.emit(b"\x50\x52\x8b\xd0\xc1\xea\x08\x8b\xc3"); c.branch(b"\xe8", at["ext"])
+    def unpack(c, back):   # EAX integer read, EBX ship: elevation byte (bits 0-1) and extension data
+        c.emit(b"\x50\x52\x51\x8b\xc8\x24\x03\x88\x83"); c.u32(0x9A6)
+        c.emit(b"\x8b\xd1\xc1\xea\x08\xc1\xe9\x02\x83\xe1"+bytes([HIGH_MASK])+b"\xc1\xe1"+bytes([HIGH_SHIFT])+b"\x0b\xd1")
+        c.emit(b"\x8b\xc3"); c.branch(b"\xe8", at["ext"])
         c.emit(b"\x85\xc0"); c.branch(b"\x0f\x84", "skip"); c.emit(b"\x89\x10")
-        c.mark("skip"); c.emit(b"\x5a\x58"); c.branch(b"\xe9", back)
+        c.mark("skip"); c.emit(b"\x59\x5a\x58"); c.branch(b"\xe9", back)
 
     for name, back in (("big_store", "big_store_back"), ("ini_store", "ini_store_back"), ("ini_store2", "ini2_store_back")):
         c = Code(at[name]); unpack(c, n[back]); code[name] = c.finish()
 
-    c = Code(at["ini_push"])   # design file: EDI ship; pushes elevation | data << 8
+    c = Code(at["ini_push"])   # design file: EDI ship; pushes the packed integer
     c.emit(b"\x0f\xb6\x87"); c.u32(0x9A6); c.emit(b"\x50\x8b\xc7"); c.branch(b"\xe8", at["ext"])
-    c.emit(b"\x85\xc0"); c.branch(b"\x0f\x84", "done"); c.emit(b"\x8b\x00\xc1\xe0\x08\x09\x04\x24")
+    c.emit(b"\x85\xc0"); c.branch(b"\x0f\x84", "done"); c.emit(b"\x8b\x00"); pack(c)
     c.mark("done"); c.branch(b"\xe9", n["ini_push_back"])
     code["ini_push"] = c.finish()
 

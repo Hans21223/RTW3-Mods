@@ -154,7 +154,7 @@ class GuidedTorpedoTests(unittest.TestCase):
 
     def hit_distance(self, world, torpedo):
         world.put(FRAME-0x18, 200); world.put(FRAME-0x14, 100)
-        world.run(site(world, "torpedo_hit"), world.info["hit_back"], EBX=torpedo, ECX=7, EDI=8)
+        world.run(site(world, "torpedo_hit"), world.info["hit_back"], EBX=torpedo, ECX=7, EDI=8, ESI=SHIP)   # no ATT
         self.assertEqual((world.reg("EAX"), world.reg("ECX"), world.reg("EDI")), (200, 7, 8))
         return world.get(FRAME-0x14)
 

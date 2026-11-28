@@ -12,6 +12,13 @@ first recompute of its hull-trim loop runs this pass once per AI design, with th
   for capital ships and carriers of NUCLEAR_TONS or more, railgun main batteries on gas-turbine or nuclear ships
   with the power for them, super heavy SSMs on CA, BC and BB hulls that carry heavy SSMs, and the full laser fit.
 
+Point defence (point_defence), tier 1 and up, ships of PD_MIN_TONS or more, in the nation's real-world style: a
+nation whose name has a GUN_MISSILE_NAMES part (Russia, the Soviet Union, the Warsaw Pact, India) fits gun-missile
+CIWS mounts (Kashtan, Kortik); every other nation RAM launchers on its light SAMs, then SeaRAM mounts (US, NATO,
+Japan, and China's HQ-10). PD_FIT sets the mounts by displacement; tier 2 adds one spare-missile step. Then
+anti-torpedo torpedo launchers (Paket-NK style, any nation with the research): ATT_FIT by displacement, CHANCE of
+the designs. Mounts and launchers are undone when the design comes out overweight or over its topside capacity.
+
 Every option is undone if the design comes out overweight; the trim loop then gives the rest of the spare weight
 back as hull. CHANCE keeps fleets varied. Part of the modern-research adapter; imported lazily.
 """
@@ -25,12 +32,18 @@ BASE = 0x301000
 SITE, SITE_BYTES = 0x7B6B03, "e8f02a1800"     # AIDesignShip: call RecomputeValues, first in the trim loop (ESI = pass)
 WINDOW = (0x7B6AFE, 0x2F, "5ae25c7f1767d8587651bcce5f1d5d89319c235bad74b03e0864a50d9b1585da")
 NATIVE = dict(recompute=0x9395F8, get_nation=0x750040, has_research=0x729FA4, monthly_balance=0x72D2EC,
-              modified_budget=0x71F06C, random=0x307834, count_missiles=0x94F890)
+              modified_budget=0x71F06C, random=0x307834, count_missiles=0x94F890, topside_load=0x94A5F0,
+              topside_points=0x94C498, pos=0x30C958)
+POS = (0x30C958, "53565783c4f885d20f84")   # System.Pos(EAX part, EDX text, ECX from) -> EAX index or 0
 FUNDS, WEIGHT_LEFT, TYPE, DRIVE, ELEVATION = 0x1B5, 0xB20, 0x9D3, 0x9D4, 0x9A6   # nation and design fields
 NUCLEAR_TONS, NUCLEAR_TYPES = 20000, (0, 1, 3, 5, 6)     # BB, BC, CA, CV, CVL of at least this displacement
 LASER_FIT = ((8000, 2), (20000, 4), (None, railgun.MAX_LASERS))   # displacement below -> lasers (tier 2)
-CHANCE = dict(nuclear=60, railgun=50, super=60, hyper=80)          # percent of eligible designs
-ANY_SSM = 0xE                                                       # CountMissileLaunchers: any SSM mount
+CHANCE = dict(nuclear=60, railgun=50, super=60, hyper=80, ram=80, att=50)   # percent of eligible designs
+ANY_SSM, LIGHT_SAM = 0xE, 3                                         # CountMissileLaunchers: any SSM mount, light SAMs
+GUN_MISSILE_NAMES = ("Russia", "Soviet", "Pact", "India")           # nation name parts: gun-missile CIWS
+PD_FIT = dict(searam=((8000, 1), (40000, 2), (None, 3)), gun_missile=((6000, 1), (15000, 2), (30000, 4), (None, 6)))
+ATT_FIT = ((3000, 1), (30000, 2), (None, 3))                        # displacement below -> ATT launchers
+PD_MIN_TONS, NAME, LITERALS = 1500, 4, 0xF00                        # nation +4: its name; page offset of the name parts
 
 
 def discover(blob, base, normalized):
@@ -40,6 +53,8 @@ def discover(blob, base, normalized):
     delta = base-BASE
     if blob[SITE+delta-base:SITE+delta-base+5].hex() != SITE_BYTES:
         raise ValueError("Unsupported AI design recompute call.")
+    if normalized[POS[0]-BASE:POS[0]-BASE+len(POS[1])//2].hex() != POS[1]:
+        raise ValueError("AI modern designs refuse a changed Pos routine.")
     return dict(site=SITE+delta, original=SITE_BYTES, **{k: v+delta for k, v in NATIVE.items()})
 
 
@@ -97,7 +112,8 @@ def build(page, info, ext, power):
     c.mark("tiered"); c.emit(b"\x85\xff"); c.branch(b"\x0f\x84", "ret")
     c.emit(b"\x83\xff\x02"); c.branch(b"\x0f\x8c", "cheap")
     for name in ("nuclear", "railgun", "super"): c.branch(b"\xe8", name)
-    c.mark("cheap"); c.branch(b"\xe8", "hyper"); c.branch(b"\xe8", "lasers")
+    c.mark("cheap"); c.branch(b"\xe8", "hyper"); c.branch(b"\xe8", "lasers"); c.branch(b"\xe8", "point_defence")
+    c.branch(b"\xe8", "att")
     c.mark("ret"); c.emit(b"\xc3")
 
     c.mark("nuclear")
@@ -141,8 +157,52 @@ def build(page, info, ext, power):
     c.mark("laser_drop"); c.emit(b"\x58\xc6\x00\x00")
     c.mark("laser_none"); recompute(); c.emit(b"\xc3")
 
+    c.mark("ram")           # RAM launchers on a design with light SAMs
+    missiles(LIGHT_SAM); research(tree.RAM); chance(CHANCE["ram"]); flag(extension.RAM_BIT, "ram")
+
+    # Point defence by the nation's style (EBX design, ESI nation, EDI tier).
+    import point_defence
+    texts, offset = [], page+LITERALS
+    for part in GUN_MISSILE_NAMES:
+        texts.append(offset+12); offset += (len(point_defence.literal(part))+15) & ~15
+    c.mark("point_defence")
+    c.emit(b"\x81\x7b\x2c"); c.u32(PD_MIN_TONS); c.branch(b"\x0f\x8c", "ret")
+    for text in texts:
+        c.emit(b"\xb8"); c.u32(text); c.emit(b"\x8b\x56"+bytes([NAME])+b"\xb9\x01\x00\x00\x00"); c.branch(b"\xe8", n["pos"])
+        c.emit(b"\x85\xc0"); c.branch(b"\x0f\x85", "gun_missile_style")
+    c.branch(b"\xe8", "ram")
+
+    def mounts(kind, shift, fit, taken, spare):   # by displacement; undone overweight or over the topside capacity
+        c.emit(b"\x8b\xc3"); c.branch(b"\xe8", ext); c.emit(b"\x85\xc0"); c.branch(b"\x0f\x84", "ret")
+        c.emit(b"\xf7\x00"); c.u32(taken); c.branch(b"\x0f\x85", "ret"); c.emit(b"\x50")             # [esp] data
+        for tons, count in fit:
+            c.emit(b"\xb9"); c.u32(count)
+            if tons is not None: c.emit(b"\x81\x7b\x2c"); c.u32(tons); c.branch(b"\x0f\x8c", f"{kind}_count")
+        c.mark(f"{kind}_count"); c.emit(b"\xc1\xe1"+bytes([shift]))
+        if spare:
+            c.emit(b"\x83\xff\x02"); c.branch(b"\x0f\x8c", f"{kind}_set")
+            c.emit(b"\x81\xc9"); c.u32(1 << extension.SPARE_SHIFT)                               # tier 2: a spare step
+            c.mark(f"{kind}_set")
+        c.emit(b"\x8b\x04\x24\x09\x08\x51")                                                      # [esp] bits, [esp+4] data
+        overweight(f"{kind}_back")
+        c.emit(b"\x8b\xc3\x33\xd2"); c.branch(b"\xe8", n["topside_load"]); c.emit(b"\x50\x8b\xc3"); c.branch(b"\xe8", n["topside_points"])
+        c.emit(b"\x5a\x3b\xc2"); c.branch(b"\x0f\x8c", f"{kind}_back"); c.emit(b"\x83\xc4\x08\xc3")
+        c.mark(f"{kind}_back"); c.emit(b"\x59\x58\xf7\xd1\x21\x08"); recompute(); c.emit(b"\xc3")
+
+    for kind in ("searam", "gun_missile"):
+        m = point_defence.MOUNTS[kind]
+        if kind == "gun_missile": c.mark("gun_missile_style")
+        research(m["research"]); mounts(kind, m["shift"], PD_FIT[kind], point_defence.PD_BITS, True)
+
+    att = point_defence.ATT   # anti-torpedo torpedo launchers, every style
+    c.mark("att"); c.emit(b"\x81\x7b\x2c"); c.u32(PD_MIN_TONS); c.branch(b"\x0f\x8c", "ret")
+    research(att["research"]); chance(CHANCE["att"]); mounts("att", att["shift"], ATT_FIT, att["mask"] << att["shift"], False)
+
     code = c.finish()
-    if len(code) > 0x1000: raise ValueError("AI modern design code exceeds its page.")
+    if len(code) > LITERALS: raise ValueError("AI modern design code exceeds its page.")
     plan = patch("AI designs use modern options", n["site"], bytes.fromhex(n["original"]),
                  b"\xe8"+(page-n["site"]-5).to_bytes(4, "little", signed=True))
-    return [dict(name="AI modern designs", address=page, bytes=code.hex())], [plan]
+    blocks = [dict(name="AI modern designs", address=page, bytes=code.hex())]
+    for part, text in zip(GUN_MISSILE_NAMES, texts):
+        blocks.append(dict(name="AI modern designs: "+part, address=text-12, bytes=point_defence.literal(part).hex()))
+    return blocks, [plan]

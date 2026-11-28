@@ -25,6 +25,7 @@ import struct
 
 import modern_tree as tree
 import shell_doctrine as doctrine_rules
+import modern_extension as extension
 
 BASE = 0x301000
 FULL_YARDS, RING_YARDS, BLAST_CALIBRE, NUCLEAR_CALIBRE = 2000, 5000, 12, tree.NUCLEAR_SHELLS[2]
@@ -39,7 +40,7 @@ WARHEADS = (("A-BOMB", PRICE, FULL_YARDS, RING_YARDS, 1, 0),
 MIRV_YARDS = 40000
 SINK = dict(buoyancy=0xB0A, timer=0xB35)   # Tship: remaining buoyancy; minutes until it goes down (CheckSunk)
 SIGHTED = dict(visual=0xD55, radar=0xD59)   # Tship: how the other side sees it (the missile target checks read them)
-STRIKE_BIT = 0x2000                    # fighting ship extension data: this battle's strike is spent
+STRIKE_BIT = 0x2000                    # fighting ship's battle flags (modern_extension.BATTLE_FLAGS): strike spent
 TIMER_MS, FLASH, SHOCK, GLOW = 100, 6, 20, 80   # effect ticks: the fireball grows, the shock ring grows, the end
 POINTS = 36                            # the fireball polygon
 COLOURS = dict(white=0xFFFFFF, yellow=0x00FFFF, orange=0x0080FF, red=0x0000FF, dark=0x000080, grey=0x808080)
@@ -80,7 +81,8 @@ NATION = dict(subs=0x111, funds=doctrine_rules.FUNDS)
 LAND, CIRCLE, CROSS, YARDS, DESTROYED, AA_LOSS = 12, 5, 0xFFFD, 12, 12, 1
 KINDS = dict(nuke="speed", console="panel", backdrop="image", gauge_target="shape", gauge_arm="shape", ssbns="label",
              target="label", status="label", info="label", key1="image", key2="image", launch="image", tgt="shape",
-             cancel="shape", timer="timer", key_timer="timer", warhead="label", warhead_hit="shape", emcon="speed")
+             cancel="shape", timer="timer", key_timer="timer", warhead="label", warhead_hit="shape", emcon="speed",
+             sonar="speed")
 TAGS = {name: 0x4E554B31+i for i, name in enumerate(KINDS)}
 # At 96 DPI: the console's size and its gap under the toolbar (it opens centred under NUKE, kept inside the window),
 # the NUKE button's gap after sbAutoRunBattle, and the console's controls (left, top, width, height) over its
@@ -114,7 +116,9 @@ TEXT = dict(nuke="NUKE", none="NONE", marked="MARKED", safe="SAFE", armed="ARMED
             strike="Nuclear strike",
             empty="2Nuclear strike: the warheads hit empty sea, nothing within reach",
             radar_on="RADAR ON", emcon="EMCON",
-            emcon_hint="Your ships' radars on or off. EMCON: enemy ESM can't hear them; no radar sighting, gunnery or AA.",
+            emcon_hint="Radars on or off. EMCON: enemy ESM can't hear you, but no radar.",
+            sonar_passive="PASSIVE", sonar_active="ACTIVE",
+            sonar_hint="Sonar. ACTIVE: torpedoes seen farther, but submarines hear you.",
             **{f"name{i}": f"{name} {price:,}" if count == 1 else f"{name} x{count} {price:,}"
                for i, (name, price, kill, ring, count, year) in enumerate(WARHEADS)},
             **{f"about{i}": (f"{name}: sinks every ship within {kill:,} yards, the nuclear hit to {ring:,}. {price:,}."
@@ -149,9 +153,10 @@ CONSOLE_CODE = dict(show=0x000, load=0x980, refresh=0xA00, key1=0xC00, key2=0xC2
 DATA = dict(pick=0x000, has_target=0x001, active=0x002, caught=0x003, step=0x004, target=0x008, centre=0x014, player=0x020,
             pen=0x024, brush=0x030, points=0x040, armed=0x200, loaded=0x201, glass_frame=0x202, glass_target=0x203,
             key_frame=0x204, key_target=0x206, count=0x208, number=0x20C, path=0x210, pictures=0x214,
-            names=0x258, kind=0x29C, blasts=0x29D, emcon=0x29E, here=0x2A0, kill=0x2A4, ring=0x2A8, centres=0x2AC,
+            names=0x258, kind=0x29C, blasts=0x29D, emcon=0x29E, sonar=0x29F, here=0x2A0, kill=0x2A4, ring=0x2A8, centres=0x2AC,
             warheads=0x2DC)
 # warheads: per warhead 8 dwords: price, kill, ring, count, year, its name, about and log texts.
+SONAR, HYDROPHONES = DATA["sonar"], 1107   # 1: the player's sonar is active (undersea reads it); the button's research
 WARHEAD_SIZE = 32
 assert DATA["names"] == DATA["pictures"]+4*len(PICTURES) and DATA["centres"]+12*max(w[4] for w in WARHEADS) <= DATA["warheads"]
 assert DATA["warheads"]+WARHEAD_SIZE*len(WARHEADS) <= 0x1000
@@ -187,11 +192,12 @@ def picture_folder():
 def picture_path(name): return picture_folder()+f"{name}.bmp"
 
 
-def build(page, data, info, doctrine, ext, strike, is_kind, console_page, text_page):
+def build(page, data, info, doctrine, ext, strike, is_kind, console_page, text_page, sonar=None):
     """page: code (0x1000); data: state, points and pictures (0x1000); console_page: the console's code (0x1000);
     text_page: the texts (0x1000), on their own page since the picture folder is the install path (a default Steam
     install's is 98 characters, which overflowed the data page; up to MAX_PATH fits). doctrine: shell_doctrine's entries (lookup, first, year, used, armageddon); ext: modern_extension's
-    ext(EAX ship) -> EAX data pointer or 0; strike and is_kind: nuclear_subs' routines."""
+    ext(EAX ship) -> EAX data pointer or 0; strike and is_kind: nuclear_subs' routines. sonar: 0x180 bytes elsewhere
+    for the SONAR button's code (undersea's page)."""
     from campaign_security import Code
     from hull_rules import patch, dpi_scale_routine
     n, code = info, {}
@@ -441,6 +447,7 @@ def build(page, data, info, doctrine, ext, strike, is_kind, console_page, text_p
     c.emit(b"\xc7\x05"); c.u32(d["key_frame"]); c.u32(0)                                    # both keys' frames and targets
     find(c, "key_timer"); c.emit(b"\x85\xc0\x74\x07\x33\xd2"); call(c, n["timer_enabled"])   # jz past: a new battle's key
     call(c, at["emcon_show"]); call(c, at["refresh"])
+    if sonar: call(c, sonar)
     c.emit(b"\x61"+bytes.fromhex(ORIGINALS["form_show"])); c.branch(b"\xe9", n["form_show"]+6)
     code["show"] = c.finish()
 
@@ -618,13 +625,14 @@ def build(page, data, info, doctrine, ext, strike, is_kind, console_page, text_p
     player_ships(c)
     c.emit(b"\x83\x3d"); c.u32(d["player"]); c.emit(b"\x00\x75\x06\x89\x35"); c.u32(d["player"])   # jnz past the store
     c.emit(b"\x8b\xc6"); call(c, ext); c.emit(b"\x85\xc0"); c.branch(b"\x0f\x84", "ship")
-    c.emit(b"\xf7\x00"); c.u32(STRIKE_BIT); c.branch(b"\x0f\x84", "ship"); c.emit(b"\x47")
+    c.emit(b"\xf7\x40"+bytes([extension.BATTLE_FLAGS])); c.u32(STRIKE_BIT); c.branch(b"\x0f\x84", "ship"); c.emit(b"\x47")
     c.mark("out"); c.emit(b"\x8b\xc7\x5f\x5e\x5b\xc3")
     code["used"] = c.finish()
     # mark(): this battle's strike is spent, on every ship of the player's side with extension data.
     c = Code(at["mark"]); c.emit(b"\x53\x56\x33\xdb")
     player_ships(c)
-    c.emit(b"\x8b\xc6"); call(c, ext); c.emit(b"\x85\xc0"); c.branch(b"\x0f\x84", "ship"); c.emit(b"\x81\x08"); c.u32(STRIKE_BIT)
+    c.emit(b"\x8b\xc6"); call(c, ext); c.emit(b"\x85\xc0"); c.branch(b"\x0f\x84", "ship")
+    c.emit(b"\x81\x48"+bytes([extension.BATTLE_FLAGS])); c.u32(STRIKE_BIT)
     c.branch(b"\xe9", "ship")
     c.mark("out"); c.emit(b"\x5e\x5b\xc3")
     code["mark"] = c.finish()
@@ -666,6 +674,31 @@ def build(page, data, info, doctrine, ext, strike, is_kind, console_page, text_p
     c.emit(b"\xba"); c.u32(T["emcon"])
     c.mark("caption"); c.emit(b"\x8b\xc7"); call(c, n["set_text"]); call(c, at["redraw"]); c.emit(b"\x61\xc3")
     code["emcon"] = c.finish()
+    if sonar:   # SONAR, right of EMCON: each battle starts PASSIVE; shown once the player has Early hydrophones
+        at["sonar_show"], at["sonar"] = sonar, sonar+0x140
+        c = Code(at["sonar_show"]); c.emit(b"\x60")
+        find(c, "sonar"); c.emit(b"\x85\xc0"); c.branch(b"\x0f\x85", "have")
+        find(c, "emcon"); c.emit(b"\x85\xc0"); c.branch(b"\x0f\x84", "done")
+        c.emit(b"\x8b\x50"+bytes([CONTROL["height"]])+b"\x52\xff\x70"+bytes([CONTROL["width"]]))            # height, width
+        c.emit(b"\x8b\x50"+bytes([CONTROL["top"]])+b"\x52")
+        c.emit(b"\x8b\x50"+bytes([CONTROL["left"]])+b"\x03\x50"+bytes([CONTROL["width"]])+b"\x83\xc2"+bytes([NUKE_GAP])+b"\x52")
+        create(c, "sonar", FORM["toolbar"]); on_click(c, at["sonar"])
+        c.emit(b"\x8b\x46"+bytes([CONTROL["font"]])+b"\xb2\x01"); call(c, n["font_style"])               # fsBold
+        c.emit(b"\x8d\x86"); c.u32(CONTROL["hint"]); c.emit(b"\xba"); c.u32(T["sonar_hint"]); call(c, n["assign"])
+        c.emit(b"\xb2\x01\x8b\xc6"); call(c, n["set_show_hint"]); c.emit(b"\x8b\xc6")
+        c.mark("have"); c.emit(b"\x8b\xf8"); flag(c, "sonar", 0)
+        c.emit(b"\xba"); c.u32(T["sonar_passive"]); c.emit(b"\x8b\xc7"); call(c, n["set_text"])
+        player(c); c.emit(b"\x85\xc0"); c.branch(b"\x0f\x84", "shown")
+        c.emit(b"\xba"); c.u32(HYDROPHONES); call(c, n["has_research"])
+        c.mark("shown"); c.emit(b"\x8a\xd0\x8b\xc7"); call(c, n["set_visible"])
+        c.mark("done"); c.emit(b"\x61\xc3")
+        code["sonar_show"] = c.finish()
+        # SONAR (EAX form, EDX the button): active or passive; the caption shows it.
+        c = Code(at["sonar"]); c.emit(b"\x60\x8b\xd8\x8b\xfa\x80\x35"); c.u32(d["sonar"]); c.emit(b"\x01\xba"); c.u32(T["sonar_passive"])
+        c.emit(b"\x80\x3d"); c.u32(d["sonar"]); c.emit(b"\x00"); c.branch(b"\x0f\x84", "caption")
+        c.emit(b"\xba"); c.u32(T["sonar_active"])
+        c.mark("caption"); c.emit(b"\x8b\xc7"); call(c, n["set_text"]); call(c, at["redraw"]); c.emit(b"\x61\xc3")
+        code["sonar"] = c.finish()
 
     # blast(ECX a warhead's centre, a TPointLL): every ship within [ring] of it takes the nuclear hit, and within
     # [kill] it sinks (no buoyancy and a sinking timer of one, as the game's debug Sink: CheckSunk takes it down at
@@ -712,7 +745,7 @@ def build(page, data, info, doctrine, ext, strike, is_kind, console_page, text_p
     for name, body in code.items():
         table = CONSOLE_CODE if name in CONSOLE_CODE else CODE
         order = sorted(table, key=table.get)
-        room = table[order[order.index(name)+1]]-table[name]
+        room = dict(sonar_show=0x140, sonar=0x40).get(name) or table[order[order.index(name)+1]]-table[name]
         if len(body) > room: raise ValueError(f"Nuclear strike code exceeds its reservation: {name} ({len(body):#x} > {room:#x})")
         blocks.append(dict(name="Nuclear strike: "+name, address=at[name], bytes=body.hex()))
     def jump(site, target, size): return b"\xe9"+struct.pack("<i", target-site-5)+b"\x90"*(size-5)

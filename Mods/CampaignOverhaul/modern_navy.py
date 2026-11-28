@@ -26,6 +26,7 @@ import hashlib
 import struct
 import modern_tree as tree
 import modern_combat as combat
+import modern_extension as extension
 from hull_rules import patch
 
 BASE = 0x301000
@@ -74,7 +75,7 @@ USV_DESIGN = "\\Data\\Ides\\USV.sdf"
 LASER_AA = 4                          # AA value a laser mount adds against air attacks (drones and aircraft)
 NUCLEAR_HAA = 60                      # heavy AA value added to a ship that may fire nuclear shells (a DP gun adds 1-5)
 AA_VALUES = 0x916F90                  # ship AA values: EAX ship, EDX quality, CL heavy, stack: flag, result record
-NUCLEAR_USED_BIT = 0x1000             # fighting ship extension data: this battle's nuclear shell is spent
+NUCLEAR_USED_BIT = 0x1000             # fighting ship's battle flags (modern_extension.BATTLE_FLAGS): shell spent
 
 
 def discover(blob, base, normalized):
@@ -185,13 +186,13 @@ def build(page, info, ext, doctrine=None, drones=None):
     c.emit(b"\x8b\xc3"); c.branch(b"\xe8", ext); c.emit(b"\x85\xc0"); c.branch(b"\x0f\x84", "no"); c.emit(b"\x8b\xf0")
     if doctrine and "armageddon" in doctrine:   # Nuclear Armageddon: every hit, not one a battle
         c.emit(b"\x80\x3d"); c.u32(doctrine["armageddon"]); c.emit(b"\x00"); c.branch(b"\x0f\x85", "unlimited")
-    c.emit(b"\xf7\x06"); c.u32(NUCLEAR_USED_BIT); c.branch(b"\x0f\x85", "no")
+    c.emit(b"\xf7\x46"+bytes([extension.BATTLE_FLAGS])); c.u32(NUCLEAR_USED_BIT); c.branch(b"\x0f\x85", "no")
     c.mark("unlimited")
     combat.researched(c, n, b"\x8b\x53\x14", ident, "asked"); c.emit(b"\x84\xc0"); c.branch(b"\x0f\x84", "no")
     if doctrine:   # shell_doctrine.py: the nation may fire it and pays; the hit also strikes ships near the target
         c.emit(b"\x8b\x53\x14"); c.branch(b"\xe8", doctrine["use_nuclear"]); c.emit(b"\x84\xc0"); c.branch(b"\x0f\x84", "no")
         c.branch(b"\xe8", doctrine["blast"]); c.emit(b"\xc7\x05"); c.u32(doctrine["used"]); c.u32(1)   # tension, treaty
-    c.emit(b"\x81\x0e"); c.u32(NUCLEAR_USED_BIT); c.emit(b"\xc7\x44\x24\x1c"); c.u32(calibre)
+    c.emit(b"\x81\x4e"+bytes([extension.BATTLE_FLAGS])); c.u32(NUCLEAR_USED_BIT); c.emit(b"\xc7\x44\x24\x1c"); c.u32(calibre)
     c.emit(b"\x61\x50"); c.branch(b"\xe9", n["nuclear_back"])
     c.mark("no"); c.emit(b"\x61"+bytes.fromhex(site["nuclear"]["original"])); c.branch(b"\xe9", n["nuclear_back"])
     code["nuclear"] = c.finish()

@@ -133,7 +133,7 @@ def discover(blob, base, normalized):
     return info
 
 
-def build(page, info, doctrine, spare, player_auto_page=None, nuclear_ssm=None):
+def build(page, info, doctrine, spare, player_auto_page=None, nuclear_ssm=None, side_nation=None):
     """Submarine hooks and text on the nuclear-sub page; the player auto-build bridge gets its own page.
     doctrine: shell_doctrine's entry points (use_torpedo, use_missile, used, armageddon). nuclear_ssm:
     modern_air_defence's nuclear_ssm(EBX missile) -> AL."""
@@ -243,12 +243,15 @@ def build(page, info, doctrine, spare, player_auto_page=None, nuclear_ssm=None):
     c.branch(b"\x0f\x85", "heavy" if nuclear_ssm else "plain")
     if armageddon: c.emit(b"\x80\x3d"); c.u32(armageddon); c.emit(b"\x00"); c.branch(b"\x0f\x85", "pay")
     c.emit(b"\x8b\x43"+bytes([SHOT_NAME])+b"\x39\x05"); c.u32(at["last"]); c.branch(b"\x0f\x84", "plain")   # a salvo's missiles share one name string
-    c.mark("pay"); c.emit(b"\x8b\x53"+bytes([SHOT_NATION])); c.branch(b"\xe8", doctrine["use_missile"]); c.emit(b"\x84\xc0"); c.branch(b"\x0f\x84", "plain")
+    def nation(c):   # EDX := the missile's nation (it holds its launcher's battle side; side_nation: modern_recon)
+        c.emit(b"\x8b\x53"+bytes([SHOT_NATION]))
+        if side_nation: c.branch(b"\xe8", side_nation)
+    c.mark("pay"); nation(c); c.branch(b"\xe8", doctrine["use_missile"]); c.emit(b"\x84\xc0"); c.branch(b"\x0f\x84", "plain")
     c.emit(b"\x8b\x43"+bytes([SHOT_NAME])+b"\xa3"); c.u32(at["last"]); c.branch(b"\xe9", "nuclear")
     if nuclear_ssm:
         c.mark("heavy"); c.branch(b"\xe8", nuclear_ssm); c.emit(b"\x84\xc0"); c.branch(b"\x0f\x84", "plain")
     c.mark("nuclear"); c.emit(b"\xc7\x05"); c.u32(doctrine["used"]); c.u32(1)
-    c.emit(b"\x8b\x53"+bytes([SHOT_NATION])+b"\x8b\x4b"+bytes([SHOT_NAME])+b"\x8b\xc6"); c.branch(b"\xe8", at["blast"])
+    nation(c); c.emit(b"\x8b\x4b"+bytes([SHOT_NAME])+b"\x8b\xc6"); c.branch(b"\xe8", at["blast"])
     c.emit(b"\x61\xb0\x01\xc3")
     c.mark("plain"); c.emit(b"\x61\x33\xc0\xc3")
     code["missile"] = c.finish()
